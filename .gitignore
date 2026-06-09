@@ -1,1 +1,6 @@
 node_modules
+
+# Duplicate local archive snapshots (keep extracted project files instead)
+classroom-translatorzip (1).zip
+exports (2).zip
+zipFile.zip
