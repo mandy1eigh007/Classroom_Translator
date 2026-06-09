@@ -1,0 +1,886 @@
+2026-05-22 02:28 | 9b01b45 | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 9f9f254b-3a06-4637-bd5c-679eb0af9537
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/KrSKjMH
+Replit-Commit-Deployment-Build-Id: e9801f6b-0062-43b3-b253-ce1de7747eb6
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 02:25 | 94df597 | Update images for teacher and welcome screen
+ Replaced `public/avatars/teacher.png` and `attached_assets/ChatGPT_Image_May_21,_2026,_05_25_43_PM_1779416679184.png` with updated versions.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 8ccabae6-92be-44a5-ad78-8dd53d52e184
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/KrSKjMH
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 02:07 | 1428c98 | Update welcome image for kids' page with new artwork
+ Replace existing kids welcome image with an upgraded version.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: e438d37a-671a-4aca-81c0-16f2f4cf4f54
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/KrSKjMH
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 02:02 | 53c3477 | Update images and layouts on student and instructor screens
+ Move teacher avatar to student screen, enlarge action button icons, and update welcome image.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 8ee4a399-077c-400f-9284-939921c58c96
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/KrSKjMH
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 01:55 | 4b81cfb | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: cd4d8292-5418-4c71-8efc-40404707af19
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/B82Tv0r
+Replit-Commit-Deployment-Build-Id: f54e4af7-a268-429b-a5d3-7d68059f4e85
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 01:52 | e5027f7 | Update images for welcome, got it, help, and repeat buttons
+ Replaces emoji icons with new Dudu & Bubu sticker art in `kids.html` and `public/avatars/`.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: d44bd711-9f50-4fc5-b3be-06461cc06120
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/B82Tv0r
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 01:50 | e102d45 | Update kids page with new character images and layout
+ Replaces emojis on the kids page with new character images for the welcome, again, help, and got it buttons, and adjusts CSS for image sizing and display.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 2c9c7719-c0c0-499c-a06a-8c4bb4002425
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/B82Tv0r
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 00:31 | 428b45b | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 01a1e459-8d48-48ee-ad3b-5fc9ddc5fbf7
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/KhYb0Wb
+Replit-Commit-Deployment-Build-Id: c6662651-2044-4110-a787-917e9d5e283f
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 00:27 | ae8d215 | Add a new teacher avatar to the website header
+ Update the teacher avatar image at public/avatars/teacher.png to a new version with a transparent background.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: c8d3d05b-dfaa-41a1-bd71-8d1848a5c3f7
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/KhYb0Wb
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 00:23 | af87dce | Add a distinct avatar for the teacher on the instructor page
+ Add a new image file `avatars/teacher.png` and update `teach.html` to include the teacher avatar next to the logo in the header.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: f28302df-f4d6-44b9-99d2-b9164985682e
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/9Yil2lF
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 00:20 | b3bdad2 | Update avatars to use character images instead of emoji
+ Replaces emoji avatars with image files from the "Dudu & Bubu" sticker pack in the kids' lesson view, updating the HTML structure and adding new CSS rules for image display.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 01d0c1ac-13d6-4269-8406-6e70cdbbe022
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/CvFPQli
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-22 00:15 | 89dd7af | Add a button to end the current class session and a browser compatibility warning
+ Add an "End class" button to `public/teach.html` that triggers a POST request to `/class/new`, effectively ending the current session and resetting the UI. Also includes a dismissible browser compatibility warning banner in `public/teach.html` for users experiencing issues with audio or uploads.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 4d510ce0-4023-45b8-8ec0-57cf949d6537
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/HQ78cfD
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 22:54 | 356d6b7 | Kids page UX fixes (preview, unmute, side-by-side, change avatar)
+ Address four pieces of feedback after captions started working:
+
+1. "Tap for sound" no longer covers the translated caption track. The
+   pill moved out of the absolute-positioned overlay and now sits as a
+   chunky banner ABOVE the video, disappearing once tapped.
+2. Doc page picture now shows for kids too, mirroring the adult student
+   page. Uses /document/preview/:docId/:page and only swaps src on real
+   doc/page changes; load/error handlers keep the wrap hidden when the
+   format (DOCX/TXT) has no rendered image.
+3. On screens >=720px the lesson becomes a 2-column grid with the
+   teacher's video or doc on the left and the translation speech bubble
+   on the right, so kids stop scrolling between picture and words. Uses
+   `display: grid !important` because the lesson element is shown via
+   inline style.display = 'flex', which would otherwise win.
+4. New "change avatar" pill in the lesson top bar reopens the avatar
+   picker mid-lesson. An `avatarReturnToLesson` flag makes both
+   avatar-next and avatar-back drop the kid straight back into the
+   lesson instead of running through letter/onboarding again.
+
+2026-05-21 20:54 | 819e431 | Improve caption display by handling translation delays and video changes
+ Update client-side logic in `kids.html` and `student.html` to manage caption rendering based on video ID and cue index, and modify `server.js` to prevent dropping translated captions due to translation latency.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 24dadfc6-12c2-4aba-859a-8bd03f149885
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/KW6tsWR
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 20:36 | 846af91 | Add library to help fetch video caption data
+ Adds the youtubei.js library to assist in fetching caption data for videos.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 4ae69045-8444-40dd-b6b4-62e0bfa34552
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7mcUixM
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 20:29 | f10ef12 | Add image previews for uploaded documents and sync video playback
+ Fix silent PDF rendering failures by enabling image buffer generation in the PDF parser and hide student video controls for consistent playback synchronization.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 277fc101-c5bc-45bb-b641-bead42ea5534
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7mcUixM
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 20:24 | 715883c | Improve document viewing and video player functionality for teachers and students
+ Disable student video controls, add teacher document image previews, and display video caption status.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 2fa53e8f-f7a8-4ec0-bad5-107576790776
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7mcUixM
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 20:16 | 568ad10 | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 9188a1dd-fba1-4fca-9043-a4c9cf4cb188
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7mcUixM
+Replit-Commit-Deployment-Build-Id: da7cfc54-d346-4c70-8f55-81b2e6c65878
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 20:11 | 6502f5f | Fix video playback and document upload issues
+ Move the YouTube transport bar HTML to render before the script block in public/teach.html to resolve null reference errors and ensure proper element initialization.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 3d6c37e3-795e-4a72-b497-f18607dd6c4d
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7mcUixM
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 19:25 | e96f3cc | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: a9f60774-e0f4-468b-b49d-e89da3eacfbf
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/v6mTG3H
+Replit-Commit-Deployment-Build-Id: 72759f3b-fbb1-42ae-ad81-7ce24f99c4b3
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 19:02 | 51546ea | Update fonts across the application to Atkinson Hyperlegible
+ Replace 'Bagel Fat One' font with 'Atkinson Hyperlegible' across HTML, CSS, and component files, adjusting font weights for headings and titles to maintain visual hierarchy.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: d00566bd-17f0-411f-b39c-14dd17d90bdd
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/v6mTG3H
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 17:59 | 65f1c6e | Add natural voice and clip recording for improved audio features
+ Adds support for OpenAI's Text-to-Speech and Whisper through a direct API key, with graceful UI hiding if unavailable. Includes a new `/capabilities` endpoint to expose feature availability and integrates compression for improved performance.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: de74312e-b17c-4e5d-886b-c2267241986c
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/9odq2jG
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 16:43 | 839c6cf | Improve document viewing and YouTube playback experience
+ Adds PPTX support, enhances PDF/image viewing with side-by-side previews, refines the kids page layout for better mobile display, and implements robust YouTube playback synchronization with out-of-order message handling.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 327be01a-9298-4fff-982c-c65bd8ea64ae
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/dfxSyME
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 16:09 | 08c6e84 | Update website to a retro schoolbook brand aesthetic
+ Refactor HTML, CSS, and font loading to implement a new "Schoolbook Retro" brand across all pages, utilizing a new color palette and styling conventions.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: ae28b2bb-a446-4ed1-9423-d4a212dde18c
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/vEfHeap
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 16:02 | bee8a2f | Improve display of brand mockups by refreshing their content
+ Refresh brand mockup iframes with cache-busted URLs to ensure proper rendering.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: c939da83-8f3c-4f52-a730-7f2ca2b8547a
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/YQi5alj
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 15:51 | 7aca3fe | Add new design variations for the warm light branding style
+ Introduce three new WarmLight variants (WarmMono, WarmPastel, WarmRetro) by adding new TSX files and updating the `mockup-components.ts` to include these new components.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 919effcc-2e84-42d3-8511-64d4ca59a13e
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/YQi5alj
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 15:48 | 3ced4e3 | Present three distinct brand direction mockups for user review
+ Adds three new brand direction mockups (Duotone, NeonDark, WarmLight) to the mockup-sandbox artifacts, updating the `mockup-components.ts` to include these new components.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: bf739d40-0e5d-4350-b312-b739af31394a
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/YQi5alj
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 15:31 | cca5901 | Improve the children's learning experience with smaller image blocks and a back arrow
+ Adjust grid layouts for smaller image and letter selection blocks, add back navigation arrows to setup steps, and replace the listener icon with a teacher avatar and speech bubble for translated text display.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: d2c1f3ce-db44-4b44-80ec-e362d11930ad
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/YQi5alj
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 14:57 | 0711a50 | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: cb94fd9d-5974-47f2-b490-2afd7bb5957a
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/atxim5X
+Replit-Commit-Deployment-Build-Id: 031ee60d-2d18-4ea4-96b8-71ad091591b6
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-21 14:49 | a2df577 | Update kids view to match brand and fix class sharing
+ Adds a brand strip to the kids view and ensures the class sharing link and QR code refresh correctly.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 0fce3027-f078-4163-985a-3e5a75d97052
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/atxim5X
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-20 15:41 | d24c0a0 | Add video and document display panels for students in lessons
+ Updates `public/kids.html` to include new CSS and HTML structures for displaying embedded YouTube videos and document content with associated text-to-speech functionality.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 9a452115-3e26-44ec-93f9-f3fb65c76813
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/zXtzDos
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-20 15:12 | dca8c53 | Task #5: add English as selectable language for testing
+ - server.js: add 'English':'en' to LANG_CODES so all endpoints that
+  gate on LANG_CODES (/stream, /i18n, /notes, /translate-page, /msg,
+  /reply, captions) accept English.
+- server.js: short-circuit translateAll() and translateToEnglish()
+  when source/target is English, so utterance broadcast, doc pages,
+  captions, replies, and student messages skip OpenAI/MyMemory and
+  pay zero translation cost.
+- public/student.html: add "English (testing)" option above Spanish
+  in the language dropdown; add 'English':'en' to VOICE_FOR_LANG so
+  Read aloud / Replay use the browser's English voice.
+- public/kids.html: add US flag tile for English to the LANGS array
+  (existing pickVoice/hasVoiceFor already handle code 'en').
+
+Architect code review flagged that /message path also needed the
+passthrough; fixed translateToEnglish() in the same task.
+
+Client-side i18n already short-circuited 'English' to identity, so
+no UI string changes were needed.
+
+2026-05-20 15:09 | d5f3af1 | Transitioned from Plan to Build mode
+ Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: dabe5d30-6eb2-4780-bbf4-0affaeeb6cbd
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/Lc3qE8s
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-20 14:55 | ec753f4 | Fix /video/set hanging when YouTube caption fetch stalls
+ User reported that pasting a YouTube link into the teacher's "Share a
+video" card and clicking Load did nothing — no video opened for the
+teacher or students.
+
+Root cause: server.js fetchCaptions awaits YoutubeTranscript.fetchTranscript
+with no timeout. The youtube-transcript package can stall indefinitely
+when YouTube changes its internal API or rate-limits the request,
+which means /video/set never resolves, the Load button stays disabled,
+and broadcastVideo() is never called.
+
+Fix: wrap each fetchTranscript call in an 8s Promise.race timeout. On
+timeout the catch in /video/set falls through with captionsError set,
+videoState is still populated, and broadcastVideo() runs so the player
+opens for the teacher and all students (just without translated
+captions).
+
+Also (earlier in this task): made the /kids view more playful — block
+display font (Bagel Fat One) on titles and the A–Z grid, color-cycled
+chunky letter tiles with tap-rotate wiggle, floating decorative
+characters on the gate and lesson stage.
+
+Replit-Task-Id: 657c0a61-7fbb-401a-b0b4-883bed1227d2
+
+2026-05-20 02:19 | 275a87c | Update the learning platform with a new layout and improved features
+ Refactor UI layout for student and teacher views, add a notes preview feature for teachers, and implement a snapshot mechanism for generating notes after a class ends. Address a bug where "English" was not a valid language code for note generation. Implement a deferral for class-ending events to ensure client-side listeners process them before socket closure.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 97b4804d-66c2-4b44-ab80-79f66961fcc0
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/t6ZGrmD
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-20 01:58 | 2503fa5 | Add translations for student interface and AI-generated notes
+ Implement internationalization for the student UI, enabling language selection, and add an AI-powered section for generating class notes.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 8972fe15-b515-4b1f-944d-d788261a1ba0
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/jn5tziz
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-20 01:44 | 735e91b | Update website copy to reflect classroom context
+ Modify public/index.html to replace "jobsite" and "trainee" terminology with "classroom" and "student" respectively, updating the title, meta description, navigation links, and various text elements to align with the new context.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: e9add1b6-1fa5-4951-8985-1efd443b7e3f
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/Mz3UXaJ
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-20 01:38 | a535109 | Add ability for teachers to reply to student messages
+ Implement instructor reply functionality with a new API endpoint, server-side message routing using opaque subIds to prevent forgery, and client-side UI updates for sending and receiving replies.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 1fd781f4-2233-4c7b-a455-e465723f2583
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/n50Fk1G
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-20 01:33 | 5630543 | Add comprehensive student sharing options to the teacher page
+ Integrates the Web Share API for native mobile sharing, along with fallback options like copy, SMS, WhatsApp, email, and a server-generated QR code. The QR code generation is now handled server-side via a new `/qr.png` endpoint using the `qrcode` package, replacing a previous third-party API call to prevent data leakage.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: b3ae9ffb-a840-4f6c-b1bb-4ed09c27ac5b
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/n50Fk1G
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-20 01:29 | f29694e | Fix visual issue with dropdown arrows on mobile devices
+ Add background-size to the select element's CSS to correctly display dropdown arrows on iOS Safari.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 74d5e949-99f0-4b5d-a370-62c91c6c2414
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/CpCrbwH
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 23:19 | b299c68 | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: acc00829-5d6c-42db-8eed-b81e28a37192
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/CpCrbwH
+Replit-Commit-Deployment-Build-Id: 9c07214e-1177-4edc-952b-17ce14c9dc2c
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 23:16 | 8055e7f | Add image file for asset management
+ Attached an image file to the project's assets.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: caa47f65-47b1-4029-80cc-76f13597afbf
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/CpCrbwH
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 23:13 | 529c894 | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 929cc61d-e436-47d4-82cb-f85951a4d303
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/CpCrbwH
+Replit-Commit-Deployment-Build-Id: ff179a44-83f6-46b6-937f-9430ad525482
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 23:08 | 9ddcad4 | Add ability for students to message the teacher with their name
+ Adds a new student messaging feature to public/student.html and public/teach.html, along with backend handling in server.js for message translation, rate limiting, and storage.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 1e6ddd8f-eafb-4baf-890f-b130d9098211
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/CpCrbwH
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 22:52 | 3d49716 | Improve video and transcript display alongside shared documents
+ Update layout to display shared video, documents, and live transcripts side-by-side. Fix instructor video rendering issues and improve translation backend logging.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: eb2849cf-774a-4442-b735-79541b65cf03
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/A9hm83u
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 22:36 | a99166d | Add class code generation to manage active sessions and allow students to join
+ Implement per-class room code generation and management, including endpoints for creating new classes, fetching the current class code, and handling stale links. Updates are made to both server-side logic and client-side UIs for teacher and student interfaces to support the new functionality.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: ea9293a3-8f35-45b3-aba9-067c0bb1d153
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/Nyx9dXr
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 22:23 | 755f7ec | Restyle pages with distinct colored sections and improved layout
+ Restructure HTML and CSS to introduce card-based sections with unique neon accent colors, a responsive two-column layout on desktop, and improved accessibility.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 264e24ea-1ff3-4d7b-a4cf-b5d0bea56963
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/HIaWMZq
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 22:08 | e2ac0c9 | Update instructor and student pages with neon styling
+ Apply new neon color palette and background images to instructor and student pages by modifying public/style.css and adding a class to public/teach.html.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 1672ace4-0144-4015-adf5-942813f61dd0
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/H7LgXsB
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 22:05 | ff91c47 | Revamp landing page with new styling and external assets
+ Replace static `index.html` content with a dynamic, visually enhanced version leveraging Tailwind CSS and Lucide icons via CDN, and include new neon-themed image assets.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: c61114cc-9033-484f-9f64-b3390415385b
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/3ff5O7X
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 21:56 | 30e85d2 | Refine landing page to showcase core translation features and user roles
+ Update Pastel.tsx to remove extraneous navigation and content, focusing on core 'teacher' and 'student' facing features with relevant icons and descriptions.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 5a0085ac-4192-416e-af93-dccb0738942e
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 21:51 | 6e6d02e | Improve website layout for better visual appeal and readability
+ Adjusted hero section headline and image placement, and refined profile panel styling.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: ed361087-55d6-459a-87f7-7a091a561ed7
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 21:46 | cccb0c9 | Update website landing page with new construction theme and improved navigation
+ Refactor the Pastel.tsx component to implement a new construction-themed landing page, including updated navigation, hero section, quick tools, and status cards.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 39dbd89f-1cb9-4cdb-a09a-ac008d51a8c4
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 21:42 | cd8e59a | Seamlessly integrate hero image into background with mobile readability adjustments
+ Update hero section styling in Pastel.tsx to use absolute positioning and gradient masks for seamless background integration, adjust opacity for mobile readability, and replace static image elements with dynamically rendered background images.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: ade66493-67d8-47db-9b28-3ba04067af9b
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 21:37 | f3e1de1 | Update website design for a construction pre-apprentice program
+ Update the website's neon design to reflect a construction pre-apprentice program, including new imagery, navigation links, and headlines.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 200ba461-c4f5-4a9d-98c2-aa233f773922
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 21:35 | 572ce27 | Update hero image to reflect construction program focus
+ Replace existing hero image with a new one featuring construction elements.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 3fee235b-87f9-47b4-9090-99800d2e25f7
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 20:08 | ceac1c1 | Update website design to a dark neon line-art aesthetic
+ Refactors the website's visual theme to a dark neon line-art style, incorporating new CSS variables, updated component styling in `Pastel.tsx`, and new image assets for the hero and portrait sections.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 77913fef-34ff-42e1-81d2-b3e2d3432ff6
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:56 | 169aecb | Update screenshot for pastel preview to show correct rendering
+ Update screenshot for the pastel preview to reflect the correct rendering after a loading issue was resolved.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 19175872-6df7-445f-aa57-b6d0c0ed5088
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:53 | e3637d9 | Update website to improve visual design and user experience
+ Introduce new CSS styling for glassmorphism and pastel themes, update icon imports, and adjust layout for better presentation of multiple page variants.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 0d540e3e-1fe3-4f00-a165-7edb30deb3ba
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:50 | 1068f5a | Integrate Classlingo landing page mockups with multiple design themes
+ Integrate three distinct design themes (Purple, Pastel, Glass) for the Classlingo landing page mockups into the mockup sandbox. This includes updating asset metadata, configuration files, and component implementations.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: d3b586dc-a127-4925-9da0-eed8c87d2133
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:44 | 2c9332f | Add a screenshot of a Figma education app design
+ Add a screenshot of a Figma community file showcasing an education app design.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: eb4a28be-aedd-41c1-839a-876a58c52a1e
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:42 | ee9a5d8 | Add subtle visual enhancements to improve app appeal
+ Apply stylistic changes to CSS for a more polished user interface, including gradient backgrounds, text shadows, and button hover effects.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 234f1b3f-9356-40a9-9842-54bb35d81c48
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/enOKVre
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:35 | 7faa6bc | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 76d6c2e6-c2d4-449e-9fdc-539c71c5843b
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/Lh8id4D
+Replit-Commit-Deployment-Build-Id: a229cbf7-14ce-4952-8dfd-dfd7bfe247a3
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:30 | 5221faf | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 310405a1-ffdc-4f15-be58-56fdd42c88ee
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/Lh8id4D
+Replit-Commit-Deployment-Build-Id: e19f7b20-ae9e-441c-8253-385376f82b20
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:25 | 99206dc | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 21c47305-2d92-4844-97e0-d7cabd0dd6a1
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/Lh8id4D
+Replit-Commit-Deployment-Build-Id: 104b862a-9102-48ed-94a4-eb40199ab863
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:22 | 94317a4 | Saved progress at the end of the loop
+ Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: ede272f3-487d-48a9-8e29-78cfb25fed7f
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/Lh8id4D
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:21 | 8c5751a | Published your App
+ Replit-Commit-Author: Deployment
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 59deea17-9e36-4cde-8028-87f197e1e289
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/W7ocYWK
+Replit-Commit-Deployment-Build-Id: 4f3decf0-bde1-4954-9b9c-261a39340858
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:14 | 9fcc7ac | Update application branding to ClassLingo across all views
+ Replace all instances of "Classroom Translator" and "FOLLOW" with the new application name "ClassLingo" in HTML files and the server startup log.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 72b5083b-6085-4738-a564-8e61a0aa317f
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/W7ocYWK
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:10 | 0617a54 | Add visual feedback and pre-warm translations for document uploads
+ Implement UI feedback for document uploads and page changes, disable navigation buttons during processing, and pre-warm translations for adjacent pages to improve user experience.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 0e6f4aa5-797b-4242-8403-97129ca7fc95
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/W7ocYWK
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:04 | 481e384 | Add image upload and OCR capability for document translation
+ Implement OCR functionality using GPT-4o-mini for image uploads and scanned PDFs, update document parsing to handle image files, and enhance the HTML form to accept various image types.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: b634bd8c-7ef2-4c5d-a4bf-f8774477643f
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/W7ocYWK
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 19:00 | 41d7e00 | Improve translation speed and accuracy for longer documents
+ Update AI model to gpt-4o-mini for faster and more reliable document translation, and refine fallback error handling for MyMemory.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 0ecf553c-6c26-46c0-8dce-3991e42542f1
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/W7ocYWK
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:54 | d536a74 | Improve translation reliability for documents by increasing timeouts and retrying failed chunks
+ Increase default translation timeout for documents to 60 seconds and implement retry logic for MyMemory chunk translation to prevent entire documents from reverting to English on partial failures.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 05210891-b783-4c75-b4c8-9e11c450a3fc
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/W7ocYWK
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:51 | c5ca693 | Improve document viewing experience for teachers and students
+ Update student interface to clarify language selection and add a teacher-facing preview pane to display document content.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 24d9d12d-8385-43eb-8241-e4e8ddb0ac51
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/W7ocYWK
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:43 | 38a115a | Update PDF parsing to support a new library version
+ Adjust the PDF parsing logic in `server.js` to accommodate changes in the `pdf-parse` library, switching from a function call to a class instantiation and updating the text extraction method.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: d88b6bf6-b08a-48bb-8216-e10fc178474a
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/0bBAwXi
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:40 | c38e4ec | Improve translation reliability and add audio streaming capabilities
+ Integrates OpenAI for primary translation, adds a 15-second timeout for all translation requests, and introduces SSE-based audio streaming for voice chat features.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: afa7d3ba-0877-4f36-9cb4-050bd431fb6f
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/0bBAwXi
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:32 | 21873d6 | Add visual deterrents to discourage unauthorized sharing of content
+ Implement client-side watermark and disable text selection/right-click on the student page, and configure MyMemory API to use an email address to increase the free translation quota.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 34eedaca-2e03-46cd-8405-843b90b7816e
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/0bBAwXi
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:30 | 0f15b96 | Add a button to clear lesson history and notify students
+ Implement a new endpoint and UI button to clear the in-memory lesson transcript, broadcasting a 'history-cleared' event to all connected student clients. This also involves tagging utterances with a history epoch to prevent stale translations from being sent after a clear operation.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: b63a2950-8f66-49d2-9c34-b61436f1eae4
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/2xsJKYB
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:22 | d485dc6 | Add accessibility and interaction features for students
+ Implement several new features for the student interface including text-to-speech, a hold function, an "I'm lost" button, and adjustable font sizes. Updates also include a hero layout for the latest utterance, replay functionality, and corresponding backend logic for managing student confusion signals and rate limiting. The teacher interface is updated to display student confusion status.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 853f9bc8-b6a1-45c3-9d79-946697649a50
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/2xsJKYB
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:15 | ffeb427 | Add ability to share documents and presentations with students
+ Integrates document sharing functionality, allowing teachers to upload PDFs, DOCX, and TXT files. The system parses these documents, extracts text, and displays translated content to students, with teachers controlling the current page view.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 5a7b2b23-8079-47e0-9581-b5124c75fb17
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/WRPOhGV
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:08 | 698d78a | Add live video captioning and translation to student view
+ Installs youtube-transcript package and integrates YouTube video caption fetching, translation, and display into the student interface.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: b8f29eb1-0695-4ee5-84a0-9a96d16b9af4
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7qgIAV4
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 18:00 | 0aea8b6 | Add synchronized YouTube video playback for instructors and students
+ Implement server endpoints and client-side logic for sharing and synchronizing YouTube video playback within a classroom session.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 231a7f78-af5e-412d-bc53-1d0819bf0702
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7qgIAV4
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 17:53 | b941c02 | Add a pause and resume button for the microphone functionality
+ Introduces a new button in `public/teach.html` to pause and resume the microphone's speech recognition, managing the `isPaused` and `isRunning` states, clearing timers, and stopping the recognition instance when paused.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 5998afb4-2b25-4f70-b2fc-e8e3e78a6818
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7qgIAV4
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 17:50 | 862dc5e | Add brute-force protection to prevent unauthorized access
+ Implement rate limiting on authentication and publish endpoints to block IP addresses after multiple failed attempts, ensuring security against brute-force attacks.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: a4fefc83-175c-4909-a1b2-bf6d27ddfb0a
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7qgIAV4
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 17:43 | 9639679 | Saved progress at the end of the loop
+ Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 61c22d3a-53e2-4edc-a11d-1ac19854a598
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/7qgIAV4
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 16:29 | 93afdfb | Add a teacher passcode to secure the publishing endpoint
+ Implement token-based authentication for the `/publish` endpoint in `server.js` and add a passcode input field and validation logic to `public/teach.html`.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 57eb7d64-4499-4109-9b13-0494210626af
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/sC5I1gR
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 16:26 | e0c2174 | Add live translation and transcription for multilingual classrooms
+ Refactor server to handle multiple SSE subscriptions, implement translation caching, and improve client-side rendering for real-time multilingual classroom transcriptions.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: 4b72458d-275f-4ead-81e5-25d170b028aa
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/sC5I1gR
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 16:17 | bb1217f | Saved progress at the end of the loop
+ Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: ad4875fa-e37b-45c2-9b0a-217a06826787
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/FFvLNQ7
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 16:14 | 1d1deaf | Improve translation accuracy and user experience for classroom tool
+ Fixes environment setup, enhances text chunking for MyMemory API limits, resolves translation race conditions and stale response issues, and improves overall application stability.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 2b084c46-072e-4f8e-895b-07c80b355e36
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: d441f097-49de-4699-9bac-6ae9e63a92e5
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/5d89d0ef-2838-4a65-a071-a66fb2d97a65/2b084c46-072e-4f8e-895b-07c80b355e36/0xVuoqN
+Replit-Helium-Checkpoint-Created: true
+
+2026-05-19 16:11 | 69f6822 | Initial commit
+ 

@@ -1,0 +1,370 @@
+import React from 'react';
+import {
+  Search,
+  Bell,
+  User,
+  HardHat,
+  ClipboardList,
+  ShieldCheck,
+  FileText,
+  MessageSquare,
+  Wrench,
+  Languages,
+  Mic,
+  ArrowRight,
+  Radio,
+  Construction,
+  Hammer,
+  Zap,
+} from 'lucide-react';
+import './pastel-neon.css';
+
+const HERO_IMAGE = '/__mockup/images/classlingo-neon-hero.png';
+const PROFILE_IMAGE = '/__mockup/images/classlingo-neon-portrait.png';
+const ACCENT_IMAGE = '/__mockup/images/classlingo-neon-accent.png';
+
+const quickTools = [
+  {
+    icon: ClipboardList,
+    title: 'DAILY LOGS',
+    copy: 'Track progress, updates, and field notes.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'SAFETY',
+    copy: 'Briefings, hazards, and jobsite rules.',
+  },
+  {
+    icon: Wrench,
+    title: 'TOOLS',
+    copy: 'Tool demos, setup, and safe handling.',
+  },
+  {
+    icon: FileText,
+    title: 'SPECS',
+    copy: 'Plans, packets, PDFs, and class handouts.',
+  },
+  {
+    icon: MessageSquare,
+    title: 'CREW TALK',
+    copy: 'Jobsite lingo without losing the room.',
+  },
+];
+
+const siteCards = [
+  {
+    title: 'SAFETY BRIEFING',
+    location: 'Yard 4 · Monday AM',
+    detail: 'English → Spanish, Haitian Creole, Portuguese',
+    status: 'LIVE NOW',
+    tone: 'cyan',
+  },
+  {
+    title: 'TOOL DEMO: IMPACT DRIVERS',
+    location: 'Shop B · Tuesday PM',
+    detail: 'Step-by-step walkthrough with synced spec sheet',
+    status: 'READY',
+    tone: 'magenta',
+  },
+  {
+    title: 'OSHA 10 PREP',
+    location: 'Classroom 2 · Wednesday',
+    detail: 'Code review, safety terms, and practice questions',
+    status: 'SCHEDULED',
+    tone: 'violet',
+  },
+];
+
+const instructorBullets = [
+  'Start a session and throw the QR code on the board.',
+  'Talk naturally while students follow in their own language.',
+  'Share PDFs, drawings, photos, and safety videos.',
+  'Keep the class moving without turning translation into a circus.',
+];
+
+const crewActivity = [
+  'Jordan uploaded a daily log',
+  'Safety inspection completed',
+  'Tool demo packet opened',
+  'Crew translated OSHA vocabulary',
+];
+
+function StatusDot({ tone = 'cyan' }) {
+  const tones = {
+    cyan: 'bg-[#00f0ff] shadow-[0_0_12px_#00f0ff]',
+    magenta: 'bg-[#ff00ff] shadow-[0_0_12px_#ff00ff]',
+    violet: 'bg-[#8b5cf6] shadow-[0_0_12px_#8b5cf6]',
+  };
+
+  return <span className={`mt-2 h-2 w-2 shrink-0 rounded-full ${tones[tone] || tones.cyan}`} />;
+}
+
+export function Pastel() {
+  return (
+    <div className="neon-theme relative min-h-screen w-full overflow-hidden bg-[#050617] text-white selection:bg-[#00f0ff]/30 selection:text-white">
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,240,255,0.16),transparent_32%),radial-gradient(circle_at_75%_0%,rgba(255,0,255,0.18),transparent_34%),linear-gradient(180deg,#050617_0%,#08071f_42%,#050617_100%)]" />
+      <div className="pointer-events-none fixed left-[-10%] top-[12%] z-0 h-[520px] w-[520px] rounded-full bg-[#00f0ff]/10 blur-[120px]" />
+      <div className="pointer-events-none fixed bottom-[-10%] right-[-8%] z-0 h-[640px] w-[640px] rounded-full bg-[#ff00ff]/10 blur-[140px]" />
+
+      <nav className="sticky top-0 z-50 border-b border-[#00f0ff]/10 bg-[#050617]/78 px-6 py-5 backdrop-blur-xl lg:px-10">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
+          <a href="/" className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#00f0ff]/45 bg-[#00f0ff]/10 shadow-[0_0_24px_rgba(0,240,255,0.22)]">
+              <HardHat className="h-5 w-5 text-[#00f0ff]" strokeWidth={1.6} />
+            </div>
+            <div className="leading-none">
+              <div className="text-lg font-black tracking-[0.2em] text-white">CLASS LINGO</div>
+              <div className="mt-1 text-[0.62rem] font-bold tracking-[0.36em] text-[#00f0ff]">CONSTRUCTION</div>
+            </div>
+          </a>
+
+          <div className="hidden items-center gap-9 lg:flex">
+            {['Dashboard', 'Lessons', 'Crew', 'Safety', 'Resources'].map((item, index) => (
+              <a
+                key={item}
+                href="#"
+                className={`text-xs font-bold uppercase tracking-[0.18em] transition ${
+                  index === 0 ? 'text-[#00f0ff]' : 'text-white/70 hover:text-[#00f0ff]'
+                }`}
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-4 text-white/70">
+            <Search className="h-5 w-5 cursor-pointer transition hover:text-[#00f0ff]" strokeWidth={1.4} />
+            <Bell className="h-5 w-5 cursor-pointer transition hover:text-[#00f0ff]" strokeWidth={1.4} />
+            <div className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border border-white/20 transition hover:border-[#ff00ff] hover:text-[#ff00ff]">
+              <User className="h-4 w-4" strokeWidth={1.4} />
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="relative z-10">
+        <section className="relative overflow-hidden px-6 py-20 lg:px-10 lg:py-28">
+          <div
+            className="pointer-events-none absolute inset-y-0 right-[-18%] z-0 w-[118%] opacity-45 mix-blend-screen sm:right-[-10%] sm:w-[100%] sm:opacity-70 lg:right-[-3%] lg:w-[73%] lg:opacity-95"
+            aria-hidden="true"
+            style={{
+              backgroundImage: `url(${HERO_IMAGE})`,
+              backgroundPosition: 'center right',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'cover',
+              WebkitMaskImage: 'radial-gradient(ellipse 76% 74% at 74% 52%, black 32%, transparent 78%)',
+              maskImage: 'radial-gradient(ellipse 76% 74% at 74% 52%, black 32%, transparent 78%)',
+            }}
+          />
+
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-full bg-[linear-gradient(90deg,rgba(5,6,23,0.96)_0%,rgba(5,6,23,0.88)_38%,rgba(5,6,23,0.45)_70%,rgba(5,6,23,0.1)_100%)] lg:w-[68%]" />
+
+          <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+            <div className="max-w-2xl">
+              <div className="mb-7 inline-flex items-center gap-3 rounded-full border border-[#00f0ff]/25 bg-[#00f0ff]/8 px-4 py-2 backdrop-blur-md">
+                <span className="h-2 w-2 rounded-full bg-[#00f0ff] shadow-[0_0_14px_#00f0ff]" />
+                <span className="text-[0.68rem] font-black uppercase tracking-[0.24em] text-[#00f0ff]">Live Jobsite Translation</span>
+              </div>
+
+              <h1 className="text-5xl font-black uppercase leading-[0.94] tracking-tight text-white sm:text-6xl lg:text-7xl">
+                Build
+                <br />
+                Smarter.
+                <br />
+                <span className="text-[#00f0ff] drop-shadow-[0_0_22px_rgba(0,240,255,0.58)]">Work</span>
+                <br />
+                <span className="text-[#00f0ff] drop-shadow-[0_0_22px_rgba(0,240,255,0.58)]">Together.</span>
+              </h1>
+
+              <p className="mt-7 max-w-xl text-base leading-8 text-white/68 sm:text-lg">
+                Class Lingo turns safety briefings, tool demos, specs, and jobsite talk into real-time translated training so every pre-apprentice can keep up without slowing the crew down.
+              </p>
+
+              <div className="mt-9 flex flex-wrap gap-4">
+                <a
+                  href="/teach"
+                  className="group inline-flex items-center gap-3 rounded-lg border border-[#00f0ff] bg-[#00f0ff]/5 px-7 py-4 text-sm font-black uppercase tracking-[0.16em] text-[#00f0ff] shadow-[0_0_28px_rgba(0,240,255,0.14)] transition hover:bg-[#00f0ff]/12 hover:shadow-[0_0_36px_rgba(0,240,255,0.28)]"
+                >
+                  Open Instructor View
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" strokeWidth={2.2} />
+                </a>
+                <a
+                  href="/student"
+                  className="inline-flex items-center rounded-lg border border-[#ff00ff] bg-[#ff00ff]/5 px-7 py-4 text-sm font-black uppercase tracking-[0.16em] text-[#ff00ff] shadow-[0_0_28px_rgba(255,0,255,0.14)] transition hover:bg-[#ff00ff]/12 hover:shadow-[0_0_36px_rgba(255,0,255,0.28)]"
+                >
+                  Join as Trainee
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="relative z-20 border-y border-[#00f0ff]/10 bg-[#070822]/72 px-6 py-7 backdrop-blur-xl lg:px-10">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 overflow-hidden rounded-2xl border border-[#00f0ff]/12 bg-[#07102c]/58 shadow-[0_0_50px_rgba(0,240,255,0.06)] sm:grid-cols-2 lg:grid-cols-5">
+            {quickTools.map((tool, index) => (
+              <div key={tool.title} className="group flex gap-4 border-b border-[#00f0ff]/10 p-6 last:border-b-0 sm:even:border-l lg:border-b-0 lg:border-l lg:first:border-l-0">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#00f0ff]/25 bg-[#00f0ff]/8 transition group-hover:border-[#00f0ff]/70 group-hover:shadow-[0_0_22px_rgba(0,240,255,0.24)]">
+                  <tool.icon className="h-5 w-5 text-[#00f0ff]" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-[0.12em] text-[#00f0ff]">{tool.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-white/62">{tool.copy}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="px-6 py-16 lg:px-10 lg:py-24">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-[0.82fr_1.18fr]">
+            <div className="rounded-2xl border border-[#00f0ff]/12 bg-[#07102c]/58 p-7 shadow-[0_0_48px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+              <div className="mb-6 flex items-center justify-between gap-4">
+                <h2 className="text-2xl font-black uppercase tracking-wide text-white">Jobsite Board</h2>
+                <a href="#" className="text-xs font-black uppercase tracking-[0.2em] text-[#00f0ff]">View All</a>
+              </div>
+
+              <div className="space-y-4">
+                {siteCards.map((card) => (
+                  <div key={card.title} className="rounded-xl border border-white/8 bg-[#050617]/62 p-5 transition hover:border-[#00f0ff]/25 hover:bg-[#00f0ff]/5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex gap-4">
+                        <StatusDot tone={card.tone} />
+                        <div>
+                          <h3 className="text-sm font-black uppercase tracking-[0.14em] text-white">{card.title}</h3>
+                          <p className="mt-2 text-sm text-white/58">{card.location}</p>
+                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/38">{card.detail}</p>
+                        </div>
+                      </div>
+                      <span className="shrink-0 rounded border border-[#00f0ff]/22 bg-[#00f0ff]/5 px-3 py-1 text-[0.62rem] font-black uppercase tracking-[0.18em] text-[#00f0ff]">
+                        {card.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative min-h-[520px] overflow-hidden rounded-2xl border border-[#00f0ff]/12 bg-[#07102c]/58 shadow-[0_0_52px_rgba(0,240,255,0.05)]">
+              <div
+                className="absolute inset-0 opacity-95 mix-blend-screen"
+                aria-hidden="true"
+                style={{
+                  backgroundImage: `url(${PROFILE_IMAGE})`,
+                  backgroundPosition: 'center right',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: 'cover',
+                }}
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,6,23,0.92)_0%,rgba(5,6,23,0.62)_42%,rgba(5,6,23,0.16)_100%)]" />
+              <div className="relative z-10 flex h-full max-w-md flex-col justify-end p-8 lg:p-10">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-[#ff00ff]/35 bg-[#ff00ff]/8">
+                  <Radio className="h-5 w-5 text-[#ff00ff]" strokeWidth={1.6} />
+                </div>
+                <h2 className="text-3xl font-black uppercase leading-tight text-white sm:text-4xl">
+                  Built for the person running the room.
+                </h2>
+                <p className="mt-5 text-base leading-8 text-white/66">
+                  Start the session, scan the room, keep the class moving, and make sure nobody gets buried by language barriers while the work keeps rolling.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-6 pb-16 lg:px-10 lg:pb-24">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="rounded-2xl border border-[#00f0ff]/12 bg-[#07102c]/58 p-7 backdrop-blur-xl">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-2xl font-black uppercase tracking-wide text-white">Crew Activity</h2>
+                <a href="#" className="text-xs font-black uppercase tracking-[0.2em] text-[#00f0ff]">View All</a>
+              </div>
+              <div className="divide-y divide-white/8">
+                {crewActivity.map((item, index) => (
+                  <div key={item} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                    <div className="grid h-10 w-10 place-items-center rounded-full border border-[#00f0ff]/28 bg-[#00f0ff]/8">
+                      {index % 2 === 0 ? (
+                        <Construction className="h-4 w-4 text-[#00f0ff]" strokeWidth={1.5} />
+                      ) : (
+                        <Zap className="h-4 w-4 text-[#ff00ff]" strokeWidth={1.5} />
+                      )}
+                    </div>
+                    <p className="flex-1 text-sm text-white/72">{item}</p>
+                    <span className="text-xs text-white/36">{index + 2}m ago</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-2xl border border-[#ff00ff]/14 bg-[#07102c]/58 p-8 backdrop-blur-xl lg:p-10">
+              <div
+                className="pointer-events-none absolute inset-0 opacity-50 mix-blend-screen"
+                aria-hidden="true"
+                style={{
+                  backgroundImage: `url(${ACCENT_IMAGE})`,
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: 'cover',
+                  WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 70% 50%, black 0%, transparent 76%)',
+                  maskImage: 'radial-gradient(ellipse 80% 70% at 70% 50%, black 0%, transparent 76%)',
+                }}
+              />
+              <div className="relative z-10 max-w-lg">
+                <h2 className="text-3xl font-black uppercase leading-tight text-white sm:text-4xl">
+                  Safety first.
+                  <br />
+                  <span className="text-[#ff00ff] drop-shadow-[0_0_20px_rgba(255,0,255,0.45)]">No one left guessing.</span>
+                </h2>
+                <p className="mt-5 text-base leading-8 text-white/66">
+                  Translate the words that actually matter: struck-by, caught-between, tie-off, lockout, pinch point, clear path, PPE, and all the stuff that keeps people from getting smoked on site.
+                </p>
+
+                <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {instructorBullets.map((item) => (
+                    <div key={item} className="flex gap-3 rounded-xl border border-white/8 bg-[#050617]/52 p-4">
+                      <Mic className="mt-1 h-4 w-4 shrink-0 text-[#ff00ff]" strokeWidth={1.7} />
+                      <p className="text-sm leading-6 text-white/70">{item}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <a
+                  href="/teach"
+                  className="mt-8 inline-flex items-center gap-3 rounded-lg border border-[#ff00ff] bg-[#ff00ff]/5 px-7 py-4 text-sm font-black uppercase tracking-[0.16em] text-[#ff00ff] shadow-[0_0_28px_rgba(255,0,255,0.14)] transition hover:bg-[#ff00ff]/12"
+                >
+                  Start a Session
+                  <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-6 pb-20 lg:px-10 lg:pb-28">
+          <div className="mx-auto flex max-w-7xl flex-col gap-6 rounded-2xl border border-[#00f0ff]/14 bg-[#07102c]/62 p-7 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between lg:p-9">
+            <div className="flex items-start gap-5">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl border border-[#00f0ff]/30 bg-[#00f0ff]/8">
+                <Languages className="h-7 w-7 text-[#00f0ff]" strokeWidth={1.4} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black uppercase tracking-wide text-white">Built on experience. Driven by access.</h2>
+                <p className="mt-2 text-white/58">Class Lingo speaks the language of the jobsite, then translates it for the crew.</p>
+              </div>
+            </div>
+            <a
+              href="/teach"
+              className="inline-flex justify-center rounded-lg border border-[#00f0ff] bg-[#00f0ff]/5 px-8 py-4 text-sm font-black uppercase tracking-[0.18em] text-[#00f0ff] transition hover:bg-[#00f0ff]/12"
+            >
+              Get Started
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <footer className="relative z-10 border-t border-[#00f0ff]/10 bg-[#050617] px-6 py-10 text-center text-[0.68rem] font-bold uppercase tracking-[0.24em] text-white/34 lg:px-10">
+        © {new Date().getFullYear()} Class Lingo Construction. All rights reserved.
+      </footer>
+    </div>
+  );
+}
+
+export default Pastel;

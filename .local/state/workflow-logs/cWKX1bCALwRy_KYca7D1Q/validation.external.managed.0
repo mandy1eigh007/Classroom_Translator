@@ -1,0 +1,57 @@
+VERDICT: APPROVED_WITH_COMMENTS
+
+Primary conclusion: The core English-selection functionality is implemented end-to-end for student delivery and translation bypass, but there is one requirement area that is not clearly demonstrated in the teacher UI.
+
+Critical findings / analysis:
+- Server-side requirements are correctly implemented:
+  - `LANG_CODES` now includes `English: 'en'`.
+  - `translateAll()` short-circuits English (`langName === 'English' || langCode === 'en'`) and returns source text unchaVERDICT: APPROVED_WITH_COMMENTS
+nged, so no OpenAI/MyMemory call, no translation latency/cost for English-selected students.
+- Adult student page (`/student`):
+  - English was added as the first selectable language option (after the placeholder) with value `English`.
+  - Existing localStorage persistence logic is unchanged and continues to persist/reload `lang` normally.
+  - TTS mapping includes English (`VOICE_FOR_LANG['English'] = 'en'`), so read-aloud/replay paths can use English voices.
+- Kids page (`/kids`):
+  - English fl
+ag tile added (`🇺🇸`, `name: 'English'`, `native: 'English'`, `code: 'en'`).
+  - Tap-to-preview speaks the selected language label via browser TTS, so English speaks “English”.
+  - Auto-TTS and “👂 Again” reuse `langCfg.code`, so English Primary conclusion: The core English-selection functionality is implemented end-to-end for student delivery and translation bypass, but there is one requirement area that is not clearly demonstrated in the teacher UI.
+playback uses browser English voice.
+- Class notes path:
+  - `/notes` explicitly allows `lang='English'`; t
+eacher preview uses `lang: 'English'`, so this remains supportedCritical findings / analysis:
+.
+
+Comment / gap to verify:
+- The task asks th- Server-side requirements are correctly implemented:
+at teacher dashboard show language grouping including English (e.g., “1 English, 2 Spanish…”). Server   - `LANG_CODES` now includes `English: 'en'`.
+`/status` still returns `byLang`, but in `public/teach.html` I do not see rendering logic consuming `data.byLang`. If this group  - `translateAll()` short-circuits English (`langName === 'English' || langCode === 'en'`) and returns source text unchanged, so no OpenAI/MyMemory call, no translation latency/cost for English-selected students.
+ing UI exists elsewhere, great; if not, this specific “done looks like” item is not visibly i- Adult student page (`/student`):
+mplemented in this diff.
+
+Security:
+- None observed that are serious and directly relevant to this task.
+
+Next actions (high impact):
+1. Confirm in running UI whether teacher dashboard actually renders connected-student language counts including English.
+2. If missing, add a small `byLang` summary line in `/teach` using existing `/status` payload.
+3. Optional polish: rename dropdown label from `English (testing)` to `English` if strict wording consistency is desired.  - English was added as the first selectable language option (after the placeholder) with value `English`.
+  - Existing localStorage persistence logic is unchanged and continues to persist/reload `lang` normally.
+  - TTS mapping includes English (`VOICE_FOR_LANG['English'] = 'en'`), so read-aloud/replay paths can use English voices.
+- Kids page (`/kids`):
+  - English flag tile added (`🇺🇸`, `name: 'English'`, `native: 'English'`, `code: 'en'`).
+  - Tap-to-preview speaks the selected language label via browser TTS, so English speaks “English”.
+  - Auto-TTS and “👂 Again” reuse `langCfg.code`, so English playback uses browser English voice.
+- Class notes path:
+  - `/notes` explicitly allows `lang='English'`; teacher preview uses `lang: 'English'`, so this remains supported.
+
+Comment / gap to verify:
+- The task asks that teacher dashboard show language grouping including English (e.g., “1 English, 2 Spanish…”). Server `/status` still returns `byLang`, but in `public/teach.html` I do not see rendering logic consuming `data.byLang`. If this grouping UI exists elsewhere, great; if not, this specific “done looks like” item is not visibly implemented in this diff.
+
+Security:
+- None observed that are serious and directly relevant to this task.
+
+Next actions (high impact):
+1. Confirm in running UI whether teacher dashboard actually renders connected-student language counts including English.
+2. If missing, add a small `byLang` summary line in `/teach` using existing `/status` payload.
+3. Optional polish: rename dropdown label from `English (testing)` to `English` if strict wording consistency is desired.

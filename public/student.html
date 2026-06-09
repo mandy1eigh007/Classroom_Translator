@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Student — ClassLingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="student-body">
+<!-- Soft screenshot deterrent: faint diagonal watermark across the page
+     with a per-session id + date. Doesn't block screenshots (no browser
+     can) but makes leaked images traceable and discourages casual sharing. -->
+<div class="watermark" id="watermark" aria-hidden="true"></div>
+<div class="app">
+  <header>
+    <span class="logo">ClassLingo</span>
+    <span class="logo-sub">Student view</span>
+  </header>
+
+  <!-- LAYOUT (mobile-first for construction trainees on phones):
+       1. Compact identity bar at top (language, name, status). Slimmer than
+          a full card so the lesson is closer to the fold.
+       2. Lesson feed dominates the viewport — this is what students read
+          for the entire class. Full width, tall, always visible.
+       3. Video + Document are a side-by-side row that only appears when the
+          teacher shares one (they self-hide via display:none).
+       4. Notes (collapsible) and Message (collapsible) sit below.
+       5. Controls float as a sticky bottom action bar on mobile, becomes a
+          right-side rail on desktop, so primary actions stay in thumb reach. -->
+  <section class="card card--magenta card--identity">
+    <div class="identity-row">
+      <div class="identity-pick">
+        <h3 class="card-title"><span class="ico" aria-hidden="true">🌐</span> <span data-i18n="card_your_language">Your language</span></h3>
+        <select id="lang-select">
+          <option value="" data-i18n="pick_lang">Pick your language…</option>
+          <option value="English">English (testing)</option>
+          <option value="Spanish">Español (Spanish)</option>
+          <option value="Dari">دری (Dari)</option>
+          <option value="Somali">Soomaali (Somali)</option>
+          <option value="Vietnamese">Tiếng Việt (Vietnamese)</option>
+          <option value="Amharic">አማርኛ (Amharic)</option>
+          <option value="Arabic">العربية (Arabic)</option>
+          <option value="Simplified Chinese">简体中文 (Simplified Chinese)</option>
+          <option value="Tagalog">Tagalog (Filipino)</option>
+          <option value="Swahili">Kiswahili (Swahili)</option>
+          <option value="French">Français (French)</option>
+          <option value="Portuguese">Português (Portuguese)</option>
+          <option value="Korean">한국어 (Korean)</option>
+          <option value="Hindi">हिन्दी (Hindi)</option>
+          <option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option>
+          <option value="Russian">Русский (Russian)</option>
+          <option value="Ukrainian">Українська (Ukrainian)</option>
+        </select>
+      </div>
+      <div class="identity-name">
+        <label for="nick-input" data-i18n="your_name_label" style="display:block; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:4px;">YOUR NAME (so the teacher knows it's you)</label>
+        <input id="nick-input" type="text" maxlength="40" placeholder="e.g. Maria" data-i18n-placeholder="your_name_placeholder" autocomplete="off" />
+      </div>
+    </div>
+    <div class="toolbar" style="margin-top:12px;">
+      <span id="status" class="status-pill"><span class="dot"></span><span id="status-text" data-i18n="status_pick_lang">Pick a language to start</span></span>
+    </div>
+  </section>
+
+  <!-- PRIMARY: the lesson feed. Lives above optional media so it never gets
+       pushed below the fold even when the teacher shares a video. -->
+  <section class="card card--cyan card--lesson">
+    <h3 class="card-title"><span class="ico" aria-hidden="true">💬</span> <span data-i18n="card_lesson">Lesson</span></h3>
+    <div class="feed" id="feed">
+      <div class="utter"><div class="tr" data-i18n="feed_placeholder" style="color:var(--muted); font-style:italic;">Translations will appear here as the instructor speaks.</div></div>
+    </div>
+  </section>
+
+  <div class="grid-aux">
+  <section class="card card--lime" id="video-wrap" style="display:none;">
+    <h3 class="card-title"><span class="ico" aria-hidden="true">▶</span> <span data-i18n="card_video">Video</span></h3>
+    <div style="position:relative; aspect-ratio:16/9; width:100%; background:#000; border-radius:var(--radius); overflow:hidden;">
+      <div id="yt-player" style="position:absolute; inset:0;"></div>
+    </div>
+    <button id="unmute-btn" class="btn btn-primary" data-i18n="btn_unmute" style="display:none; margin-top:10px; width:auto; padding:10px 16px;">Tap to enable sound</button>
+    <div id="caption-box" style="display:none; margin-top:10px; padding:12px 14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
+      <div id="caption-tr" style="font-size:16px; line-height:1.4; color:var(--text);"></div>
+      <div id="caption-en" style="font-size:12px; color:var(--muted); margin-top:4px; font-style:italic;"></div>
+    </div>
+    <p id="caption-hint" class="hint" data-i18n="caption_unavailable" style="display:none; margin-top:6px;">Captions aren't available for this video.</p>
+  </section>
+
+  <section class="card card--violet" id="doc-wrap" style="display:none;">
+    <div class="card-head">
+      <h3 class="card-title"><span class="ico" aria-hidden="true">📄</span> <span data-i18n="card_document">Document</span></h3>
+      <button id="doc-toggle-en" class="btn" type="button" data-i18n="doc_show_en" style="font-size:11px; padding:6px 10px; width:auto;">Show English original</button>
+    </div>
+    <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; margin-bottom:8px;">
+      <span id="doc-name" style="font-family:'DM Mono',monospace; font-size:13px; color:var(--muted); flex:1; min-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+      <span id="doc-pos" style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted);"></span>
+    </div>
+    <div id="doc-lang-label" style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:6px;"></div>
+    <!-- Side-by-side preview + translation. Image on the left so the student
+         can see the actual page the teacher is on (PDF render / PowerPoint /
+         photo), translation on the right. Stacks on phones. The image is
+         loaded from /document/preview and hidden if the server has no
+         render for that page (DOCX/TXT, or older docs). -->
+    <div id="doc-split" style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+      <div id="doc-img-wrap" style="display:none; flex:1 1 280px; min-width:0; max-width:100%; background:#000; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border);">
+        <img id="doc-img" alt="Document page" style="display:block; width:100%; height:auto; max-height:65vh; object-fit:contain; background:#fff; cursor:zoom-in;" />
+      </div>
+      <div style="flex:1 1 240px; min-width:0;">
+        <div id="doc-tr" style="font-size:16px; line-height:1.55; color:var(--text); white-space:pre-wrap; max-height:60vh; overflow:auto;"></div>
+        <div id="doc-en" style="display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:13px; color:var(--muted); white-space:pre-wrap; max-height:40vh; overflow:auto; font-style:italic;"></div>
+      </div>
+    </div>
+    <p id="doc-loading" class="hint" data-i18n="doc_translating" style="display:none; margin:8px 0 0;">Translating…</p>
+  </section>
+  </div>
+
+  <section class="card card--orange" id="msg-card">
+    <h3 class="card-title"><span class="ico" aria-hidden="true">✉</span> <span data-i18n="card_message_teacher">Message the teacher</span></h3>
+    <p class="hint" data-i18n="msg_hint" style="margin:0 0 8px;">Write in your own language. The teacher will see it in English.</p>
+    <textarea id="msg-text" rows="3" maxlength="400" placeholder="Type your question or message…" data-i18n-placeholder="msg_placeholder" style="width:100%; resize:vertical; font-family:inherit; font-size:15px; padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); color:var(--text);"></textarea>
+    <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+      <button id="msg-send" class="btn btn-primary" type="button" data-i18n="msg_send" style="width:auto; padding:10px 16px;">Send</button>
+      <span id="msg-status" style="font-size:12px; color:var(--muted);"></span>
+    </div>
+  </section>
+
+  <section class="card card--violet" id="notes-card">
+    <h3 class="card-title"><span class="ico" aria-hidden="true">📝</span> <span data-i18n="card_class_notes">Class notes</span></h3>
+    <p class="hint" data-i18n="notes_hint" style="margin:0 0 10px;">AI-generated study notes from this class, in your language. Tap to generate at any time.</p>
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <button id="notes-btn" class="btn btn-primary" type="button" data-i18n="notes_btn" style="width:auto; padding:10px 16px;">📝 Generate notes</button>
+      <button id="notes-copy" class="btn" type="button" data-i18n="notes_copy" style="display:none; width:auto; padding:10px 14px;">📋 Copy</button>
+      <button id="notes-share" class="btn" type="button" data-i18n="notes_share" style="display:none; width:auto; padding:10px 14px;">📤 Share</button>
+      <span id="notes-status" style="font-size:12px; color:var(--muted);"></span>
+    </div>
+    <div id="notes-coverage" style="display:none; margin-top:10px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);"></div>
+    <div style="display:none; gap:8px; margin-top:10px; flex-wrap:wrap;" id="notes-secondary-row">
+      <button id="notes-listen" class="btn" type="button" data-i18n="notes_listen" style="width:auto; padding:8px 12px;">🔊 Listen</button>
+      <button id="study-sheet-btn" class="btn" type="button" style="width:auto; padding:8px 12px;" title="Open a printable vocabulary sheet from this class">📋 Study sheet</button>
+    </div>
+    <div id="notes-out" style="display:none; margin-top:12px; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); font-size:15px; line-height:1.6; color:var(--text); white-space:pre-wrap; max-height:60vh; overflow:auto;"></div>
+  </section>
+
+  <!-- Sticky bottom control bar. Was a full card at the top; relocated so the
+       lesson dominates the viewport and Lost/Hold/TTS stay in thumb reach
+       on phones. Hidden until JS reveals #controls (display:flex). -->
+  <div id="controls-card" class="bottom-bar">
+    <div class="student-controls" id="controls">
+      <button id="btn-lost" class="btn danger" type="button" data-i18n-title="title_lost" title="Tell the teacher you need a moment"><span class="btn-label" data-i18n="btn_lost">🤔 I'm lost</span></button>
+      <button id="btn-hold" class="btn" type="button" data-i18n-title="title_hold" title="Pause the feed so you can finish reading"><span class="btn-label" data-i18n="btn_hold">⏸ Hold</span><span id="hold-badge" class="hold-badge" style="display:none;">0</span></button>
+      <button id="btn-tts" class="btn" type="button" data-i18n-title="title_tts" title="Read each translation out loud"><span data-i18n="btn_read_aloud">🔊 Read aloud</span></button>
+      <button id="btn-replay" class="btn" type="button" data-i18n-title="title_replay" title="Repeat the last translation out loud"><span data-i18n="btn_replay">↻ Replay</span></button>
+      <button id="btn-slow" class="btn" type="button" title="Slow down read-aloud (0.7×) — easier to follow as a learner.">🐢 Slow</button>
+      <button id="btn-natural" class="btn" type="button" title="Use a real human voice (OpenAI) instead of your browser's built-in voice. Better for French and most non-English languages.">🗣 Natural voice</button>
+      <button id="btn-phrasebook" class="btn" type="button" title="Words you've saved from class">📖 Phrasebook</button>
+      <div class="fs-group" title="Text size">
+        <button id="btn-fs-down" class="btn" type="button">A−</button>
+        <button id="btn-fs-up" class="btn" type="button">A+</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const langSelect = document.getElementById('lang-select');
+  const feed = document.getElementById('feed');
+  const statusPill = document.getElementById('status');
+  const statusText = document.getElementById('status-text');
+
+  let es = null;                  // EventSource
+  let currentLang = null;
+  const seen = new Map();         // id -> DOM node, so language change can replace cleanly
+  let placeholderCleared = false;
+  let latestUtter = null;         // for replay
+  const controlsEl = document.getElementById('controls');
+
+  // Stable per-device id for "I'm lost" deduplication on the server.
+  let sessionId = localStorage.getItem('sid');
+  if (!sessionId) {
+    sessionId = 's' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('sid', sessionId);
+  }
+
+  // Per-class room code (rotates whenever instructor starts a new class).
+  // Without it, the student can't connect — they need a fresh link.
+  const roomCode = (new URLSearchParams(location.search).get('c') || '').trim();
+  const langCard = document.querySelector('.card--magenta');
+  // Preserved across showStale so the notes button still works on the
+  // just-ended class (server keeps a 10-min snapshot keyed by old room code).
+  let lastLang = null;
+  function showStale(msg) {
+    if (es) { try { es.close(); } catch (_) {} es = null; }
+    if (currentLang) lastLang = currentLang;
+    currentLang = null;
+    controlsEl.style.display = 'none';
+    document.getElementById('lang-select').style.display = 'none';
+    document.querySelector('.card--magenta .toolbar').style.display = 'none';
+    // Tear down anything the previous class left on screen so a kicked
+    // student doesn't keep staring at the old transcript / video / doc.
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
+    heldQueue.length = 0;
+    isHeld = false;
+    latestUtter = null;
+    try { updateHoldUI(); } catch (_) {}
+    if (feed) feed.innerHTML = '';
+    const vWrap = document.getElementById('video-wrap');
+    if (vWrap) vWrap.style.display = 'none';
+    const dWrap = document.getElementById('doc-wrap');
+    if (dWrap) dWrap.style.display = 'none';
+    const mCard = document.getElementById('msg-card');
+    if (mCard) mCard.style.display = 'none';
+    // Keep the notes card visible & highlighted — students can still generate
+    // a final summary against the server's snapshot of the just-ended class.
+    const nCard = document.getElementById('notes-card');
+    if (nCard && lastLang) {
+      nCard.style.display = '';
+      nCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const banner = document.getElementById('notes-final-banner') || (() => {
+        const b = document.createElement('div');
+        b.id = 'notes-final-banner';
+        b.style.cssText = 'margin:0 0 10px; padding:10px 12px; background:var(--magenta-dim); border:2px solid var(--ink); border-radius:var(--radius); color:var(--ink); font-size:13px; line-height:1.5; font-weight:600; box-shadow:3px 3px 0 var(--mustard);';
+        nCard.insertBefore(b, nCard.children[1]);
+        return b;
+      })();
+      banner.textContent = t('notes_final_banner');
+    }
+    let notice = document.getElementById('stale-notice');
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.id = 'stale-notice';
+      notice.style.cssText = 'color: var(--magenta); font-size: 15px; line-height: 1.55; margin-top: 8px;';
+      langCard.appendChild(notice);
+    }
+    notice.innerHTML = '<strong></strong><br/><span style="color:var(--muted); font-size:13px;"></span>';
+    notice.querySelector('strong').textContent = msg;
+    notice.querySelector('span').textContent = t('stale_ask');
+  }
+  if (!roomCode) {
+    // Defer so DOM is ready for any UI we touch.
+    setTimeout(() => showStale(t('stale_link_needed')), 0);
+  } else {
+    // Verify the code is current up front so a stale link doesn't pretend
+    // to work until the student picks a language and gets kicked.
+    fetch('/class/current')
+      .then(r => r.json())
+      .then(d => { if (!d || d.code !== roomCode) showStale(t('stale_expired')); })
+      .catch(() => {});
+  }
+
+  // ---------- i18n (translate the UI itself into the student's language) ----------
+  // Every visible English string has a key; data-i18n attributes wire DOM
+  // nodes to those keys. On language change we POST the whole dictionary to
+  // /i18n once and replace every node's text. Cached in localStorage per
+  // language so a returning student sees their language instantly.
+  // Bump this whenever any English UI_STRINGS value changes so returning
+  // students don't keep seeing stale translations for edited keys.
+  const UI_VERSION = '2';
+  const UI_STRINGS = {
+    card_your_language: 'Your language',
+    card_controls: 'Controls',
+    card_video: 'Video',
+    card_document: 'Document',
+    card_lesson: 'Lesson',
+    card_message_teacher: 'Message the teacher',
+    card_class_notes: 'Class notes',
+    pick_lang: 'Pick your language…',
+    your_name_label: "YOUR NAME (so the teacher knows it's you)",
+    your_name_placeholder: 'e.g. Maria',
+    status_pick_lang: 'Pick a language to start',
+    status_connecting: 'Connecting…',
+    status_reconnecting: 'Reconnecting…',
+    status_live: 'Live — {lang}',
+    btn_lost: "🤔 I'm lost",
+    btn_lost_sent: '✓ Sent',
+    btn_hold: '⏸ Hold',
+    btn_catchup: '▶ Catch up',
+    btn_read_aloud: '🔊 Read aloud',
+    btn_replay: '↻ Replay',
+    btn_unmute: 'Tap to enable sound',
+    title_lost: 'Tell the teacher you need a moment',
+    title_hold: 'Pause the feed so you can finish reading',
+    title_tts: 'Read each translation out loud',
+    title_replay: 'Repeat the last translation out loud',
+    caption_unavailable: "Captions aren't available for this video.",
+    doc_show_en: 'Show English original',
+    doc_hide_en: 'Hide English original',
+    doc_translating: 'Translating…',
+    doc_in_lang: 'In {lang}:',
+    doc_page_x_of_y: 'Page {n} / {total}',
+    feed_placeholder: 'Translations will appear here as the instructor speaks.',
+    history_cleared: 'Lesson history cleared.',
+    msg_hint: 'Write in your own language. The teacher will see it in English.',
+    msg_placeholder: 'Type your question or message…',
+    msg_send: 'Send',
+    msg_sending: 'Sending…',
+    msg_sent: '✓ Sent to teacher',
+    msg_pick_lang: 'Pick a language first.',
+    msg_type_first: 'Type a message first.',
+    msg_failed: 'Could not send.',
+    notes_hint: 'AI-generated study notes from this class, in your language. Tap to generate at any time.',
+    notes_btn: '📝 Generate notes',
+    notes_regen: '↻ Regenerate',
+    notes_loading: 'Generating notes…',
+    notes_empty: 'No lesson content yet — wait for the instructor to start, then try again.',
+    notes_failed: 'Could not generate notes.',
+    notes_copy: '📋 Copy',
+    notes_share: '📤 Share',
+    notes_copied: '✓ Copied',
+    notes_share_title: 'Class notes',
+    notes_listen: '🔊 Listen',
+    notes_stop: '⏹ Stop',
+    notes_coverage: 'Summary of {count} sentences over {min} min',
+    notes_final_banner: 'Class ended. Generate your final notes now — they go away in a few minutes.',
+    class_ending_banner: 'The teacher is wrapping up — tap to save your notes.',
+    stale_link_needed: 'You need a class link.',
+    stale_expired: 'This class link has expired.',
+    stale_ended: 'This class has ended.',
+    stale_ask: 'Ask your instructor for the current class link.',
+    teacher_label: 'TEACHER',
+    reply_no_session: "(can't reply to this message)",
+  };
+  let TR = Object.assign({}, UI_STRINGS);
+  function t(key, vars) {
+    let s = TR[key] || UI_STRINGS[key] || key;
+    if (vars) for (const k of Object.keys(vars)) s = s.split('{' + k + '}').join(vars[k]);
+    return s;
+  }
+  function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n');
+      if (TR[k] != null) el.textContent = TR[k];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const k = el.getAttribute('data-i18n-placeholder');
+      if (TR[k] != null) el.setAttribute('placeholder', TR[k]);
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const k = el.getAttribute('data-i18n-title');
+      if (TR[k] != null) el.setAttribute('title', TR[k]);
+    });
+    // Re-apply status pill text and a couple of dynamic labels that don't
+    // live on data-i18n nodes.
+    try { refreshDocLangLabel(); } catch (_) {}
+    try { if (typeof docToggleBtn !== 'undefined') docToggleBtn.textContent = docEnShown ? t('doc_hide_en') : t('doc_show_en'); } catch (_) {}
+    try { if (typeof updateHoldUI === 'function') updateHoldUI(); } catch (_) {}
+  }
+  // Monotonically increasing token. Each loadI18n() bumps it; a response
+  // only applies if its token still matches — protects against a slow earlier
+  // request overwriting a faster later one when the student switches
+  // languages quickly.
+  let i18nReqToken = 0;
+  async function loadI18n(lang) {
+    const myToken = ++i18nReqToken;
+    if (!lang || lang === 'English') { TR = Object.assign({}, UI_STRINGS); applyI18n(); return; }
+    // Show cached translation immediately if we have one.
+    try {
+      const cached = localStorage.getItem('i18n:' + UI_VERSION + ':' + lang);
+      if (cached && myToken === i18nReqToken) {
+        TR = Object.assign({}, UI_STRINGS, JSON.parse(cached));
+        applyI18n();
+      }
+    } catch (_) {}
+    try {
+      const r = await fetch('/i18n', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang, c: roomCode, strings: UI_STRINGS })
+      });
+      if (!r.ok) return;
+      const d = await r.json();
+      if (myToken !== i18nReqToken) return; // a newer language switch happened
+      if (d && d.tr) {
+        TR = Object.assign({}, UI_STRINGS, d.tr);
+        applyI18n();
+        try {
+          localStorage.setItem('i18n:' + UI_VERSION + ':' + lang, JSON.stringify(d.tr));
+          // Best-effort cleanup of old-version cache entries so we don't pile up.
+          for (let i = localStorage.length - 1; i >= 0; i--) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('i18n:') && !k.startsWith('i18n:' + UI_VERSION + ':')) {
+              localStorage.removeItem(k);
+            }
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  // ---------- font size (sm / md / lg / xl) ----------
+  const FS_STEPS = ['sm', 'md', 'lg', 'xl'];
+  let fsIdx = Math.max(0, FS_STEPS.indexOf(localStorage.getItem('fs') || 'md'));
+  function applyFs() {
+    document.body.setAttribute('data-fs', FS_STEPS[fsIdx]);
+    localStorage.setItem('fs', FS_STEPS[fsIdx]);
+    document.getElementById('btn-fs-down').disabled = fsIdx <= 0;
+    document.getElementById('btn-fs-up').disabled = fsIdx >= FS_STEPS.length - 1;
+  }
+  document.getElementById('btn-fs-down').addEventListener('click', () => { if (fsIdx > 0) { fsIdx--; applyFs(); } });
+  document.getElementById('btn-fs-up').addEventListener('click', () => { if (fsIdx < FS_STEPS.length - 1) { fsIdx++; applyFs(); } });
+  applyFs();
+
+  // ---------- text-to-speech ----------
+  // Use the device's built-in voices. We cancel any current speech before
+  // starting the next one so the student always hears the *current* sentence,
+  // not a backlog. Replay button bypasses this.
+  let ttsOn = localStorage.getItem('tts') === '1';
+  // Slow-mode toggle for ESL learners. 0.7× is the sweet spot — slow enough
+  // that beginners can catch each syllable, fast enough that it still feels
+  // like speech, not a tape pulled.
+  let ttsRate = localStorage.getItem('ttsSlow') === '1' ? 0.7 : 0.95;
+  const ttsBtn = document.getElementById('btn-tts');
+  const slowBtn = document.getElementById('btn-slow');
+  function refreshSlowBtn() {
+    slowBtn.classList.toggle('active', ttsRate < 0.9);
+    slowBtn.textContent = ttsRate < 0.9 ? '🐢 Slow ✓' : '🐢 Slow';
+  }
+  refreshSlowBtn();
+  slowBtn.addEventListener('click', () => {
+    ttsRate = ttsRate < 0.9 ? 0.95 : 0.7;
+    localStorage.setItem('ttsSlow', ttsRate < 0.9 ? '1' : '0');
+    refreshSlowBtn();
+  });
+  function refreshTtsBtn() { ttsBtn.classList.toggle('active', ttsOn); }
+  refreshTtsBtn();
+  ttsBtn.addEventListener('click', () => {
+    ttsOn = !ttsOn;
+    localStorage.setItem('tts', ttsOn ? '1' : '0');
+    refreshTtsBtn();
+    if (!ttsOn) try { window.speechSynthesis.cancel(); } catch (_) {}
+  });
+
+  const VOICE_FOR_LANG = {
+    'English': 'en',
+    'Spanish': 'es', 'Dari': 'fa', 'Somali': 'so', 'Vietnamese': 'vi',
+    'Amharic': 'am', 'Arabic': 'ar', 'Simplified Chinese': 'zh-CN',
+    'Tagalog': 'tl', 'Swahili': 'sw', 'French': 'fr', 'Portuguese': 'pt',
+    'Korean': 'ko', 'Hindi': 'hi', 'Punjabi': 'pa', 'Russian': 'ru',
+    'Ukrainian': 'uk'
+  };
+  function pickVoice(langName) {
+    if (!window.speechSynthesis) return null;
+    const want = (VOICE_FOR_LANG[langName] || '').toLowerCase();
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) return null;
+    // Best: full match. Next: language prefix. Last: nothing — browser default.
+    return voices.find(v => v.lang && v.lang.toLowerCase() === want)
+        || voices.find(v => v.lang && v.lang.toLowerCase().split('-')[0] === want.split('-')[0])
+        || null;
+  }
+  // Some browsers populate voices async.
+  if (window.speechSynthesis) {
+    try { window.speechSynthesis.onvoiceschanged = () => {}; } catch (_) {}
+  }
+  // Natural-voice mode swaps the browser's robotic SpeechSynthesis for
+  // OpenAI tts-1 audio played through an Audio element. The toggle is set
+  // up further down (after controls are wired). Stored on the function
+  // object so the closure stays tidy.
+  let ttsNatural = localStorage.getItem('ttsNatural') === '1';
+  let naturalAudioEl = null;
+  function speakNatural(text) {
+    if (!text) return;
+    try {
+      if (naturalAudioEl) { try { naturalAudioEl.pause(); } catch (_) {} naturalAudioEl = null; }
+      // Cancel any leftover browser speech too — we don't want both at once.
+      if (window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (_) {} }
+      fetch('/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, room: roomCode })
+      }).then(r => {
+        if (!r.ok) throw new Error('tts ' + r.status);
+        return r.blob();
+      }).then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = new Audio(url);
+        a.playbackRate = ttsRate < 0.9 ? 0.85 : 1.0;
+        a.addEventListener('ended', () => URL.revokeObjectURL(url));
+        naturalAudioEl = a;
+        a.play().catch(() => {/* autoplay blocked — silent */});
+      }).catch(() => {
+        // Fall back to browser voice so the student still hears something.
+        speakBrowser(text);
+      });
+    } catch (_) { speakBrowser(text); }
+  }
+  function speakBrowser(text) {
+    if (!text || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const v = pickVoice(currentLang);
+      if (v) { u.voice = v; u.lang = v.lang; }
+      else if (VOICE_FOR_LANG[currentLang]) u.lang = VOICE_FOR_LANG[currentLang];
+      u.rate = ttsRate; u.pitch = 1;
+      window.speechSynthesis.speak(u);
+    } catch (_) {}
+  }
+  function speak(text) {
+    if (ttsNatural) return speakNatural(text);
+    return speakBrowser(text);
+  }
+  // Wire the natural-voice toggle (button is in the controls bar).
+  // Hidden by default — only shown if the server reports TTS is wired,
+  // so we don't tease a feature that would silently fall back to browser
+  // voice on every click.
+  const naturalBtn = document.getElementById('btn-natural');
+  naturalBtn.style.display = 'none';
+  fetch('/capabilities').then(r => r.json()).then(caps => {
+    if (caps && caps.tts) naturalBtn.style.display = '';
+    else { ttsNatural = false; localStorage.removeItem('ttsNatural'); }
+    // Also hide the phrasebook sync button if the server has no DB.
+    if (caps && !caps.phrasebookSync) {
+      const s = document.getElementById('pb-sync');
+      if (s) s.style.display = 'none';
+    }
+  }).catch(() => { /* leave hidden */ });
+  function refreshNaturalBtn() {
+    naturalBtn.classList.toggle('active', ttsNatural);
+    naturalBtn.textContent = ttsNatural ? '🗣 Natural voice ✓' : '🗣 Natural voice';
+  }
+  refreshNaturalBtn();
+  naturalBtn.addEventListener('click', () => {
+    ttsNatural = !ttsNatural;
+    localStorage.setItem('ttsNatural', ttsNatural ? '1' : '0');
+    refreshNaturalBtn();
+  });
+  document.getElementById('btn-replay').addEventListener('click', () => {
+    if (latestUtter && latestUtter.tr) speak(latestUtter.tr);
+  });
+
+  // ---------- nickname ----------
+  const nickInput = document.getElementById('nick-input');
+  nickInput.value = localStorage.getItem('nick') || '';
+  nickInput.addEventListener('input', () => {
+    localStorage.setItem('nick', nickInput.value.trim().slice(0, 40));
+  });
+
+  // ---------- teacher replies (rendered in the message card) ----------
+  // Replies arrive over SSE as `teacher-reply` events. We append them to a
+  // small inbox above the textarea so the student sees them next to where
+  // they wrote.
+  const seenReplyIds = new Set();
+  function handleTeacherReply(payload) {
+    if (!payload || payload.id == null) return;
+    if (seenReplyIds.has(payload.id)) return;  // dedupe across SSE reconnect races
+    seenReplyIds.add(payload.id);
+    if (seenReplyIds.size > 200) {
+      // keep the set bounded; oldest-out
+      const it = seenReplyIds.values(); for (let i = 0; i < 100; i++) seenReplyIds.delete(it.next().value);
+    }
+    let inbox = document.getElementById('reply-inbox');
+    if (!inbox) {
+      inbox = document.createElement('div');
+      inbox.id = 'reply-inbox';
+      inbox.style.cssText = 'margin-bottom:10px; display:flex; flex-direction:column; gap:8px;';
+      const card = document.getElementById('msg-card');
+      if (card) card.insertBefore(inbox, card.querySelector('#msg-text'));
+    }
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:var(--radius);';
+    const header = document.createElement('div');
+    header.style.cssText = 'font-family:"DM Mono",monospace; font-size:11px; color:var(--muted); margin-bottom:4px;';
+    header.textContent = t('teacher_label') + ' · ' + new Date(payload.ts || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    wrap.appendChild(header);
+    const tr = document.createElement('div');
+    tr.style.cssText = 'font-size:15px; line-height:1.5; color:var(--text);';
+    tr.textContent = payload.tr || '';
+    wrap.appendChild(tr);
+    if (payload.en && payload.en !== payload.tr) {
+      const en = document.createElement('div');
+      en.style.cssText = 'font-size:12px; color:var(--muted); margin-top:4px; font-style:italic;';
+      en.textContent = payload.en;
+      wrap.appendChild(en);
+    }
+    inbox.appendChild(wrap);
+    // Keep only the last 10 replies on screen.
+    while (inbox.children.length > 10) inbox.removeChild(inbox.firstChild);
+    // Speak it if read-aloud is on.
+    if (ttsOn && payload.tr) speak(payload.tr);
+  }
+
+  // ---------- message the teacher ----------
+  const msgText = document.getElementById('msg-text');
+  const msgSend = document.getElementById('msg-send');
+  const msgStatus = document.getElementById('msg-status');
+  let msgCooldownUntil = 0;
+  msgSend.addEventListener('click', async () => {
+    if (!currentLang) { msgStatus.textContent = t('msg_pick_lang'); return; }
+    if (Date.now() < msgCooldownUntil) return;
+    const text = (msgText.value || '').trim();
+    if (!text) { msgStatus.textContent = t('msg_type_first'); return; }
+    const nickname = (nickInput.value || '').trim().slice(0, 40);
+    msgSend.disabled = true;
+    msgStatus.textContent = t('msg_sending');
+    msgCooldownUntil = Date.now() + 4000;
+    try {
+      const r = await fetch('/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ c: roomCode, sessionId, nickname, lang: currentLang, text })
+      });
+      if (r.ok) {
+        msgText.value = '';
+        msgStatus.textContent = t('msg_sent');
+      } else {
+        const d = await r.json().catch(() => ({}));
+        msgStatus.textContent = d.error || t('msg_failed');
+      }
+    } catch (_) {
+      msgStatus.textContent = t('msg_failed');
+    }
+    setTimeout(() => { msgSend.disabled = false; msgStatus.textContent = ''; }, 4000);
+  });
+
+  // ---------- AI class notes ----------
+  // Pull this session's transcript from the server, summarize it as study
+  // notes in the student's language, render inline. Copy + Share buttons
+  // let the student send it to themselves (text, email, save, etc.).
+  const notesBtn = document.getElementById('notes-btn');
+  const notesCopy = document.getElementById('notes-copy');
+  const notesShare = document.getElementById('notes-share');
+  const notesOut = document.getElementById('notes-out');
+  const notesStatus = document.getElementById('notes-status');
+  let notesCooldownUntil = 0;
+  let notesText = '';
+
+  const notesCoverage = document.getElementById('notes-coverage');
+  const notesSecondaryRow = document.getElementById('notes-secondary-row');
+  const notesListenBtn = document.getElementById('notes-listen');
+
+  notesBtn.addEventListener('click', async () => {
+    const useLang = currentLang || lastLang;
+    if (!useLang) { notesStatus.textContent = t('msg_pick_lang'); return; }
+    if (Date.now() < notesCooldownUntil) return;
+    notesCooldownUntil = Date.now() + 20000;
+    notesBtn.disabled = true;
+    notesStatus.textContent = t('notes_loading');
+    try {
+      const r = await fetch('/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ c: roomCode, lang: useLang })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.empty) {
+        notesOut.style.display = 'block';
+        notesOut.textContent = t('notes_empty');
+        notesCopy.style.display = 'none';
+        notesShare.style.display = 'none';
+        notesText = '';
+        notesStatus.textContent = '';
+      } else if (r.ok && d.notes) {
+        notesText = d.notes;
+        notesOut.style.display = 'block';
+        notesOut.textContent = notesText;
+        notesCopy.style.display = 'inline-flex';
+        if (navigator.share) notesShare.style.display = 'inline-flex';
+        notesStatus.textContent = '';
+        notesBtn.textContent = t('notes_regen');
+        if (d.coverage && d.coverage.count) {
+          notesCoverage.style.display = 'block';
+          notesCoverage.textContent = t('notes_coverage', { count: d.coverage.count, min: d.coverage.durationMin });
+        } else { notesCoverage.style.display = 'none'; }
+        notesSecondaryRow.style.display = 'flex';
+        // Speak in whichever language the notes were generated in.
+        notesListenLang = useLang;
+      } else {
+        notesStatus.textContent = d.error || t('notes_failed');
+      }
+    } catch (_) {
+      notesStatus.textContent = t('notes_failed');
+    }
+    setTimeout(() => { notesBtn.disabled = false; }, 2000);
+  });
+
+  notesCopy.addEventListener('click', async () => {
+    if (!notesText) return;
+    try {
+      await navigator.clipboard.writeText(notesText);
+      notesStatus.textContent = t('notes_copied');
+    } catch (_) {
+      // Fallback: select the notes block so the user can long-press/copy
+      try {
+        const r = document.createRange();
+        r.selectNodeContents(notesOut);
+        const s = window.getSelection();
+        s.removeAllRanges(); s.addRange(r);
+        notesStatus.textContent = t('notes_copied');
+      } catch (_) { notesStatus.textContent = t('msg_failed'); }
+    }
+    setTimeout(() => { notesStatus.textContent = ''; }, 3000);
+  });
+
+  notesShare.addEventListener('click', async () => {
+    if (!notesText || !navigator.share) return;
+    try {
+      await navigator.share({ title: t('notes_share_title'), text: notesText });
+    } catch (_) { /* user cancelled */ }
+  });
+
+  // Read the notes aloud. The notes text can be long (~250-450 words), so
+  // browsers will pause/resume across sentences via the synth queue. Tapping
+  // again while speaking stops playback. We pick the voice the same way the
+  // live lesson does so the language matches what's on screen.
+  let notesListenLang = null;
+  let notesSpeaking = false;
+  function notesStopSpeak() {
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
+    notesSpeaking = false;
+    notesListenBtn.textContent = t('notes_listen');
+  }
+  notesListenBtn.addEventListener('click', () => {
+    if (notesSpeaking) { notesStopSpeak(); return; }
+    if (!notesText || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+    try { window.speechSynthesis.cancel(); } catch (_) {}
+    const lang = notesListenLang || currentLang;
+    const v = pickVoice(lang);
+    // Chunk by sentence so long notes don't trip browser-imposed length caps.
+    const chunks = notesText.match(/[^.!?。！？\n]+[.!?。！？]?/g) || [notesText];
+    notesSpeaking = true;
+    notesListenBtn.textContent = t('notes_stop');
+    let i = 0;
+    const speakNext = () => {
+      if (!notesSpeaking || i >= chunks.length) { notesStopSpeak(); return; }
+      const u = new SpeechSynthesisUtterance(chunks[i++].trim());
+      if (v) { u.voice = v; u.lang = v.lang; }
+      else if (VOICE_FOR_LANG[lang]) u.lang = VOICE_FOR_LANG[lang];
+      u.rate = ttsRate; u.pitch = 1;
+      u.onend = speakNext;
+      u.onerror = () => notesStopSpeak();
+      window.speechSynthesis.speak(u);
+    };
+    speakNext();
+  });
+
+  // ---------- "I'm lost" ----------
+  const lostBtn = document.getElementById('btn-lost');
+  let lostCooldownUntil = 0;
+  lostBtn.addEventListener('click', async () => {
+    if (!currentLang) return;
+    if (Date.now() < lostCooldownUntil) return;
+    lostCooldownUntil = Date.now() + 8000;
+    lostBtn.classList.add('active');
+    const label = lostBtn.querySelector('.btn-label') || lostBtn;
+    label.textContent = t('btn_lost_sent');
+    try {
+      await fetch('/confused', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang: currentLang, sessionId, c: roomCode })
+      });
+    } catch (_) {}
+    setTimeout(() => {
+      lostBtn.classList.remove('active');
+      label.textContent = t('btn_lost');
+    }, 8000);
+  });
+
+  // ---------- Hold (pause the feed) ----------
+  const holdBtn = document.getElementById('btn-hold');
+  const holdBadge = document.getElementById('hold-badge');
+  let isHeld = false;
+  const heldQueue = []; // utterances that arrived while held
+  function updateHoldUI() {
+    holdBtn.classList.toggle('active', isHeld);
+    const label = holdBtn.querySelector('.btn-label');
+    if (isHeld) {
+      if (label) label.textContent = t('btn_catchup');
+      holdBadge.style.display = heldQueue.length ? 'inline-block' : 'none';
+      holdBadge.textContent = heldQueue.length;
+    } else {
+      if (label) label.textContent = t('btn_hold');
+      holdBadge.style.display = 'none';
+    }
+  }
+  holdBtn.addEventListener('click', () => {
+    if (isHeld) {
+      // Release: drain queued items into feed in order.
+      isHeld = false;
+      const drained = heldQueue.splice(0);
+      for (const u of drained) renderUtter(u.id, u.en, u.tr, !!u.err);
+      // Only speak the most recent so we don't dump a wall of audio.
+      if (ttsOn && drained.length) {
+        const last = drained[drained.length - 1];
+        latestUtter = { en: last.en, tr: last.tr };
+        if (last.tr) speak(last.tr);
+      }
+      updateHoldUI();
+    } else {
+      isHeld = true;
+      try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
+      updateHoldUI();
+    }
+  });
+
+  // Remember last choice
+  const saved = localStorage.getItem('lang');
+  if (saved) {
+    langSelect.value = saved;
+    loadI18n(saved);
+    connect(saved);
+  }
+
+  langSelect.addEventListener('change', () => {
+    const v = langSelect.value;
+    localStorage.setItem('lang', v);
+    loadI18n(v);
+    if (v) connect(v);
+    else disconnect();
+  });
+
+  function setStatus(state, text) {
+    statusPill.className = 'status-pill' + (state ? ' ' + state : '');
+    statusText.textContent = text;
+  }
+
+  function clearFeed() {
+    feed.innerHTML = '';
+    seen.clear();
+    placeholderCleared = true;
+  }
+
+  function renderUtter(id, en, tr, isError) {
+    let node = seen.get(id);
+    if (!node) {
+      node = document.createElement('div');
+      node.className = 'utter' + (isError ? ' err' : '');
+      node.dataset.id = String(id);
+      node.innerHTML = '<div class="en"></div><div class="tr"></div>';
+      // Insert sorted by id descending (newest first), so backfill and live
+      // events arriving in any order still produce a correctly-ordered feed.
+      let inserted = false;
+      for (const child of feed.children) {
+        const otherId = Number(child.dataset.id || 0);
+        if (id > otherId) { feed.insertBefore(node, child); inserted = true; break; }
+      }
+      if (!inserted) feed.appendChild(node);
+      seen.set(id, node);
+      // Cap feed length (drop oldest from the bottom)
+      while (feed.children.length > 40) {
+        const last = feed.lastChild;
+        const lastId = Number(last.dataset.id || 0);
+        feed.removeChild(last);
+        seen.delete(lastId);
+      }
+    } else {
+      node.classList.toggle('err', !!isError);
+    }
+    // Mark current top as "latest" for emphasis
+    feed.querySelectorAll('.utter.latest').forEach(n => n.classList.remove('latest'));
+    if (feed.firstChild) feed.firstChild.classList.add('latest');
+
+    // Render English words as individual tap targets so students can look
+    // up any unfamiliar word inline (P4: tap-to-define). The translated
+    // line stays as plain text — that's already in their language.
+    const enEl = node.querySelector('.en');
+    enEl.innerHTML = '';
+    const text = en || '';
+    const re = /[A-Za-z][A-Za-z'\-]*/g;
+    let lastIdx = 0; let m;
+    while ((m = re.exec(text))) {
+      if (m.index > lastIdx) enEl.appendChild(document.createTextNode(text.slice(lastIdx, m.index)));
+      const span = document.createElement('span');
+      span.className = 'word';
+      span.textContent = m[0];
+      enEl.appendChild(span);
+      lastIdx = m.index + m[0].length;
+    }
+    if (lastIdx < text.length) enEl.appendChild(document.createTextNode(text.slice(lastIdx)));
+    node.querySelector('.tr').textContent = tr || '';
+    // Attach phrasebook long-press once per node (idempotent — flag stored
+    // on the element). Long-press = 600ms, on the whole bubble.
+    if (!node.dataset.lp) {
+      node.dataset.lp = '1';
+      attachLongPress(node, () => savePhraseFromNode(node));
+    }
+  }
+
+  function disconnect() {
+    if (es) { es.close(); es = null; }
+    currentLang = null;
+    controlsEl.style.display = 'none';
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
+    // Reset Hold state so a queued utterance from the previous language can't
+    // drain into the next one's feed (would clobber by shared utterance id).
+    isHeld = false;
+    heldQueue.length = 0;
+    latestUtter = null;
+    updateHoldUI();
+    setStatus('', t('status_pick_lang'));
+  }
+
+  // Decide what to do with a freshly-arrived utterance: render immediately,
+  // or queue it if the student is holding the feed.
+  function handleIncoming(d, isError) {
+    if (isHeld) {
+      heldQueue.push({ id: d.id, en: d.en, tr: d.tr, err: !!isError });
+      updateHoldUI();
+      return;
+    }
+    renderUtter(d.id, d.en, d.tr, !!isError);
+    if (!isError) {
+      latestUtter = { en: d.en, tr: d.tr };
+      if (ttsOn && d.tr) speak(d.tr);
+    }
+  }
+
+  function connect(lang) {
+    if (!roomCode) { showStale('You need a class link.'); return; }
+    disconnect();
+    if (!placeholderCleared || lang !== currentLang) clearFeed();
+    currentLang = lang;
+    controlsEl.style.display = 'flex';
+    setStatus('', t('status_connecting'));
+
+    es = new EventSource('/stream?lang=' + encodeURIComponent(lang) + '&c=' + encodeURIComponent(roomCode) + '&sid=' + encodeURIComponent(sessionId));
+
+    es.addEventListener('room-ended', () => {
+      // Server kicked us — instructor started a new class. Don't auto-retry.
+      showStale(t('stale_ended'));
+    });
+    es.addEventListener('class-ending', () => {
+      // Arrives just before room-ended. Prompt the student to save notes now
+      // (a banner will also appear in showStale, but this gets attention up top).
+      const card = document.getElementById('notes-card');
+      if (!card) return;
+      let banner = document.getElementById('class-ending-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'class-ending-banner';
+        banner.style.cssText = 'margin:0 0 12px; padding:12px 14px; background:var(--magenta-dim); border:2px solid var(--ink); border-radius:var(--radius); color:var(--ink); font-size:14px; line-height:1.5; font-weight:600; cursor:pointer; box-shadow:3px 3px 0 var(--mustard);';
+        banner.addEventListener('click', () => { notesBtn.click(); banner.style.display = 'none'; });
+        card.insertBefore(banner, card.children[1]);
+      }
+      banner.textContent = t('class_ending_banner');
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    es.onopen = () => setStatus('ok', t('status_live', { lang }));
+    es.onerror = () => {
+      // EventSource auto-reconnects; just reflect state
+      setStatus('live', t('status_reconnecting'));
+    };
+
+    es.addEventListener('utter', (ev) => {
+      try { handleIncoming(JSON.parse(ev.data), false); } catch (_) {}
+    });
+    es.addEventListener('teacher-reply', (ev) => {
+      try { handleTeacherReply(JSON.parse(ev.data)); } catch (_) {}
+    });
+    es.addEventListener('tr-error', (ev) => {
+      try {
+        const d = JSON.parse(ev.data);
+        // Render errors right away (don't TTS them, don't queue them — they're
+        // small notes the student can see at any time).
+        renderUtter(d.id, d.en, '⚠ ' + (d.err || 'translation failed'), true);
+      } catch (_) {}
+    });
+    es.addEventListener('video', (ev) => {
+      try { handleVideoEvent(JSON.parse(ev.data)); } catch (_) {}
+    });
+    es.addEventListener('video-caption', (ev) => {
+      try { handleCaptionEvent(JSON.parse(ev.data)); } catch (_) {}
+    });
+    es.addEventListener('doc', (ev) => {
+      try { handleDocEvent(JSON.parse(ev.data)); } catch (_) {}
+    });
+    es.addEventListener('doc-text', (ev) => {
+      try { handleDocTextEvent(JSON.parse(ev.data)); } catch (_) {}
+    });
+    es.addEventListener('history-cleared', () => {
+      // Teacher wiped the transcript — clear what's on screen too. Don't
+      // touch video/document panels; only the lesson feed.
+      try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
+      heldQueue.length = 0;
+      latestUtter = null;
+      if (isHeld) { isHeld = false; updateHoldUI(); }
+      clearFeed();
+      const note = document.createElement('div');
+      note.className = 'utter';
+      const trDiv = document.createElement('div');
+      trDiv.className = 'tr';
+      trDiv.style.cssText = 'color:var(--muted); font-style:italic; font-size:14px;';
+      trDiv.textContent = t('history_cleared');
+      note.appendChild(trDiv);
+      feed.appendChild(note);
+    });
+  }
+
+  // ---------- screenshot deterrents (soft — a browser can't truly block) ----------
+  // Per-session id stays in sessionStorage so the same student keeps the same
+  // tag while their tab is open, but it resets next session. No PII.
+  (function setupWatermark() {
+    let sid = '';
+    try { sid = sessionStorage.getItem('follow-sid') || ''; } catch (_) {}
+    if (!sid) {
+      const buf = new Uint8Array(4);
+      (window.crypto || window.msCrypto).getRandomValues(buf);
+      sid = Array.from(buf).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+      try { sessionStorage.setItem('follow-sid', sid); } catch (_) {}
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    const tag = `ClassLingo · ${sid} · ${today}`;
+    const wm = document.getElementById('watermark');
+    // Tile the tag many times so a partial screenshot still catches it.
+    let html = '';
+    for (let i = 0; i < 60; i++) html += `<span>${tag}</span>`;
+    wm.innerHTML = html;
+  })();
+  // Discourage casual copy-paste of the transcript. Doesn't stop a determined
+  // user — it's a "please don't" signal, not security.
+  document.addEventListener('contextmenu', (e) => {
+    // Allow right-click in form fields so students can still paste their language pick, etc.
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
+    e.preventDefault();
+  });
+
+  // ---------- shared document ----------
+  const docWrap = document.getElementById('doc-wrap');
+  const docNameEl = document.getElementById('doc-name');
+  const docPosEl = document.getElementById('doc-pos');
+  const docTrEl = document.getElementById('doc-tr');
+  const docEnEl = document.getElementById('doc-en');
+  const docLoadingEl = document.getElementById('doc-loading');
+  const docToggleBtn = document.getElementById('doc-toggle-en');
+  const docImgWrap = document.getElementById('doc-img-wrap');
+  const docImgEl = document.getElementById('doc-img');
+  let currentDocId = null;
+  let currentDocPage = null;
+  let docEnShown = false;
+
+  // The image is hidden until it actually loads — that way DOCX/TXT (which
+  // have no rendered preview) don't show a broken icon. Tapping the image
+  // opens it full-screen so students can zoom in on small text or diagrams.
+  docImgEl.addEventListener('load', () => { docImgWrap.style.display = 'block'; });
+  docImgEl.addEventListener('error', () => { docImgWrap.style.display = 'none'; });
+  docImgEl.addEventListener('click', () => {
+    if (!docImgEl.src) return;
+    window.open(docImgEl.src, '_blank', 'noopener');
+  });
+
+  docToggleBtn.addEventListener('click', () => {
+    docEnShown = !docEnShown;
+    docEnEl.style.display = docEnShown ? 'block' : 'none';
+    docToggleBtn.textContent = docEnShown ? t('doc_hide_en') : t('doc_show_en');
+  });
+  // Show "In Spanish:" (or whichever language) above the translated text so
+  // students always know which version they're looking at.
+  const docLangLabel = document.getElementById('doc-lang-label');
+  function refreshDocLangLabel() {
+    const picked = (typeof langSelect !== 'undefined' && langSelect && langSelect.value) || '';
+    docLangLabel.textContent = picked ? t('doc_in_lang', { lang: picked }) : '';
+  }
+  refreshDocLangLabel();
+  if (typeof langSelect !== 'undefined' && langSelect) {
+    langSelect.addEventListener('change', refreshDocLangLabel);
+  }
+
+  function handleDocEvent(d) {
+    if (!d || !d.docId) {
+      currentDocId = null; currentDocPage = null;
+      docWrap.style.display = 'none';
+      docTrEl.textContent = ''; docEnEl.textContent = '';
+      docImgWrap.style.display = 'none';
+      docImgEl.removeAttribute('src');
+      return;
+    }
+    docWrap.style.display = 'block';
+    docNameEl.textContent = d.name || '';
+    docPosEl.textContent = t('doc_page_x_of_y', { n: (d.currentPage|0) + 1, total: d.pageCount });
+    // If this is a new doc or new page, show loading state until doc-text arrives.
+    if (d.docId !== currentDocId || d.currentPage !== currentDocPage) {
+      currentDocId = d.docId;
+      currentDocPage = d.currentPage;
+      docTrEl.textContent = ''; docEnEl.textContent = '';
+      docLoadingEl.style.display = 'block';
+      docTrEl.scrollTop = 0;
+      // Swap the preview image. The img stays hidden until the load event
+      // fires (or stays hidden on 404 — see error listener above).
+      docImgWrap.style.display = 'none';
+      docImgEl.src = '/document/preview/' + encodeURIComponent(d.docId) + '/' + (d.currentPage|0);
+    }
+  }
+  function handleDocTextEvent(d) {
+    if (!d || !d.docId) {
+      docWrap.style.display = 'none';
+      docTrEl.textContent = ''; docEnEl.textContent = '';
+      return;
+    }
+    // Only render if this matches the page we currently expect.
+    if (d.docId !== currentDocId || d.page !== currentDocPage) return;
+    docLoadingEl.style.display = 'none';
+    docTrEl.textContent = d.tr || '(no text on this page)';
+    docEnEl.textContent = d.en || '';
+  }
+
+  // ---------- video captions ----------
+  const captionBox = document.getElementById('caption-box');
+  const captionTr = document.getElementById('caption-tr');
+  const captionEn = document.getElementById('caption-en');
+  const captionHint = document.getElementById('caption-hint');
+  // Track the highest cueIndex we've actually rendered so a translation that
+  // finishes late (the server doesn't drop them anymore — translation can
+  // take longer than a 1-2 sec caption window) can't overwrite the newer cue
+  // that already appeared on screen. Keyed by videoId so a video swap or a
+  // backward seek (see resetCaptionOrder()) starts fresh and doesn't
+  // permanently suppress the new (lower) cue indexes.
+  let lastShownCueIndex = -1;
+  let lastCaptionVideoId = null;
+  function resetCaptionOrder() { lastShownCueIndex = -1; }
+  function handleCaptionEvent(d) {
+    if (!d || d.cueIndex == null || !d.tr) {
+      captionBox.style.display = 'none';
+      captionTr.textContent = '';
+      captionEn.textContent = '';
+      if (!d || d.videoId == null) { resetCaptionOrder(); lastCaptionVideoId = null; }
+      return;
+    }
+    // New video: forget prior cue index so low indexes aren't suppressed.
+    if (d.videoId !== lastCaptionVideoId) {
+      lastCaptionVideoId = d.videoId;
+      resetCaptionOrder();
+    }
+    if (d.cueIndex < lastShownCueIndex) return; // stale, ignore
+    lastShownCueIndex = d.cueIndex;
+    captionBox.style.display = 'block';
+    captionTr.textContent = d.tr;
+    captionEn.textContent = d.en || '';
+  }
+
+  // ---------- synced YouTube video ----------
+  const videoWrap = document.getElementById('video-wrap');
+  const unmuteBtn = document.getElementById('unmute-btn');
+  let ytPlayer = null;
+  let ytReady = false;
+  let ytApiLoading = false;
+  let currentVideoId = null;
+  let suppressStateOnce = false; // ignore the state change we caused ourselves
+
+  function loadYtApi(cb) {
+    if (window.YT && window.YT.Player) return cb();
+    if (ytApiLoading) { const i = setInterval(() => { if (window.YT && window.YT.Player) { clearInterval(i); cb(); } }, 100); return; }
+    ytApiLoading = true;
+    window.onYouTubeIframeAPIReady = () => cb();
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  }
+
+  unmuteBtn.addEventListener('click', () => {
+    if (!ytPlayer) return;
+    try { ytPlayer.unMute(); ytPlayer.setVolume(80); } catch (_) {}
+    unmuteBtn.style.display = 'none';
+  });
+
+  // Apply server-reported state to the local player.
+  let lastAppliedPositionSec = -1;
+  function applyVideoState(d) {
+    if (!ytPlayer || !ytReady) return;
+    // Detect backward seek (teacher rewound). Without this, our cue-order
+    // guard above would permanently suppress every caption until playback
+    // catches back up to where we were.
+    if (typeof d.positionSec === 'number') {
+      if (lastAppliedPositionSec >= 0 && d.positionSec < lastAppliedPositionSec - 1.5) {
+        resetCaptionOrder();
+      }
+      lastAppliedPositionSec = d.positionSec;
+    }
+    // Extrapolate from updatedAt (when playback last changed) so late joiners
+    // land at the right spot, not where playback was when this message was sent.
+    const ref = d.updatedAt || d.serverTime || Date.now();
+    const drift = d.state === 'playing'
+      ? d.positionSec + Math.max(0, (Date.now() - ref) / 1000)
+      : d.positionSec;
+    try {
+      const cur = ytPlayer.getCurrentTime() || 0;
+      // Only correct drift when it's substantial. The old 1.5s threshold
+      // caused students to constantly jump when their player lagged a hair
+      // behind the teacher's — felt like a fight. 2s tolerates network
+      // jitter while still keeping the room within a single sentence.
+      if (Math.abs(cur - drift) > 2) {
+        suppressStateOnce = true;
+        ytPlayer.seekTo(drift, true);
+      }
+      if (d.state === 'playing') ytPlayer.playVideo();
+      else ytPlayer.pauseVideo();
+    } catch (_) {}
+  }
+
+  function handleVideoEvent(d) {
+    if (!d || !d.videoId) {
+      // Clear / no video
+      currentVideoId = null;
+      videoWrap.style.display = 'none';
+      unmuteBtn.style.display = 'none';
+      captionBox.style.display = 'none';
+      captionHint.style.display = 'none';
+      resetCaptionOrder();
+      lastCaptionVideoId = null;
+      lastAppliedPositionSec = -1;
+      if (ytPlayer) { try { ytPlayer.stopVideo(); } catch (_) {} }
+      return;
+    }
+    // New video swap: clear caption state so the first cues aren't suppressed.
+    if (d.videoId !== currentVideoId) {
+      resetCaptionOrder();
+      lastAppliedPositionSec = -1;
+    }
+    videoWrap.style.display = 'block';
+    captionHint.style.display = d.hasCaptions === false ? 'block' : 'none';
+    loadYtApi(() => {
+      if (!ytPlayer) {
+        ytPlayer = new YT.Player('yt-player', {
+          videoId: d.videoId,
+          width: '100%',
+          height: '100%',
+          playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 0, disablekb: 1, mute: 1 },
+          events: {
+            onReady: () => {
+              ytReady = true;
+              currentVideoId = d.videoId;
+              try { ytPlayer.mute(); } catch (_) {}
+              unmuteBtn.style.display = 'inline-block';
+              applyVideoState(d);
+            }
+          }
+        });
+      } else if (d.videoId !== currentVideoId) {
+        currentVideoId = d.videoId;
+        suppressStateOnce = true;
+        try { ytPlayer.loadVideoById(d.videoId); ytPlayer.mute(); } catch (_) {}
+        unmuteBtn.style.display = 'inline-block';
+        // give it a moment to load before applying state
+        setTimeout(() => applyVideoState(d), 800);
+      } else {
+        applyVideoState(d);
+      }
+    });
+  }
+
+  // Reconnect when the tab becomes visible again (mobile browsers may drop SSE)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && currentLang && (!es || es.readyState === 2)) {
+      connect(currentLang);
+    }
+  });
+</script>
+<!-- ESL learning tools: tap-to-define modal + phrasebook drawer + supporting CSS+JS. -->
+<style>
+  /* Tappable English words inside the transcript */
+  .utter .en .word {
+    cursor: pointer;
+    padding: 0 1px;
+    border-radius: 3px;
+    transition: background 0.12s;
+  }
+  .utter .en .word:hover,
+  .utter .en .word:active {
+    background: rgba(217, 83, 79, 0.18);
+  }
+  .utter .en .word.saved {
+    background: #fff4d6;
+    box-shadow: inset 0 -2px 0 #f5c542;
+  }
+  /* Definition modal */
+  .esl-overlay {
+    position: fixed; inset: 0;
+    background: rgba(20, 20, 25, 0.55);
+    z-index: 200;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .esl-overlay.show { display: flex; }
+  .esl-modal {
+    background: var(--surface, #fff);
+    color: var(--text, #1a1a1a);
+    border-radius: 14px;
+    max-width: 480px; width: 100%;
+    max-height: 90vh; overflow: auto;
+    padding: 18px 18px 14px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border, #e0e0e0);
+  }
+  .esl-modal h3 { margin: 0 0 4px; font-size: 22px; }
+  .esl-modal .tr-word { font-size: 24px; color: #b1361e; font-weight: 700; margin: 2px 0 12px; }
+  .esl-modal .label {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    color: var(--muted, #777); text-transform: uppercase;
+    letter-spacing: .04em; margin: 10px 0 2px;
+  }
+  .esl-modal .body { font-size: 15px; line-height: 1.5; }
+  .esl-modal .ex { font-style: italic; color: var(--muted, #777); }
+  .esl-modal .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0 0; }
+  .esl-modal button { width: auto; padding: 8px 12px; font-size: 13px; }
+  .esl-modal .close-x {
+    position: absolute; top: 12px; right: 14px;
+    background: transparent; border: none; font-size: 22px;
+    cursor: pointer; color: var(--muted, #777); padding: 4px 8px;
+  }
+  .esl-modal-wrap { position: relative; }
+  /* Phrasebook drawer */
+  .pb-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: min(360px, 100vw);
+    background: var(--surface, #fff);
+    border-left: 1px solid var(--border, #e0e0e0);
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.18);
+    z-index: 190;
+    transform: translateX(100%);
+    transition: transform 0.22s ease;
+    display: flex; flex-direction: column;
+  }
+  .pb-drawer.show { transform: translateX(0); }
+  .pb-head {
+    padding: 14px 16px; border-bottom: 1px solid var(--border, #e0e0e0);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .pb-head h3 { margin: 0; font-size: 18px; }
+  .pb-list { flex: 1; overflow: auto; padding: 8px 12px; }
+  .pb-empty { padding: 24px; text-align: center; color: var(--muted, #777); font-style: italic; }
+  .pb-item {
+    padding: 10px 12px; margin-bottom: 8px;
+    background: var(--bg, #fafafa); border: 1px solid var(--border, #e0e0e0);
+    border-radius: 10px;
+  }
+  .pb-item .pb-tr { font-size: 15px; color: var(--text, #1a1a1a); }
+  .pb-item .pb-en { font-size: 12px; color: var(--muted, #777); margin-top: 4px; font-style: italic; }
+  .pb-item .pb-actions { display: flex; gap: 6px; margin-top: 6px; }
+  .pb-item .pb-actions button { width: auto; padding: 5px 10px; font-size: 12px; }
+  .pb-toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: rgba(20, 20, 25, 0.92); color: #fff;
+    padding: 10px 16px; border-radius: 20px; font-size: 13px;
+    z-index: 220; pointer-events: none; opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .pb-toast.show { opacity: 1; }
+</style>
+<div id="esl-overlay" class="esl-overlay" role="dialog" aria-modal="true">
+  <div class="esl-modal-wrap">
+    <div class="esl-modal" id="esl-modal">
+      <button class="close-x" id="esl-close" aria-label="Close">×</button>
+      <h3 id="esl-word"></h3>
+      <div class="tr-word" id="esl-tr"></div>
+      <div class="label">Meaning</div>
+      <div class="body" id="esl-def-tr"></div>
+      <div class="body" id="esl-def-en" style="color:var(--muted); font-size:13px; margin-top:4px;"></div>
+      <div class="label">Example</div>
+      <div class="body ex" id="esl-ex-tr"></div>
+      <div class="body ex" id="esl-ex-en" style="color:var(--muted); font-size:13px;"></div>
+      <div class="row">
+        <button id="esl-listen-en" class="btn" type="button" title="Hear in English">🔊 English</button>
+        <button id="esl-listen-tr" class="btn" type="button" title="Hear in your language">🔊 My language</button>
+        <button id="esl-save" class="btn btn-primary" type="button" title="Save to your phrasebook">★ Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<aside id="pb-drawer" class="pb-drawer" aria-hidden="true">
+  <div class="pb-head">
+    <h3>📖 My phrasebook</h3>
+    <div style="display:flex; gap:6px;">
+      <button id="pb-sync" class="btn" type="button" style="width:auto; padding:6px 10px;" title="Sync your phrasebook between devices using a code you choose">☁ Sync</button>
+      <button id="pb-close" class="btn" type="button" style="width:auto; padding:6px 10px;">Close</button>
+    </div>
+  </div>
+  <div class="pb-list" id="pb-list"></div>
+</aside>
+<div id="pb-toast" class="pb-toast">Saved to phrasebook</div>
+<script>
+  // -------- Long-press helper --------
+  function attachLongPress(el, handler) {
+    let timer = null;
+    let moved = false;
+    let startX = 0, startY = 0;
+    const TRIGGER_MS = 600;
+    const start = (x, y) => {
+      moved = false; startX = x; startY = y;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (!moved) { handler(); }
+      }, TRIGGER_MS);
+    };
+    const move = (x, y) => {
+      if (Math.abs(x - startX) > 8 || Math.abs(y - startY) > 8) {
+        moved = true; clearTimeout(timer);
+      }
+    };
+    const cancel = () => { clearTimeout(timer); };
+    el.addEventListener('touchstart', e => {
+      const t = e.touches[0]; if (!t) return;
+      start(t.clientX, t.clientY);
+    }, { passive: true });
+    el.addEventListener('touchmove', e => {
+      const t = e.touches[0]; if (!t) return;
+      move(t.clientX, t.clientY);
+    }, { passive: true });
+    el.addEventListener('touchend', cancel);
+    el.addEventListener('touchcancel', cancel);
+    el.addEventListener('mousedown', e => start(e.clientX, e.clientY));
+    el.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+    el.addEventListener('mouseup', cancel);
+    el.addEventListener('mouseleave', cancel);
+  }
+
+  // -------- Phrasebook (localStorage) --------
+  // Keyed per language so a Spanish session doesn't pollute a French one.
+  function pbKey() { return 'pb_' + (currentLang || lastLang || 'unk'); }
+  function pbLoad() {
+    try { return JSON.parse(localStorage.getItem(pbKey()) || '[]'); }
+    catch (_) { return []; }
+  }
+  function pbSave(arr) {
+    try { localStorage.setItem(pbKey(), JSON.stringify(arr.slice(0, 200))); } catch (_) {}
+    schedulePbSync();
+  }
+  // -------- Cross-device sync (optional) --------
+  // Student picks a short code (e.g. "amina-fr"); we mirror their
+  // phrasebook to the server under that key so they can open class on a
+  // phone and still see what they saved on the laptop.
+  function pbSyncCode() { return localStorage.getItem('pb_sync_code') || ''; }
+  function setPbSyncCode(code) {
+    if (code) localStorage.setItem('pb_sync_code', code);
+    else localStorage.removeItem('pb_sync_code');
+  }
+  let pbSyncTimer = null;
+  function schedulePbSync() {
+    const code = pbSyncCode();
+    if (!code) return;
+    clearTimeout(pbSyncTimer);
+    // Debounce — students add bursts of words while they read.
+    pbSyncTimer = setTimeout(() => pushPhrasebook(code), 1200);
+  }
+  async function pushPhrasebook(code) {
+    try {
+      await fetch('/phrasebook/' + encodeURIComponent(code), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: pbLoad() })
+      });
+    } catch (_) {/* offline — try again next change */}
+  }
+  let pbSyncing = false;
+  async function pullAndMergePhrasebook(code) {
+    if (pbSyncing) return;
+    pbSyncing = true;
+    try {
+      const r = await fetch('/phrasebook/' + encodeURIComponent(code));
+      if (!r.ok) {
+        const data = await r.json().catch(() => ({}));
+        throw new Error(data.error || ('HTTP ' + r.status));
+      }
+      const data = await r.json();
+      const remote = Array.isArray(data.items) ? data.items : [];
+      const local = pbLoad();
+      // Union by (en, tr), newest-ts wins so deletes on either side aren't
+      // resurrected forever — practical merge for two-device users.
+      const map = new Map();
+      for (const it of [...remote, ...local]) {
+        const k = (it.en || '') + '|' + (it.tr || '');
+        const prev = map.get(k);
+        if (!prev || (it.ts || 0) > (prev.ts || 0)) map.set(k, it);
+      }
+      const merged = Array.from(map.values()).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      try { localStorage.setItem(pbKey(), JSON.stringify(merged.slice(0, 200))); } catch (_) {}
+      // Push the merged list back so the other device gets our adds.
+      pushPhrasebook(code);
+      renderPhrasebook();
+    } catch (e) {
+      alert('Could not sync: ' + (e.message || e));
+    } finally {
+      pbSyncing = false;
+    }
+  }
+  document.getElementById('pb-sync').addEventListener('click', async () => {
+    const current = pbSyncCode();
+    const code = window.prompt(
+      current
+        ? 'Sync code (currently "' + current + '"). Leave blank to stop syncing.'
+        : 'Pick a short sync code (letters, numbers, dashes — 3 to 32 chars). Use the same code on your other devices.',
+      current
+    );
+    if (code === null) return; // cancelled
+    const trimmed = String(code).trim();
+    if (!trimmed) { setPbSyncCode(''); alert('Sync turned off.'); return; }
+    if (!/^[A-Za-z0-9_-]{3,32}$/.test(trimmed)) {
+      alert('That code has invalid characters. Use letters, numbers, dashes, underscores (3–32 chars).');
+      return;
+    }
+    setPbSyncCode(trimmed);
+    await pullAndMergePhrasebook(trimmed);
+    flashToast('Synced ☁');
+  });
+  // If a sync code is already set from a previous visit, pull once on load
+  // so the student sees adds made on another device. Best-effort.
+  if (pbSyncCode()) {
+    setTimeout(() => pullAndMergePhrasebook(pbSyncCode()), 600);
+  }
+  function pbAdd(entry) {
+    const arr = pbLoad();
+    // Dedup by en+tr; bump to top if exists
+    const i = arr.findIndex(x => x.en === entry.en && x.tr === entry.tr);
+    if (i >= 0) arr.splice(i, 1);
+    arr.unshift({ ...entry, ts: Date.now() });
+    pbSave(arr);
+  }
+  function pbRemove(idx) {
+    const arr = pbLoad();
+    arr.splice(idx, 1);
+    pbSave(arr);
+    renderPhrasebook();
+  }
+  function savePhraseFromNode(node) {
+    if (!node) return;
+    const en = node.querySelector('.en')?.textContent || '';
+    const tr = node.querySelector('.tr')?.textContent || '';
+    if (!en && !tr) return;
+    pbAdd({ en: en.trim(), tr: tr.trim(), kind: 'phrase' });
+    flashToast('Saved to phrasebook ★');
+  }
+  function flashToast(msg) {
+    const el = document.getElementById('pb-toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(flashToast._t);
+    flashToast._t = setTimeout(() => el.classList.remove('show'), 1600);
+  }
+
+  const pbDrawer = document.getElementById('pb-drawer');
+  const pbList = document.getElementById('pb-list');
+  function openPhrasebook() {
+    renderPhrasebook();
+    pbDrawer.classList.add('show');
+    pbDrawer.setAttribute('aria-hidden', 'false');
+  }
+  function closePhrasebook() {
+    pbDrawer.classList.remove('show');
+    pbDrawer.setAttribute('aria-hidden', 'true');
+  }
+  function renderPhrasebook() {
+    const arr = pbLoad();
+    pbList.innerHTML = '';
+    if (!arr.length) {
+      const e = document.createElement('div');
+      e.className = 'pb-empty';
+      e.textContent = 'Long-press any line in the transcript, or tap a word + Save, to add it here.';
+      pbList.appendChild(e);
+      return;
+    }
+    arr.forEach((item, i) => {
+      const row = document.createElement('div');
+      row.className = 'pb-item';
+      const tr = document.createElement('div'); tr.className = 'pb-tr'; tr.textContent = item.tr || '';
+      const en = document.createElement('div'); en.className = 'pb-en'; en.textContent = item.en || '';
+      const actions = document.createElement('div'); actions.className = 'pb-actions';
+      const speakBtn = document.createElement('button');
+      speakBtn.className = 'btn'; speakBtn.textContent = '🔊';
+      speakBtn.addEventListener('click', () => speak(item.tr || item.en));
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn'; delBtn.textContent = '🗑';
+      delBtn.addEventListener('click', () => pbRemove(i));
+      actions.appendChild(speakBtn); actions.appendChild(delBtn);
+      row.appendChild(tr); row.appendChild(en); row.appendChild(actions);
+      pbList.appendChild(row);
+    });
+  }
+  document.getElementById('btn-phrasebook').addEventListener('click', openPhrasebook);
+  document.getElementById('pb-close').addEventListener('click', closePhrasebook);
+
+  // -------- Tap-to-define --------
+  const eslOverlay = document.getElementById('esl-overlay');
+  const eslWord = document.getElementById('esl-word');
+  const eslTr = document.getElementById('esl-tr');
+  const eslDefTr = document.getElementById('esl-def-tr');
+  const eslDefEn = document.getElementById('esl-def-en');
+  const eslExTr = document.getElementById('esl-ex-tr');
+  const eslExEn = document.getElementById('esl-ex-en');
+  const eslListenEn = document.getElementById('esl-listen-en');
+  const eslListenTr = document.getElementById('esl-listen-tr');
+  const eslSave = document.getElementById('esl-save');
+  let currentDefine = null;
+
+  function speakAs(text, langName) {
+    if (!text || !window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices();
+      const want = (VOICE_FOR_LANG[langName] || '').toLowerCase();
+      const v = voices.find(x => x.lang && x.lang.toLowerCase() === want)
+            || voices.find(x => x.lang && x.lang.toLowerCase().split('-')[0] === want.split('-')[0]);
+      if (v) { u.voice = v; u.lang = v.lang; }
+      else if (VOICE_FOR_LANG[langName]) u.lang = VOICE_FOR_LANG[langName];
+      u.rate = ttsRate; u.pitch = 1;
+      window.speechSynthesis.speak(u);
+    } catch (_) {}
+  }
+  // Focus management — remember who was focused before the modal opened
+  // so we can restore it on close (keyboard-only users).
+  let eslPrevFocus = null;
+  function openDefineModal(word) {
+    if (!currentLang) return;
+    eslPrevFocus = document.activeElement;
+    eslWord.textContent = word;
+    eslTr.textContent = '…';
+    eslDefTr.textContent = 'Looking up…';
+    eslDefEn.textContent = '';
+    eslExTr.textContent = '';
+    eslExEn.textContent = '';
+    eslOverlay.classList.add('show');
+    // Push focus into the modal so screen-reader / keyboard users land there.
+    setTimeout(() => { document.getElementById('esl-close').focus(); }, 0);
+    fetch('/define', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ word, lang: currentLang, room: roomCode })
+    }).then(r => r.json()).then(d => {
+      if (d.error) {
+        eslDefTr.textContent = d.error;
+        currentDefine = null;
+        return;
+      }
+      currentDefine = d;
+      eslTr.textContent = d.tr || '';
+      eslDefTr.textContent = d.defTr || '';
+      eslDefEn.textContent = d.defEn ? '(' + d.defEn + ')' : '';
+      eslExTr.textContent = d.exTr ? '“' + d.exTr + '”' : '';
+      eslExEn.textContent = d.exEn ? '(' + d.exEn + ')' : '';
+    }).catch(() => {
+      eslDefTr.textContent = 'Could not look that up.';
+    });
+  }
+  function closeDefineModal() {
+    eslOverlay.classList.remove('show');
+    currentDefine = null;
+    // Restore focus to whatever launched the modal (usually the tapped
+    // word) so the user's place in the page isn't lost.
+    if (eslPrevFocus && typeof eslPrevFocus.focus === 'function') {
+      try { eslPrevFocus.focus(); } catch (_) {}
+    }
+    eslPrevFocus = null;
+  }
+  // Trap tab + escape inside the modal while it's open.
+  document.addEventListener('keydown', (e) => {
+    if (!eslOverlay.classList.contains('show')) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeDefineModal(); return; }
+    if (e.key !== 'Tab') return;
+    const focusables = eslOverlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  });
+  document.getElementById('esl-close').addEventListener('click', closeDefineModal);
+  eslOverlay.addEventListener('click', (e) => {
+    if (e.target === eslOverlay) closeDefineModal();
+  });
+  eslListenEn.addEventListener('click', () => {
+    speakAs(currentDefine?.word || eslWord.textContent, 'English');
+  });
+  eslListenTr.addEventListener('click', () => {
+    speak(currentDefine?.tr || eslTr.textContent);
+  });
+  eslSave.addEventListener('click', () => {
+    if (!currentDefine) return;
+    pbAdd({
+      en: currentDefine.word,
+      tr: currentDefine.tr,
+      defEn: currentDefine.defEn,
+      defTr: currentDefine.defTr,
+      kind: 'word'
+    });
+    flashToast('Saved “' + currentDefine.word + '” to phrasebook ★');
+  });
+
+  // Delegate word clicks from the feed so we don't have to re-bind on every render.
+  feed.addEventListener('click', (e) => {
+    const w = e.target.closest('.word');
+    if (!w || !feed.contains(w)) return;
+    const word = (w.textContent || '').trim();
+    if (!word) return;
+    openDefineModal(word);
+  });
+
+  // -------- Study sheet button --------
+  const studyBtn = document.getElementById('study-sheet-btn');
+  if (studyBtn) {
+    studyBtn.addEventListener('click', () => {
+      const lang = currentLang || lastLang;
+      if (!lang) return;
+      const room = roomCode || '';
+      const url = '/studysheet?lang=' + encodeURIComponent(lang) + '&c=' + encodeURIComponent(room);
+      window.open(url, '_blank', 'noopener');
+    });
+  }
+</script>
+</body>
+</html>

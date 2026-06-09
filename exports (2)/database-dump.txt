@@ -1,0 +1,9 @@
+===== DATABASE DUMP =====
+Generated: 2026-06-07 17:19
+
+--- Tables (\dt) ---
+
+RESULT: No relations (tables) found in this database.
+ClassLingo stores classroom/session state in-memory in the Node server
+(server.js), not in Postgres, so there are no rows to export.
+No session tokens or secrets were written to this file.

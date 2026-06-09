@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Instructor — ClassLingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="teach-body">
+<div class="app">
+  <header>
+    <span class="logo">ClassLingo</span>
+    <span class="logo-sub">Instructor view</span>
+  </header>
+
+  <div id="no-support" class="no-support" style="display:none;">
+    Voice input requires Chrome on Android or desktop. Open this page in Chrome.
+  </div>
+
+  <!-- Compatibility hint. Some Chrome builds (extensions, hardened policies,
+       VPN sandboxing) silently block the mic / file uploads. Edge — same
+       engine, different policies — usually works. Dismiss with the × and
+       it stays hidden for this browser. -->
+  <div id="browser-tip" style="display:none; margin-bottom:14px; padding:10px 14px; background:#fff7e0; border:1px solid #f0c75a; border-radius:var(--radius); color:#5a4a14; font-size:13px; line-height:1.4;">
+    <strong>Heads-up:</strong> if the mic won't pick up your voice, or videos
+    / documents won't upload, try a different browser (Microsoft Edge or
+    Firefox usually work) before assuming the app is broken.
+    <button id="browser-tip-close" type="button" aria-label="Dismiss"
+            style="float:right; background:transparent; border:none; color:#5a4a14; font-size:18px; line-height:1; cursor:pointer; padding:0 4px; margin-left:8px;">×</button>
+  </div>
+
+  <div id="auth-gate" style="display:none; margin-bottom:18px;">
+    <p class="section-label">Instructor passcode</p>
+    <input id="passcode-input" type="password" autocomplete="current-password"
+           placeholder="Enter teacher passcode"
+           style="width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-family:'DM Mono',monospace; font-size:14px; padding:12px 14px; margin-bottom:10px;" />
+    <button id="passcode-submit" class="btn btn-primary">Unlock instructor</button>
+    <p id="passcode-err" style="display:none; color:var(--red); font-size:12px; margin-top:8px;">
+      Wrong passcode.
+    </p>
+    <p class="hint">Ask whoever set up the app for the passcode.</p>
+  </div>
+
+  <div id="main-ui" style="display:none;">
+
+  <section class="card card--cyan">
+    <div class="card-head">
+      <h3 class="card-title"><span class="ico" aria-hidden="true">🎙</span> Session</h3>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button id="new-class" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Disconnect current students and start a new class with a fresh link">+ New class</button>
+        <button id="end-class" class="btn" type="button" style="width:auto; padding:10px 14px; border-color:var(--red); color:var(--red);" title="Disconnect every student and lock the instructor view">⏹ End class</button>
+        <button id="mic-toggle" class="btn btn-primary" type="button" style="width:auto; padding:10px 18px;">Pause mic</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <span id="mic-status" class="status-pill"><span class="dot"></span><span id="mic-text">Starting...</span></span>
+      <span id="audience" class="status-pill"><span class="dot"></span><span id="audience-text">0 students</span></span>
+      <span id="lost-pill" class="status-pill" style="display:none; border-color:var(--red); color:var(--red);">
+        <span class="dot" style="background:var(--red);"></span><span id="lost-text"></span>
+      </span>
+    </div>
+  </section>
+
+  <div class="grid-media">
+
+    <section class="card card--magenta">
+      <h3 class="card-title"><span class="ico" aria-hidden="true">▶</span> Share a video</h3>
+      <div class="input-row" style="margin-bottom:10px;">
+        <input id="video-url" type="text" placeholder="Paste a YouTube link…" />
+        <button id="video-load" class="btn btn-primary" type="button">Load</button>
+        <button id="video-clear" class="btn" type="button" style="display:none; width:auto;">Clear</button>
+      </div>
+      <p id="video-err" style="display:none; color:var(--red); font-size:12px; margin:0 0 10px;"></p>
+      <p id="video-status" style="display:none; font-size:12px; margin:0 0 10px; color:var(--muted);"></p>
+      <div id="video-wrap" style="display:none;">
+        <!-- Outer box owns the 16:9 frame so the YT iframe (which replaces
+             #yt-player and ignores aspect-ratio styles) still renders at
+             the right size inside the grid cell. -->
+        <div style="position:relative; aspect-ratio:16/9; width:100%; background:#000; border-radius:var(--radius); overflow:hidden;">
+          <div id="yt-player" style="position:absolute; inset:0;"></div>
+        </div>
+        <p class="hint" style="margin-top:8px;">
+          Play / pause / seek — every student's video follows along.
+        </p>
+      </div>
+    </section>
+
+    <section class="card card--lime">
+      <h3 class="card-title"><span class="ico" aria-hidden="true">📄</span> Share a document</h3>
+      <div class="input-row" style="margin-bottom:8px;">
+        <input id="doc-file" type="file" accept=".pdf,.pptx,.docx,.txt,.png,.jpg,.jpeg,.webp,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,image/*"
+               style="font-size:12px;" />
+        <button id="doc-upload" class="btn btn-primary" type="button">Upload</button>
+        <button id="doc-clear" class="btn" type="button" style="display:none; width:auto;">Clear</button>
+      </div>
+      <p id="doc-err" style="display:none; color:var(--red); font-size:12px; margin:0 0 8px;"></p>
+      <div id="doc-nav" style="display:none; padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <span id="doc-name" style="font-family:'DM Mono',monospace; font-size:13px; flex:1; min-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+          <button id="doc-prev" class="btn" type="button" style="width:auto; padding:8px 12px;">‹ Prev</button>
+          <span id="doc-pos" style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); min-width:78px; text-align:center;"></span>
+          <button id="doc-next" class="btn" type="button" style="width:auto; padding:8px 12px;">Next ›</button>
+        </div>
+        <p class="hint" style="margin:8px 0 0;">Students see the rendered page + translated text. You see both below.</p>
+        <div id="doc-page-img-wrap" style="display:none; margin-top:10px;">
+          <img id="doc-page-img" alt="Document page preview" style="display:block; max-width:100%; max-height:34vh; margin:0 auto; background:#fff; border:1px solid var(--border); border-radius:var(--radius); cursor:zoom-in;" />
+        </div>
+        <pre id="doc-page-text" style="margin:10px 0 0; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); font-family:'DM Mono',monospace; font-size:12px; line-height:1.5; color:var(--text); white-space:pre-wrap; max-height:34vh; overflow:auto;"></pre>
+      </div>
+    </section>
+
+    <section class="card card--violet">
+      <h3 class="card-title"><span class="ico" aria-hidden="true">📡</span> Live transcript (English)</h3>
+      <div class="panel" style="flex:1; min-height:140px; margin:0;">
+        <p class="panel-text" id="live-text">Waiting for mic permission...</p>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="card card--cyan">
+    <div class="card-head">
+      <h3 class="card-title"><span class="ico" aria-hidden="true">✉</span> Student messages</h3>
+      <button id="msg-clear" class="btn" type="button"
+              style="width:auto; padding:6px 12px; font-size:11px; color:var(--muted);"
+              title="Clear the list on your screen (does not affect students)">
+        Clear
+      </button>
+    </div>
+    <div class="feed" id="msg-feed">
+      <div class="utter"><div class="tr" style="color:var(--muted); font-style:italic;">Messages from students will appear here.</div></div>
+    </div>
+  </section>
+
+  <section class="card card--orange">
+    <div class="card-head">
+      <h3 class="card-title"><span class="ico" aria-hidden="true">📜</span> Recently sent</h3>
+      <button id="clear-history" class="btn" type="button"
+              style="width:auto; padding:6px 12px; font-size:11px; color:var(--muted);"
+              title="Wipe the lesson transcript from the server and from every student's screen">
+        Clear history
+      </button>
+    </div>
+    <div class="feed" id="recent-feed"></div>
+  </section>
+
+  <!-- Preview the same study notes the students see, so the teacher can
+       sanity-check accuracy. Calls the same /notes endpoint students do,
+       in English, against the current room code. -->
+  <section class="card card--violet">
+    <div class="card-head">
+      <h3 class="card-title"><span class="ico" aria-hidden="true">📝</span> Preview class notes</h3>
+      <button id="notes-preview-btn" class="btn btn-primary" type="button"
+              style="width:auto; padding:8px 14px;">
+        Generate preview
+      </button>
+    </div>
+    <p class="hint" style="margin:0 0 8px;">
+      See what AI study notes students get for this class (in English, for QA).
+      Counts against the per-class notes limit.
+    </p>
+    <div id="notes-preview-status" style="font-size:12px; color:var(--muted); min-height:1em;"></div>
+    <div id="notes-preview-coverage" style="display:none; margin-top:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);"></div>
+    <div id="notes-preview-out" style="display:none; margin-top:10px; padding:12px 14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); font-size:14px; line-height:1.6; color:var(--text); white-space:pre-wrap; max-height:50vh; overflow:auto;"></div>
+  </section>
+
+  <section class="card card--magenta" id="share-card">
+    <h3 class="card-title"><span class="ico" aria-hidden="true">🔗</span> Share with students</h3>
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px;">
+      <code id="student-url" style="flex:1; min-width:180px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">/student</code>
+      <button id="share-copy" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Copy the link">📋 Copy</button>
+    </div>
+    <div id="share-buttons" style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="share-native" class="btn btn-primary" type="button" style="width:auto; padding:10px 16px; display:none;" title="Open your phone's share sheet">📤 Share…</button>
+      <button id="share-sms" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send by text message">💬 Text</button>
+      <button id="share-whatsapp" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send via WhatsApp">🟢 WhatsApp</button>
+      <button id="share-email" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send by email">✉ Email</button>
+      <button id="share-qr" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Show a QR code students can scan">▦ QR</button>
+    </div>
+    <!-- Parallel share link for the kids view (pre-readers). Same room code,
+         different page — no typing, no reading, big icons, auto-spoken. -->
+    <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+      <p class="section-label" style="margin-bottom:8px;">Kids link (pre-readers)</p>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <code id="kids-url" style="flex:1; min-width:180px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">/kids</code>
+        <button id="kids-copy" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Copy the kids link">📋 Copy</button>
+        <button id="kids-qr-btn" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Show a QR code for the kids link">▦ QR</button>
+      </div>
+      <div id="kids-qr-wrap" style="display:none; margin-top:12px; text-align:center;">
+        <img id="kids-qr-img" alt="QR code for the kids link" style="width:200px; height:200px; background:#fff; padding:10px; border-radius:var(--radius); border:1px solid var(--border);" />
+      </div>
+      <p class="hint" style="margin:8px 0 0;">Use this for kindergarten / pre-K. Same class, kid-friendly UI.</p>
+    </div>
+    <div id="qr-wrap" style="display:none; margin-top:12px; text-align:center;">
+      <img id="qr-img" alt="QR code for the student link" style="width:200px; height:200px; background:#fff; padding:10px; border-radius:var(--radius); border:1px solid var(--border);" />
+      <p class="hint" style="margin:8px 0 0;">Project this so students can scan with their phone camera.</p>
+    </div>
+    <p id="share-status" class="hint" style="margin:8px 0 0; min-height:1em;"></p>
+    <p class="hint" style="margin-top:8px;">The mic stays on for the whole lesson. Close this tab to end class.</p>
+  </section>
+
+  </div><!-- /#main-ui -->
+</div>
+
+<!-- Sticky YouTube transport bar. Hidden until a video is loaded. Stays
+     pinned to the bottom of the viewport so the teacher can play/pause/seek
+     and close without scrolling back up to the video card. Must be in the
+     DOM before <script> runs, since the script grabs these element refs
+     at parse time. -->
+<div id="yt-transport" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:60; padding:10px 14px; background:var(--ink, #1a1a1a); color:#fff; border-top:3px solid var(--accent, #d9534f); box-shadow:0 -6px 24px rgba(0,0,0,0.25); gap:10px; align-items:center; flex-wrap:wrap; font-family:'DM Mono',monospace;">
+  <button id="yt-t-back" type="button" title="Back 10 seconds" style="background:#333; color:#fff; border:1px solid #555; border-radius:8px; padding:8px 12px; font-size:14px; cursor:pointer; min-width:54px;">−10s</button>
+  <button id="yt-t-play" type="button" title="Play / pause" style="background:var(--accent,#d9534f); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:18px; cursor:pointer; min-width:54px;">▶</button>
+  <button id="yt-t-fwd" type="button" title="Forward 10 seconds" style="background:#333; color:#fff; border:1px solid #555; border-radius:8px; padding:8px 12px; font-size:14px; cursor:pointer; min-width:54px;">+10s</button>
+  <input id="yt-t-scrub" type="range" min="0" max="100" value="0" step="1" title="Scrub" style="flex:1; min-width:140px; accent-color:var(--accent,#d9534f);" />
+  <span id="yt-t-time" style="font-size:12px; min-width:90px; text-align:right; opacity:0.8;">0:00 / 0:00</span>
+  <button id="yt-t-close" type="button" title="Close shared video" style="background:transparent; color:#fff; border:1px solid #555; border-radius:8px; padding:8px 12px; font-size:14px; cursor:pointer;">✕ Close</button>
+</div>
+
+<script>
+  // ---------- passcode auth ----------
+  let passcode = sessionStorage.getItem('teach_pass') || localStorage.getItem('teach_pass') || '';
+  const gate = document.getElementById('auth-gate');
+  const mainUI = document.getElementById('main-ui');
+  const passInput = document.getElementById('passcode-input');
+  const passSubmit = document.getElementById('passcode-submit');
+  const passErr = document.getElementById('passcode-err');
+
+  async function checkPass(p) {
+    try {
+      const r = await fetch('/auth/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + p }
+      });
+      const d = await r.json().catch(() => ({}));
+      return !!d.ok;
+    } catch (_) { return false; }
+  }
+  function showGate() {
+    gate.style.display = 'block';
+    mainUI.style.display = 'none';
+    setTimeout(() => passInput.focus(), 50);
+  }
+  function showMain() {
+    gate.style.display = 'none';
+    mainUI.style.display = 'block';
+    // Browser-compatibility nudge — dismissible, per-browser via localStorage.
+    try {
+      const tip = document.getElementById('browser-tip');
+      if (tip && !localStorage.getItem('hide_browser_tip')) tip.style.display = 'block';
+    } catch (_) {}
+    start(); // arm the mic only after auth
+  }
+  // Browser-tip × → remember dismissal for this device.
+  document.getElementById('browser-tip-close').addEventListener('click', () => {
+    document.getElementById('browser-tip').style.display = 'none';
+    try { localStorage.setItem('hide_browser_tip', '1'); } catch (_) {}
+  });
+  passSubmit.addEventListener('click', tryPass);
+  passInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryPass(); });
+  async function tryPass() {
+    const p = (passInput.value || '').trim();
+    if (!p) return;
+    passErr.style.display = 'none';
+    passSubmit.disabled = true;
+    const ok = await checkPass(p);
+    passSubmit.disabled = false;
+    if (ok) {
+      passcode = p;
+      localStorage.setItem('teach_pass', p);
+      sessionStorage.setItem('teach_pass', p);
+      showMain();
+    } else {
+      passErr.style.display = 'block';
+      passInput.select();
+    }
+  }
+
+  (async () => {
+    if (passcode && await checkPass(passcode)) showMain();
+    else { passcode = ''; localStorage.removeItem('teach_pass'); showGate(); }
+  })();
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const liveEl = document.getElementById('live-text');
+  const micPill = document.getElementById('mic-status');
+  const micText = document.getElementById('mic-text');
+  const audiencePill = document.getElementById('audience');
+  const audienceText = document.getElementById('audience-text');
+  const feed = document.getElementById('recent-feed');
+  const studentUrlEl = document.getElementById('student-url');
+  const kidsUrlEl = document.getElementById('kids-url');
+  let currentClassCode = '';
+  function currentShareUrl() {
+    return currentClassCode
+      ? location.origin + '/student?c=' + currentClassCode
+      : location.origin + '/student';
+  }
+  function currentKidsUrl() {
+    return currentClassCode
+      ? location.origin + '/kids?c=' + currentClassCode
+      : location.origin + '/kids';
+  }
+  async function refreshShareUrl() {
+    try {
+      const r = await fetch('/class/current');
+      const d = await r.json();
+      currentClassCode = d.code || '';
+    } catch (_) { currentClassCode = ''; }
+    studentUrlEl.textContent = currentShareUrl();
+    if (kidsUrlEl) kidsUrlEl.textContent = currentKidsUrl();
+    updateQrIfOpen();
+  }
+  refreshShareUrl();
+
+  // ---------- preview class notes (teacher QA) ----------
+  // Calls the same /notes endpoint students use, asking for English. Lets
+  // the teacher sanity-check what summary their students will see, without
+  // having to open a separate student tab.
+  const notesPreviewBtn = document.getElementById('notes-preview-btn');
+  const notesPreviewStatus = document.getElementById('notes-preview-status');
+  const notesPreviewOut = document.getElementById('notes-preview-out');
+  const notesPreviewCoverage = document.getElementById('notes-preview-coverage');
+  let notesPreviewCooldown = 0;
+  notesPreviewBtn.addEventListener('click', async () => {
+    if (Date.now() < notesPreviewCooldown) return;
+    notesPreviewCooldown = Date.now() + 20000;
+    notesPreviewBtn.disabled = true;
+    notesPreviewStatus.textContent = 'Generating preview…';
+    try {
+      const r = await fetch('/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ c: currentClassCode, lang: 'English' })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.empty) {
+        notesPreviewOut.style.display = 'block';
+        notesPreviewOut.textContent = 'No lesson content yet — start the class first.';
+        notesPreviewStatus.textContent = '';
+        notesPreviewCoverage.style.display = 'none';
+      } else if (r.ok && d.notes) {
+        notesPreviewOut.style.display = 'block';
+        notesPreviewOut.textContent = d.notes;
+        notesPreviewStatus.textContent = '';
+        if (d.coverage && d.coverage.count) {
+          notesPreviewCoverage.style.display = 'block';
+          notesPreviewCoverage.textContent =
+            'Summary of ' + d.coverage.count + ' sentences over ' + d.coverage.durationMin + ' min';
+        }
+      } else {
+        notesPreviewStatus.textContent = (d && d.error) || 'Could not generate preview.';
+      }
+    } catch (_) {
+      notesPreviewStatus.textContent = 'Could not generate preview.';
+    }
+    setTimeout(() => { notesPreviewBtn.disabled = false; }, 2000);
+  });
+
+  // ---------- share buttons ----------
+  const shareStatus = document.getElementById('share-status');
+  const shareNativeBtn = document.getElementById('share-native');
+  const qrWrap = document.getElementById('qr-wrap');
+  const qrImg = document.getElementById('qr-img');
+  function flashStatus(msg) {
+    shareStatus.textContent = msg;
+    clearTimeout(flashStatus._t);
+    flashStatus._t = setTimeout(() => { shareStatus.textContent = ''; }, 2500);
+  }
+  function shareMessage() {
+    return 'Join our class on ClassLingo (live translation): ' + currentShareUrl();
+  }
+  function qrSrc() {
+    // Cache-bust on class-code change so the QR refreshes after /class/new.
+    return '/qr.png?v=' + encodeURIComponent(currentClassCode || 'none');
+  }
+  function updateQrIfOpen() {
+    if (qrWrap.style.display !== 'none') qrImg.src = qrSrc();
+  }
+  // Native share sheet (iPhone / Android pull up Messages, WhatsApp, etc.)
+  if (navigator.share) {
+    shareNativeBtn.style.display = 'inline-flex';
+    shareNativeBtn.addEventListener('click', async () => {
+      try {
+        await navigator.share({
+          title: 'ClassLingo class',
+          text: 'Join our class on ClassLingo (live translation):',
+          url: currentShareUrl()
+        });
+      } catch (_) { /* user dismissed */ }
+    });
+  }
+  document.getElementById('share-copy').addEventListener('click', async () => {
+    const url = currentShareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      flashStatus('✓ Link copied');
+    } catch (_) {
+      // Older browsers — select the text so the teacher can copy manually.
+      const range = document.createRange();
+      range.selectNode(studentUrlEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+      flashStatus('Press ⌘/Ctrl+C to copy.');
+    }
+  });
+  document.getElementById('share-sms').addEventListener('click', () => {
+    // iOS uses `&body=`; Android tolerates both. The leading `?` works on both.
+    const body = encodeURIComponent(shareMessage());
+    location.href = 'sms:?&body=' + body;
+  });
+  document.getElementById('share-whatsapp').addEventListener('click', () => {
+    const w = window.open('https://wa.me/?text=' + encodeURIComponent(shareMessage()), '_blank', 'noopener');
+    if (!w) flashStatus('Allow pop-ups, or use Copy and paste it into WhatsApp.');
+  });
+  document.getElementById('share-email').addEventListener('click', () => {
+    const subject = encodeURIComponent('Join our ClassLingo class');
+    const body = encodeURIComponent(shareMessage());
+    location.href = 'mailto:?subject=' + subject + '&body=' + body;
+  });
+  document.getElementById('share-qr').addEventListener('click', () => {
+    const showing = qrWrap.style.display !== 'none';
+    if (showing) {
+      qrWrap.style.display = 'none';
+      qrImg.src = '';
+    } else {
+      qrImg.src = qrSrc();
+      qrWrap.style.display = 'block';
+    }
+  });
+
+  // ---- Kids link share buttons (parallel to the student-link ones) ----
+  const kidsQrWrap = document.getElementById('kids-qr-wrap');
+  const kidsQrImg = document.getElementById('kids-qr-img');
+  function kidsQrSrc() {
+    return '/qr.png?p=kids&v=' + encodeURIComponent(currentClassCode || 'none');
+  }
+  document.getElementById('kids-copy').addEventListener('click', async () => {
+    const url = currentKidsUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      flashStatus('✓ Kids link copied');
+    } catch (_) {
+      const range = document.createRange();
+      range.selectNode(kidsUrlEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+      flashStatus('Press ⌘/Ctrl+C to copy.');
+    }
+  });
+  document.getElementById('kids-qr-btn').addEventListener('click', () => {
+    const showing = kidsQrWrap.style.display !== 'none';
+    if (showing) {
+      kidsQrWrap.style.display = 'none';
+      kidsQrImg.src = '';
+    } else {
+      kidsQrImg.src = kidsQrSrc();
+      kidsQrWrap.style.display = 'block';
+    }
+  });
+
+  // "End class" — kicks every connected student (by minting a new code,
+  // same as /class/new) and then locks the instructor back to the passcode
+  // gate so the teacher has to deliberately re-auth to start another class.
+  document.getElementById('end-class').addEventListener('click', async () => {
+    if (!confirm('End class now?\n\nEvery student will be disconnected and the lesson will be cleared. You\'ll need to re-enter the instructor passcode to start a new class.')) return;
+    try {
+      await fetch('/class/new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + passcode }
+      }).catch(() => {});
+    } finally {
+      passcode = '';
+      try { localStorage.removeItem('teach_pass'); sessionStorage.removeItem('teach_pass'); } catch (_) {}
+      showGate();
+    }
+  });
+
+  // "Start new class" — confirms, mints a fresh code on the server (which
+  // also kicks every connected student and wipes lesson state), then
+  // refreshes the displayed link and clears the local "recently sent" list.
+  document.getElementById('new-class').addEventListener('click', async () => {
+    if (!confirm('Start a new class?\n\nCurrent students will be disconnected and the share link will change. Lesson history, video, and document will be cleared.')) return;
+    try {
+      const r = await fetch('/class/new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + passcode }
+      });
+      if (r.status === 401) {
+        passcode = '';
+        localStorage.removeItem('teach_pass');
+        sessionStorage.removeItem('teach_pass');
+        showGate();
+        return;
+      }
+      const d = await r.json().catch(() => ({}));
+      if (d.code) {
+        currentClassCode = d.code;
+        studentUrlEl.textContent = currentShareUrl();
+        // Refresh the parallel kids share link + QR so the teacher doesn't
+        // accidentally hand out a stale /kids?c=... after class rotation.
+        if (kidsUrlEl) kidsUrlEl.textContent = currentKidsUrl();
+        if (kidsQrWrap.style.display !== 'none') kidsQrImg.src = kidsQrSrc();
+        updateQrIfOpen();
+      } else {
+        await refreshShareUrl();
+      }
+      // Clear local UI state that mirrored the old class.
+      recent.length = 0;
+      latestUnderstood = {};
+      feed.innerHTML = '';
+      setLive('Waiting for English speech...', false);
+      updateAudience(0);
+      updateLost({}, {});
+      // Reset video panel UI (server already cleared the shared video state).
+      try {
+        const vUrl = document.getElementById('video-url');
+        const vErr = document.getElementById('video-err');
+        const vClear = document.getElementById('video-clear');
+        const vWrap = document.getElementById('video-wrap');
+        if (vUrl) vUrl.value = '';
+        if (vErr) { vErr.style.display = 'none'; vErr.textContent = ''; }
+        if (vClear) vClear.style.display = 'none';
+        if (vWrap) vWrap.style.display = 'none';
+      } catch (_) {}
+      // Reset document panel UI (server already cleared the shared document).
+      try {
+        const dFile = document.getElementById('doc-file');
+        const dErr = document.getElementById('doc-err');
+        const dClear = document.getElementById('doc-clear');
+        const dNav = document.getElementById('doc-nav');
+        const dPage = document.getElementById('doc-page-text');
+        const dName = document.getElementById('doc-name');
+        const dPos = document.getElementById('doc-pos');
+        if (dFile) dFile.value = '';
+        if (dErr) { dErr.style.display = 'none'; dErr.textContent = ''; }
+        if (dClear) dClear.style.display = 'none';
+        if (dNav) dNav.style.display = 'none';
+        if (dPage) dPage.textContent = '';
+        if (dName) dName.textContent = '';
+        if (dPos) dPos.textContent = '';
+      } catch (_) {}
+    } catch (_) {}
+  });
+
+  if (!SpeechRecognition) {
+    document.getElementById('no-support').style.display = 'block';
+    setMic('off', 'Mic not supported');
+  }
+
+  let recognition = null;
+  let isRunning = false;
+  let isPaused = false;
+  let restartTimer = null;
+  const micToggle = document.getElementById('mic-toggle');
+  // Whisper fallback: when browser ASR misbehaves (jobsite noise, accent,
+  // Chrome glitch), the teacher records a clip and we transcribe it
+  // server-side. The button is created here so we don't depend on HTML
+  // edits scattered across the file; it sits right next to the mic toggle.
+  let mediaRecorder = null;
+  let recordedChunks = [];
+  let recordTimer = null;
+  const RECORD_MAX_MS = 30000;
+  function makeWhisperButton() {
+    const btn = document.createElement('button');
+    btn.id = 'btn-record-clip';
+    btn.type = 'button';
+    btn.className = micToggle.className;
+    btn.style.marginLeft = '8px';
+    btn.title = 'Mic mishearing you? Record a clip (up to 30s) and Whisper will transcribe it.';
+    btn.textContent = '🎙 Record clip';
+    function setIdle() { btn.textContent = '🎙 Record clip'; btn.disabled = false; btn.classList.remove('recording'); }
+    function setRecording() { btn.textContent = '⏺ Stop & send'; btn.classList.add('recording'); }
+    function setBusy(label) { btn.textContent = label; btn.disabled = true; }
+    async function start() {
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        alert('Recording is not supported in this browser.');
+        return;
+      }
+      let stream;
+      try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+      catch (_) { alert('Microphone permission needed to record.'); return; }
+      recordedChunks = [];
+      // Pick a mime type the browser will actually let us record. Whisper
+      // accepts webm/opus, m4a, mp3, wav — we try webm first.
+      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '');
+      mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size) recordedChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(recordedChunks, { type: mime || 'audio/webm' });
+        if (!blob.size) { setIdle(); return; }
+        upload(blob);
+      };
+      mediaRecorder.start();
+      setRecording();
+      clearTimeout(recordTimer);
+      recordTimer = setTimeout(() => { stop(); }, RECORD_MAX_MS);
+    }
+    function stop() {
+      clearTimeout(recordTimer);
+      if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+      try { mediaRecorder.stop(); } catch (_) {}
+    }
+    async function upload(blob) {
+      setBusy('… transcribing');
+      try {
+        const fd = new FormData();
+        fd.append('audio', blob, 'clip.webm');
+        const r = await fetch('/transcribe', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + passcode },
+          body: fd
+        });
+        if (r.status === 401) {
+          passcode = '';
+          localStorage.removeItem('teach_pass');
+          sessionStorage.removeItem('teach_pass');
+          setIdle();
+          showGate();
+          return;
+        }
+        const data = await r.json().catch(() => ({}));
+        if (data && data.text) {
+          // Reuse the existing publish queue so the clip enters the
+          // pipeline exactly like a dictated sentence.
+          publish(data.text);
+          setLive(data.text, true);
+        } else {
+          alert(data.error || 'Could not transcribe that clip.');
+        }
+      } catch (_) {
+        alert('Could not reach the server.');
+      } finally {
+        setIdle();
+      }
+    }
+    btn.addEventListener('click', () => {
+      if (mediaRecorder && mediaRecorder.state === 'recording') stop();
+      else start();
+    });
+    return btn;
+  }
+  // Insert the button next to the mic toggle once the DOM is settled —
+  // but only if the server reports Whisper is wired. Otherwise users would
+  // record a clip and get a 503 error every time, which is worse than no
+  // button at all.
+  if (micToggle && micToggle.parentNode) {
+    const btn = makeWhisperButton();
+    btn.style.display = 'none';
+    micToggle.parentNode.insertBefore(btn, micToggle.nextSibling);
+    fetch('/capabilities').then(r => r.json()).then(caps => {
+      if (caps && caps.whisper) btn.style.display = '';
+    }).catch(() => {/* leave hidden */});
+  }
+  let publishQueue = Promise.resolve();
+  const recent = []; // {id, en} most-recent first, cap 8. `id` lets us match
+                     // up server-side "I get it" tallies from kid clients.
+  let latestUnderstood = {}; // utterId -> [{avatar, initial}]
+
+  function setMic(state, label) {
+    micPill.className = 'status-pill' + (state === 'live' ? ' live' : state === 'ok' ? ' ok' : '');
+    micText.textContent = label;
+  }
+  function setLive(text, filled) {
+    liveEl.textContent = text;
+    liveEl.classList.toggle('filled', !!filled);
+  }
+  function pushRecent(en, id) {
+    recent.unshift({ en, id: id || null });
+    while (recent.length > 8) recent.pop();
+    renderRecent();
+  }
+  function renderRecent() {
+    feed.innerHTML = '';
+    recent.forEach((r, i) => {
+      const div = document.createElement('div');
+      div.className = 'utter' + (i === 0 ? ' latest' : '');
+      const tr = document.createElement('div');
+      tr.className = 'tr';
+      tr.textContent = r.en;
+      div.appendChild(tr);
+      // "I get it" tally from kids on this utterance, if any.
+      const kids = (r.id && latestUnderstood[r.id]) || [];
+      if (kids.length) {
+        const badge = document.createElement('div');
+        badge.style.cssText = 'margin-top:6px; display:flex; flex-wrap:wrap; align-items:center; gap:4px; font-size:12px; color:var(--muted);';
+        const lead = document.createElement('span');
+        lead.textContent = '😊 ' + kids.length + ' got it';
+        lead.style.cssText = 'font-weight:600; color:#62d4a0; margin-right:4px;';
+        badge.appendChild(lead);
+        for (const k of kids.slice(0, 12)) {
+          const chip = document.createElement('span');
+          chip.style.cssText = 'display:inline-flex; align-items:center; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:2px 8px;';
+          chip.textContent = (k.avatar || '🙂') + (k.initial ? ' ' + k.initial : '');
+          badge.appendChild(chip);
+        }
+        div.appendChild(badge);
+      }
+      feed.appendChild(div);
+    });
+  }
+
+  function publish(text) {
+    const clean = text.trim();
+    if (!clean) return;
+    // Snapshot the class code at speech time, not at fetch time — so if the
+    // teacher starts a new class with a publish still queued, the server
+    // can reject the stale one instead of letting it bleed into the new class.
+    const cls = currentClassCode;
+    publishQueue = publishQueue.then(async () => {
+      try {
+        const r = await fetch('/publish', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + passcode
+          },
+          body: JSON.stringify({ text: clean, c: cls })
+        });
+        if (r.status === 410) return; // stale-class publish: drop silently
+        if (r.status === 401) {
+          // Passcode changed/expired — force re-auth and stop the mic.
+          passcode = '';
+          localStorage.removeItem('teach_pass');
+          sessionStorage.removeItem('teach_pass');
+          isRunning = false;
+          if (recognition) { try { recognition.stop(); } catch (_) {} }
+          showGate();
+          return;
+        }
+        const data = await r.json().catch(() => ({}));
+        if (typeof data.students === 'number') updateAudience(data.students);
+        // Backfill the utterance id on the recent entry we just inserted so
+        // kid "I get it" tallies can pair with the right sentence.
+        if (data && data.id && recent.length) {
+          for (let i = 0; i < recent.length; i++) {
+            if (recent[i].en === clean && !recent[i].id) {
+              recent[i].id = data.id; break;
+            }
+          }
+          renderRecent();
+        }
+      } catch (_) { /* keep going */ }
+    });
+    pushRecent(clean);
+  }
+
+  function updateAudience(n) {
+    audienceText.textContent = n === 1 ? '1 student' : n + ' students';
+    audiencePill.className = 'status-pill' + (n > 0 ? ' ok' : '');
+  }
+
+  const lostPill = document.getElementById('lost-pill');
+  const lostText = document.getElementById('lost-text');
+  function updateLost(confusedObj, kidsObj) {
+    const entries = Object.entries(confusedObj || {}).filter(([, n]) => n > 0);
+    if (!entries.length) { lostPill.style.display = 'none'; return; }
+    lostPill.style.display = 'inline-flex';
+    // Per-language summary. When a language has kid clients, append the
+    // raised-hand avatars so the teacher knows *which* kids need help.
+    const parts = entries.map(([lang, n]) => {
+      const kids = (kidsObj && kidsObj[lang]) || [];
+      if (!kids.length) return n + ' ' + lang;
+      const tags = kids.slice(0, 6)
+        .map(k => (k.avatar || '🙋') + (k.initial ? k.initial : ''))
+        .join(' ');
+      const extra = kids.length > 6 ? ' +' + (kids.length - 6) : '';
+      return n + ' ' + lang + ' (' + tags + extra + ')';
+    });
+    lostText.textContent = parts.join(', ') + ' need a moment';
+  }
+  // ---------- student messages ----------
+  const msgFeed = document.getElementById('msg-feed');
+  const msgClearBtn = document.getElementById('msg-clear');
+  let lastSeenMsgId = 0;
+  const dismissedMsgIds = new Set();
+  msgClearBtn.addEventListener('click', () => {
+    // Hide everything currently shown without contacting the server. The
+    // server keeps the messages so a refresh restores them.
+    for (const node of msgFeed.querySelectorAll('[data-msg-id]')) {
+      dismissedMsgIds.add(Number(node.getAttribute('data-msg-id')));
+      node.remove();
+    }
+    if (!msgFeed.querySelector('[data-msg-id]')) {
+      msgFeed.innerHTML = '<div class="utter"><div class="tr" style="color:var(--muted); font-style:italic;">Messages from students will appear here.</div></div>';
+    }
+  });
+  function renderMessages(messages) {
+    if (!Array.isArray(messages) || !messages.length) return;
+    const fresh = messages.filter(m => m.id > lastSeenMsgId && !dismissedMsgIds.has(m.id));
+    if (!fresh.length) return;
+    // Drop the placeholder on first real message.
+    const placeholder = msgFeed.querySelector('.utter:not([data-msg-id])');
+    if (placeholder) placeholder.remove();
+    for (const m of fresh) {
+      const wrap = document.createElement('div');
+      wrap.className = 'utter';
+      wrap.setAttribute('data-msg-id', String(m.id));
+      const nick = (m.nickname || 'Student').replace(/[<>&]/g, '');
+      const lang = (m.lang || '').replace(/[<>&]/g, '');
+      const en = (m.en || '').trim();
+      const orig = (m.text || '').trim();
+      const ts = new Date(m.ts || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const header = document.createElement('div');
+      header.style.cssText = 'font-family:"DM Mono",monospace; font-size:11px; color:var(--muted); margin-bottom:4px;';
+      header.textContent = nick + ' · ' + lang + ' · ' + ts;
+      wrap.appendChild(header);
+      if (en) {
+        const enEl = document.createElement('div');
+        enEl.className = 'tr';
+        enEl.style.cssText = 'font-size:15px; line-height:1.5; color:var(--text);';
+        enEl.textContent = en;
+        wrap.appendChild(enEl);
+      }
+      if (orig && orig !== en) {
+        const origEl = document.createElement('div');
+        origEl.style.cssText = 'font-size:12px; color:var(--muted); margin-top:4px; font-style:italic;';
+        origEl.textContent = orig;
+        wrap.appendChild(origEl);
+      }
+      if (!en && !orig) continue;
+      // --- reply UI ---
+      const replyRow = document.createElement('div');
+      replyRow.style.cssText = 'margin-top:8px; display:flex; gap:6px; align-items:center;';
+      const replyBtn = document.createElement('button');
+      replyBtn.className = 'btn';
+      replyBtn.type = 'button';
+      replyBtn.textContent = '↩ Reply';
+      replyBtn.style.cssText = 'width:auto; padding:6px 12px; font-size:12px;';
+      const replyStatus = document.createElement('span');
+      replyStatus.style.cssText = 'font-size:11px; color:var(--muted);';
+      replyRow.appendChild(replyBtn);
+      replyRow.appendChild(replyStatus);
+      wrap.appendChild(replyRow);
+      const subId = m.subId || '';
+      const targetLang = m.lang || '';
+      replyBtn.addEventListener('click', () => {
+        if (wrap.querySelector('.reply-form')) return;
+        if (!subId) { replyStatus.textContent = '(can\'t reply to this message)'; return; }
+        const form = document.createElement('div');
+        form.className = 'reply-form';
+        form.style.cssText = 'margin-top:8px;';
+        const ta = document.createElement('textarea');
+        ta.rows = 2;
+        ta.maxLength = 400;
+        ta.placeholder = 'Type your reply in English…';
+        ta.style.cssText = 'width:100%; resize:vertical; font-family:inherit; font-size:14px; padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); color:var(--text);';
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; gap:6px; align-items:center; margin-top:6px;';
+        const sendBtn = document.createElement('button');
+        sendBtn.className = 'btn btn-primary';
+        sendBtn.type = 'button';
+        sendBtn.textContent = 'Send';
+        sendBtn.style.cssText = 'width:auto; padding:8px 14px; font-size:12px;';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn';
+        cancelBtn.type = 'button';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.style.cssText = 'width:auto; padding:8px 12px; font-size:12px;';
+        row.appendChild(sendBtn); row.appendChild(cancelBtn);
+        form.appendChild(ta); form.appendChild(row);
+        wrap.appendChild(form);
+        ta.focus();
+        cancelBtn.addEventListener('click', () => { form.remove(); replyStatus.textContent = ''; });
+        sendBtn.addEventListener('click', async () => {
+          const text = (ta.value || '').trim();
+          if (!text) return;
+          sendBtn.disabled = true; cancelBtn.disabled = true;
+          replyStatus.textContent = 'Sending…';
+          try {
+            const r = await fetch('/reply', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + passcode },
+              body: JSON.stringify({ subId, lang: targetLang, text })
+            });
+            if (r.status === 401) {
+              passcode = ''; localStorage.removeItem('teach_pass'); sessionStorage.removeItem('teach_pass');
+              showGate(); return;
+            }
+            const d = await r.json().catch(() => ({}));
+            if (r.ok) {
+              form.remove();
+              replyStatus.textContent = d.delivered ? '✓ Sent' : '✓ Sent — student may be offline';
+              setTimeout(() => { replyStatus.textContent = ''; }, 6000);
+            } else {
+              replyStatus.textContent = d.error || 'Could not send.';
+              sendBtn.disabled = false; cancelBtn.disabled = false;
+            }
+          } catch (_) {
+            replyStatus.textContent = 'Could not send.';
+            sendBtn.disabled = false; cancelBtn.disabled = false;
+          }
+        });
+      });
+      msgFeed.appendChild(wrap);
+      lastSeenMsgId = Math.max(lastSeenMsgId, m.id);
+    }
+    msgFeed.scrollTop = msgFeed.scrollHeight;
+  }
+  function resetMsgFeed() {
+    lastSeenMsgId = 0;
+    dismissedMsgIds.clear();
+    msgFeed.innerHTML = '<div class="utter"><div class="tr" style="color:var(--muted); font-style:italic;">Messages from students will appear here.</div></div>';
+  }
+  async function pollAudience() {
+    try {
+      const r = await fetch('/status', {
+        headers: passcode ? { 'Authorization': 'Bearer ' + passcode } : {}
+      });
+      const data = await r.json();
+      updateAudience(data.students || 0);
+      updateLost(data.confused || {}, data.confusedKids || {});
+      // Refresh "I get it" tallies on recent feed items. Re-render if any
+      // counts changed so badges appear/grow as kids tap.
+      const u = data.understood || {};
+      const before = JSON.stringify(latestUnderstood);
+      const after = JSON.stringify(u);
+      if (before !== after) {
+        latestUnderstood = u;
+        renderRecent();
+      }
+      // Detect server-side wipe (e.g. /history/clear, /class/new): if we've
+      // shown messages before but the server now returns none — or the highest
+      // id dropped below what we've already rendered — reset the feed so the
+      // teacher's screen matches reality.
+      const msgs = Array.isArray(data.messages) ? data.messages : [];
+      const maxServerId = msgs.reduce((a, m) => Math.max(a, m.id || 0), 0);
+      if (lastSeenMsgId > 0 && maxServerId < lastSeenMsgId) resetMsgFeed();
+      renderMessages(msgs);
+    } catch (_) {}
+  }
+  setInterval(pollAudience, 5000);
+  pollAudience();
+
+  function start() {
+    if (!SpeechRecognition) return;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      isRunning = true;
+      setMic('live', 'Listening');
+      if (!liveEl.classList.contains('filled')) setLive('Listening for English speech...', false);
+    };
+
+    recognition.onresult = (e) => {
+      let interim = '', final = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) final += t; else interim += t;
+      }
+      const finalTrim = final.trim();
+      const interimTrim = interim.trim();
+      const display = (finalTrim + ' ' + interimTrim).trim();
+      if (display) setLive(display, true);
+      if (finalTrim) publish(finalTrim);
+    };
+
+    recognition.onerror = (e) => {
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        setMic('off', 'Mic blocked — allow permission and refresh');
+        isRunning = false;
+      } else if (e.error === 'audio-capture') {
+        setMic('off', 'No microphone found');
+        isRunning = false;
+      } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+        setMic('off', 'Error: ' + e.error);
+      }
+    };
+
+    recognition.onend = () => {
+      // Keep the mic perpetually alive — restart unless we hit a fatal error.
+      if (!isRunning) return;
+      clearTimeout(restartTimer);
+      restartTimer = setTimeout(() => {
+        try { recognition.start(); } catch (_) { /* race: already started */ }
+      }, 250);
+    };
+
+    try { recognition.start(); } catch (_) {}
+  }
+
+  // start() is called from showMain() after the passcode check.
+
+  function pauseMic() {
+    isPaused = true;
+    isRunning = false;
+    clearTimeout(restartTimer);
+    if (recognition) { try { recognition.stop(); } catch (_) {} }
+    setMic('off', 'Paused');
+    setLive('Mic paused — tap "Resume mic" when you\'re ready.', false);
+    micToggle.textContent = 'Resume mic';
+  }
+  function resumeMic() {
+    isPaused = false;
+    micToggle.textContent = 'Pause mic';
+    setMic('ok', 'Starting...');
+    start();
+  }
+  micToggle.addEventListener('click', () => {
+    if (isPaused) resumeMic(); else pauseMic();
+  });
+
+  // ---------- shared YouTube video ----------
+  // Sync strategy: event-driven. We push state to the server ONLY when the
+  // teacher touches the player (play/pause/seek/load) or the YT API fires a
+  // state change. No 5-second polling — that's what caused the "have to
+  // refresh constantly" UX. A lightweight 1-second UI tick updates the
+  // sticky transport bar's scrub position, but it never hits the network.
+  const videoUrlEl = document.getElementById('video-url');
+  const videoLoadBtn = document.getElementById('video-load');
+  const videoClearBtn = document.getElementById('video-clear');
+  const videoWrap = document.getElementById('video-wrap');
+  const videoErr = document.getElementById('video-err');
+  const videoStatus = document.getElementById('video-status');
+  function showVideoStatus(msg, kind) {
+    videoStatus.textContent = msg || '';
+    videoStatus.style.display = msg ? 'block' : 'none';
+    videoStatus.style.color = kind === 'warn' ? 'var(--orange, #d97a1f)' : 'var(--muted)';
+  }
+  let ytPlayer = null;
+  let ytReady = false;
+  let ytApiLoading = false;
+  let uiTickTimer = null;          // local-only, updates the scrub bar
+  let scrubbing = false;           // user is dragging the scrub thumb
+  let lastSentState = null;        // {state, positionSec, ts} — for dedup
+
+  function loadYtApi(cb) {
+    if (window.YT && window.YT.Player) return cb();
+    if (ytApiLoading) { const i = setInterval(() => { if (window.YT && window.YT.Player) { clearInterval(i); cb(); } }, 100); return; }
+    ytApiLoading = true;
+    window.onYouTubeIframeAPIReady = () => cb();
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  }
+
+  function showVideoErr(msg) {
+    videoErr.textContent = msg || '';
+    videoErr.style.display = msg ? 'block' : 'none';
+  }
+
+  async function postVideo(path, body) {
+    try {
+      const r = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + passcode },
+        body: JSON.stringify(body || {})
+      });
+      if (r.status === 401) { passcode=''; localStorage.removeItem('teach_pass'); sessionStorage.removeItem('teach_pass'); showGate(); return null; }
+      return await r.json().catch(() => ({}));
+    } catch (_) { return null; }
+  }
+
+  // Push the player's current state to the server. Called on YT state
+  // change AND from the sticky transport bar after manual seek/play/pause.
+  // Dedups identical consecutive pushes to keep the network quiet.
+  // Monotonic sequence so the server can drop out-of-order control messages
+  // (rapid seek/pause/play). Without this, network reordering can leave
+  // students in the wrong final state.
+  let videoCtrlSeq = 0;
+  function pushState(force) {
+    if (!ytPlayer || !ytReady) return;
+    try {
+      const s = ytPlayer.getPlayerState(); // -1=unstarted, 0=ended, 1=playing, 2=paused, 3=buffering, 5=cued
+      const pos = ytPlayer.getCurrentTime() || 0;
+      let state;
+      if (s === 1) state = 'playing';
+      else if (s === 2 || s === 0) state = 'paused';
+      else return; // buffering / cued / unstarted — wait for the next real event
+      if (!force && lastSentState
+          && lastSentState.state === state
+          && Math.abs(lastSentState.positionSec - pos) < 0.5
+          && Date.now() - lastSentState.ts < 1500) return;
+      lastSentState = { state, positionSec: pos, ts: Date.now() };
+      videoCtrlSeq++;
+      postVideo('/video/control', { state, positionSec: pos, seq: videoCtrlSeq });
+    } catch (_) {}
+  }
+
+  function onYtStateChange(e) {
+    // Fired by the YT iframe whenever play/pause/seek/buffer happens.
+    // We push on play, pause, and ended. Buffering is transient — ignore
+    // it so we don't flap state between buffering and playing.
+    if (e.data === 1 || e.data === 2 || e.data === 0) {
+      pushState(true);
+    }
+    refreshTransportUi();
+  }
+
+  videoLoadBtn.addEventListener('click', async () => {
+    showVideoErr('');
+    const url = (videoUrlEl.value || '').trim();
+    if (!url) return;
+    videoLoadBtn.disabled = true;
+    const data = await postVideo('/video/set', { url });
+    videoLoadBtn.disabled = false;
+    if (!data || !data.ok) { showVideoErr((data && data.error) || 'Could not load that video.'); return; }
+    const videoId = data.videoId;
+    // Surface caption status so the teacher knows whether students will see
+    // translated captions or just the silent video. If YouTube's transcript
+    // fetch failed (rate limit, no captions), say so plainly.
+    if (data.hasCaptions && data.captionCount) {
+      showVideoStatus('Captions ready (' + data.captionCount + ' lines). Students will see translations as you play.', 'ok');
+    } else {
+      showVideoStatus('No captions available for this video — students will see the video but no translated captions. Try a video with closed captions enabled.', 'warn');
+    }
+    videoWrap.style.display = 'block';
+    videoClearBtn.style.display = 'inline-block';
+    loadYtApi(() => {
+      if (!ytPlayer) {
+        ytPlayer = new YT.Player('yt-player', {
+          videoId,
+          width: '100%',
+          height: '100%',
+          playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 1 },
+          events: {
+            onReady: () => {
+              ytReady = true;
+              showTransport(true);
+              startUiTick();
+            },
+            onStateChange: onYtStateChange
+          }
+        });
+      } else {
+        // New video into existing player — load fresh and start paused so
+        // the teacher controls when it begins.
+        ytPlayer.loadVideoById({ videoId, startSeconds: 0 });
+        try { ytPlayer.pauseVideo(); } catch (_) {}
+        showTransport(true);
+      }
+    });
+  });
+
+  videoClearBtn.addEventListener('click', async () => {
+    showVideoStatus('');
+    await postVideo('/video/clear', {});
+    if (ytPlayer) { try { ytPlayer.stopVideo(); } catch (_) {} }
+    videoWrap.style.display = 'none';
+    videoClearBtn.style.display = 'none';
+    videoUrlEl.value = '';
+    showTransport(false);
+    stopUiTick();
+    lastSentState = null;
+  });
+
+  // ---------- sticky transport bar ----------
+  // Always-on-screen Play/Pause · −10s · +10s · scrub · Close so the teacher
+  // doesn't have to scroll back up to the video card mid-class. Live actions
+  // push state immediately via pushState(true).
+  const transportBar = document.getElementById('yt-transport');
+  const tBtnPlay = document.getElementById('yt-t-play');
+  const tBtnBack = document.getElementById('yt-t-back');
+  const tBtnFwd = document.getElementById('yt-t-fwd');
+  const tBtnClose = document.getElementById('yt-t-close');
+  const tScrub = document.getElementById('yt-t-scrub');
+  const tTimeEl = document.getElementById('yt-t-time');
+
+  function showTransport(on) {
+    transportBar.style.display = on ? 'flex' : 'none';
+  }
+  function fmtTime(s) {
+    s = Math.max(0, Math.floor(s || 0));
+    const m = Math.floor(s / 60), r = s % 60;
+    return m + ':' + (r < 10 ? '0' + r : r);
+  }
+  function refreshTransportUi() {
+    if (!ytPlayer || !ytReady) return;
+    try {
+      const s = ytPlayer.getPlayerState();
+      tBtnPlay.textContent = s === 1 ? '⏸' : '▶';
+      const dur = ytPlayer.getDuration() || 0;
+      const cur = ytPlayer.getCurrentTime() || 0;
+      if (!scrubbing) {
+        tScrub.max = String(Math.max(1, Math.floor(dur)));
+        tScrub.value = String(Math.floor(cur));
+      }
+      tTimeEl.textContent = fmtTime(cur) + ' / ' + fmtTime(dur);
+    } catch (_) {}
+  }
+  function startUiTick() {
+    stopUiTick();
+    uiTickTimer = setInterval(refreshTransportUi, 1000);
+  }
+  function stopUiTick() {
+    if (uiTickTimer) { clearInterval(uiTickTimer); uiTickTimer = null; }
+  }
+
+  tBtnPlay.addEventListener('click', () => {
+    if (!ytPlayer || !ytReady) return;
+    try {
+      const s = ytPlayer.getPlayerState();
+      if (s === 1) ytPlayer.pauseVideo();
+      else ytPlayer.playVideo();
+    } catch (_) {}
+  });
+  tBtnBack.addEventListener('click', () => {
+    if (!ytPlayer || !ytReady) return;
+    try {
+      const t = Math.max(0, (ytPlayer.getCurrentTime() || 0) - 10);
+      ytPlayer.seekTo(t, true);
+      pushState(true);
+      refreshTransportUi();
+    } catch (_) {}
+  });
+  tBtnFwd.addEventListener('click', () => {
+    if (!ytPlayer || !ytReady) return;
+    try {
+      const dur = ytPlayer.getDuration() || 0;
+      const t = Math.min(dur || 1e9, (ytPlayer.getCurrentTime() || 0) + 10);
+      ytPlayer.seekTo(t, true);
+      pushState(true);
+      refreshTransportUi();
+    } catch (_) {}
+  });
+  tBtnClose.addEventListener('click', () => { videoClearBtn.click(); });
+  tScrub.addEventListener('input', () => { scrubbing = true; });
+  tScrub.addEventListener('change', () => {
+    scrubbing = false;
+    if (!ytPlayer || !ytReady) return;
+    try {
+      ytPlayer.seekTo(Number(tScrub.value) || 0, true);
+      pushState(true);
+      refreshTransportUi();
+    } catch (_) {}
+  });
+
+  // ---------- Clear lesson history ----------
+  const clearHistoryBtn = document.getElementById('clear-history');
+  clearHistoryBtn.addEventListener('click', async () => {
+    if (!confirm('Wipe the lesson transcript? This clears it from the server and from every student\'s screen. The mic and video stay on.')) return;
+    clearHistoryBtn.disabled = true;
+    const orig = clearHistoryBtn.textContent;
+    try {
+      const d = await postVideo('/history/clear', {});
+      if (d && d.ok) {
+        recent.length = 0;
+        feed.innerHTML = '';
+        clearHistoryBtn.textContent = 'Cleared ✓';
+        setTimeout(() => { clearHistoryBtn.textContent = orig; }, 2000);
+      }
+    } finally {
+      clearHistoryBtn.disabled = false;
+    }
+  });
+
+  // ---------- shared document ----------
+  const docFileEl = document.getElementById('doc-file');
+  const docUploadBtn = document.getElementById('doc-upload');
+  const docClearBtn = document.getElementById('doc-clear');
+  const docNav = document.getElementById('doc-nav');
+  const docNameEl = document.getElementById('doc-name');
+  const docPosEl = document.getElementById('doc-pos');
+  const docPrevBtn = document.getElementById('doc-prev');
+  const docNextBtn = document.getElementById('doc-next');
+  const docErr = document.getElementById('doc-err');
+  const docPageTextEl = document.getElementById('doc-page-text');
+  const docPageImgWrap = document.getElementById('doc-page-img-wrap');
+  const docPageImgEl = document.getElementById('doc-page-img');
+  let docInfo = null; // { docId, name, pageCount, currentPage }
+
+  // Hide preview img on 404 (DOCX/TXT pages with no rendered image) and on
+  // click open full-size so the teacher can zoom into small text/diagrams.
+  docPageImgEl.addEventListener('load', () => { docPageImgWrap.style.display = 'block'; });
+  docPageImgEl.addEventListener('error', () => { docPageImgWrap.style.display = 'none'; });
+  docPageImgEl.addEventListener('click', () => {
+    if (!docPageImgEl.src) return;
+    window.open(docPageImgEl.src, '_blank', 'noopener');
+  });
+
+  function showDocErr(msg) {
+    docErr.textContent = msg || '';
+    docErr.style.display = msg ? 'block' : 'none';
+  }
+  function refreshDocImg() {
+    docPageImgWrap.style.display = 'none';
+    if (docInfo) {
+      docPageImgEl.src = '/document/preview/' + encodeURIComponent(docInfo.docId) + '/' + (docInfo.currentPage|0) + '?v=' + Date.now();
+    } else {
+      docPageImgEl.removeAttribute('src');
+    }
+  }
+  function renderDoc() {
+    if (!docInfo) {
+      docNav.style.display = 'none';
+      docClearBtn.style.display = 'none';
+      docPageImgWrap.style.display = 'none';
+      docPageImgEl.removeAttribute('src');
+      return;
+    }
+    docNav.style.display = 'block';
+    docClearBtn.style.display = 'inline-block';
+    docNameEl.textContent = docInfo.name;
+    docPosEl.textContent = 'Page ' + (docInfo.currentPage + 1) + ' / ' + docInfo.pageCount;
+    docPrevBtn.disabled = docInfo.currentPage <= 0;
+    docNextBtn.disabled = docInfo.currentPage >= docInfo.pageCount - 1;
+    refreshDocImg();
+  }
+
+  // Track whether an upload or page-change is currently in flight. While
+  // it's true we lock the upload button AND the page-flip buttons so the
+  // teacher can't queue up requests while OCR is still running.
+  let docBusy = false;
+  function setDocBusy(busy, label) {
+    docBusy = busy;
+    docUploadBtn.disabled = busy;
+    docUploadBtn.textContent = busy ? (label || 'Working…') : 'Upload';
+    if (docInfo) {
+      // Re-apply prev/next enabled state honoring the busy flag.
+      docPrevBtn.disabled = busy || docInfo.currentPage <= 0;
+      docNextBtn.disabled = busy || docInfo.currentPage >= docInfo.pageCount - 1;
+    }
+  }
+
+  docUploadBtn.addEventListener('click', async () => {
+    showDocErr('');
+    const f = docFileEl.files && docFileEl.files[0];
+    if (!f) { showDocErr('Pick a file first.'); return; }
+    const fd = new FormData();
+    fd.append('file', f);
+    // Hint the user that images/scans take longer than text PDFs.
+    const isImageLike = /^image\//.test(f.type) || /\.(png|jpe?g|webp|pdf)$/i.test(f.name);
+    setDocBusy(true, isImageLike ? 'Reading…' : 'Uploading…');
+    try {
+      const r = await fetch('/document/upload', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + passcode },
+        body: fd
+      });
+      if (r.status === 401) { passcode=''; localStorage.removeItem('teach_pass'); sessionStorage.removeItem('teach_pass'); showGate(); return; }
+      const d = await r.json().catch(() => ({}));
+      if (!d || !d.ok) { showDocErr((d && d.error) || 'Upload failed.'); return; }
+      docInfo = { docId: d.docId, name: d.name, pageCount: d.pageCount, currentPage: d.currentPage };
+      docPageTextEl.textContent = d.pageText || '(no text on this page)';
+      docPageTextEl.scrollTop = 0;
+      renderDoc();
+    } catch (e) {
+      showDocErr('Upload failed.');
+    } finally {
+      setDocBusy(false);
+    }
+  });
+
+  async function setDocPage(page) {
+    if (!docInfo || docBusy) return;
+    const target = Math.max(0, Math.min(docInfo.pageCount - 1, page));
+    if (target === docInfo.currentPage) return;
+    setDocBusy(true, 'Loading page…');
+    try {
+      const d = await postVideo('/document/page', { page: target });
+      if (d && d.ok) {
+        docInfo.currentPage = d.currentPage;
+        docPageTextEl.textContent = d.pageText || '(no text on this page)';
+        docPageTextEl.scrollTop = 0;
+        renderDoc();
+      }
+    } finally {
+      setDocBusy(false);
+    }
+  }
+  docPrevBtn.addEventListener('click', () => setDocPage(docInfo.currentPage - 1));
+  docNextBtn.addEventListener('click', () => setDocPage(docInfo.currentPage + 1));
+
+  docClearBtn.addEventListener('click', async () => {
+    await postVideo('/document/clear', {});
+    docInfo = null;
+    docFileEl.value = '';
+    docPageTextEl.textContent = '';
+    renderDoc();
+  });
+
+  // Some browsers throttle background tabs; nudge restart when we come back.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && isRunning && recognition && !isPaused) {
+      try { recognition.start(); } catch (_) {}
+    }
+  });
+</script>
+</body>
+</html>

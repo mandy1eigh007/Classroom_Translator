@@ -1,0 +1,285 @@
+===== REFLOG (every HEAD movement) =====
+9b01b45 HEAD@{0}: commit: Published your App
+94df597 HEAD@{1}: commit: Update images for teacher and welcome screen
+1428c98 HEAD@{2}: commit: Update welcome image for kids' page with new artwork
+53c3477 HEAD@{3}: commit: Update images and layouts on student and instructor screens
+4b81cfb HEAD@{4}: commit: Published your App
+e5027f7 HEAD@{5}: commit: Update images for welcome, got it, help, and repeat buttons
+e102d45 HEAD@{6}: commit: Update kids page with new character images and layout
+428b45b HEAD@{7}: commit: Published your App
+ae8d215 HEAD@{8}: commit: Add a new teacher avatar to the website header
+af87dce HEAD@{9}: commit: Add a distinct avatar for the teacher on the instructor page
+b3bdad2 HEAD@{10}: commit: Update avatars to use character images instead of emoji
+89dd7af HEAD@{11}: commit: Add a button to end the current class session and a browser compatibility warning
+356d6b7 HEAD@{12}: commit: Kids page UX fixes (preview, unmute, side-by-side, change avatar)
+819e431 HEAD@{13}: commit: Improve caption display by handling translation delays and video changes
+846af91 HEAD@{14}: commit: Add library to help fetch video caption data
+f10ef12 HEAD@{15}: commit: Add image previews for uploaded documents and sync video playback
+715883c HEAD@{16}: commit: Improve document viewing and video player functionality for teachers and students
+568ad10 HEAD@{17}: commit: Published your App
+6502f5f HEAD@{18}: commit: Fix video playback and document upload issues
+e96f3cc HEAD@{19}: commit: Published your App
+51546ea HEAD@{20}: commit: Update fonts across the application to Atkinson Hyperlegible
+65f1c6e HEAD@{21}: commit: Add natural voice and clip recording for improved audio features
+839c6cf HEAD@{22}: commit: Improve document viewing and YouTube playback experience
+08c6e84 HEAD@{23}: commit: Update website to a retro schoolbook brand aesthetic
+bee8a2f HEAD@{24}: commit: Improve display of brand mockups by refreshing their content
+7aca3fe HEAD@{25}: commit: Add new design variations for the warm light branding style
+3ced4e3 HEAD@{26}: commit: Present three distinct brand direction mockups for user review
+cca5901 HEAD@{27}: commit: Improve the children's learning experience with smaller image blocks and a back arrow
+0711a50 HEAD@{28}: commit: Published your App
+a2df577 HEAD@{29}: commit: Update kids view to match brand and fix class sharing
+d24c0a0 HEAD@{30}: commit: Add video and document display panels for students in lessons
+dca8c53 HEAD@{31}: commit: Task #5: add English as selectable language for testing
+d5f3af1 HEAD@{32}: commit: Transitioned from Plan to Build mode
+ec753f4 HEAD@{33}: commit: Fix /video/set hanging when YouTube caption fetch stalls
+275a87c HEAD@{34}: commit: Update the learning platform with a new layout and improved features
+2503fa5 HEAD@{35}: commit: Add translations for student interface and AI-generated notes
+735e91b HEAD@{36}: commit: Update website copy to reflect classroom context
+a535109 HEAD@{37}: commit: Add ability for teachers to reply to student messages
+5630543 HEAD@{38}: commit: Add comprehensive student sharing options to the teacher page
+f29694e HEAD@{39}: commit: Fix visual issue with dropdown arrows on mobile devices
+b299c68 HEAD@{40}: commit: Published your App
+8055e7f HEAD@{41}: commit: Add image file for asset management
+529c894 HEAD@{42}: commit: Published your App
+9ddcad4 HEAD@{43}: commit: Add ability for students to message the teacher with their name
+3d49716 HEAD@{44}: commit: Improve video and transcript display alongside shared documents
+a99166d HEAD@{45}: commit: Add class code generation to manage active sessions and allow students to join
+755f7ec HEAD@{46}: commit: Restyle pages with distinct colored sections and improved layout
+e2ac0c9 HEAD@{47}: commit: Update instructor and student pages with neon styling
+ff91c47 HEAD@{48}: commit: Revamp landing page with new styling and external assets
+30e85d2 HEAD@{49}: commit: Refine landing page to showcase core translation features and user roles
+6e6d02e HEAD@{50}: commit: Improve website layout for better visual appeal and readability
+cccb0c9 HEAD@{51}: commit: Update website landing page with new construction theme and improved navigation
+cd8e59a HEAD@{52}: commit: Seamlessly integrate hero image into background with mobile readability adjustments
+f3e1de1 HEAD@{53}: commit: Update website design for a construction pre-apprentice program
+572ce27 HEAD@{54}: commit: Update hero image to reflect construction program focus
+ceac1c1 HEAD@{55}: commit: Update website design to a dark neon line-art aesthetic
+169aecb HEAD@{56}: commit: Update screenshot for pastel preview to show correct rendering
+e3637d9 HEAD@{57}: commit: Update website to improve visual design and user experience
+1068f5a HEAD@{58}: commit: Integrate Classlingo landing page mockups with multiple design themes
+2c9332f HEAD@{59}: commit: Add a screenshot of a Figma education app design
+ee9a5d8 HEAD@{60}: commit: Add subtle visual enhancements to improve app appeal
+7faa6bc HEAD@{61}: commit: Published your App
+5221faf HEAD@{62}: commit: Published your App
+99206dc HEAD@{63}: commit: Published your App
+94317a4 HEAD@{64}: commit: Saved progress at the end of the loop
+8c5751a HEAD@{65}: commit: Published your App
+9fcc7ac HEAD@{66}: commit: Update application branding to ClassLingo across all views
+0617a54 HEAD@{67}: commit: Add visual feedback and pre-warm translations for document uploads
+481e384 HEAD@{68}: commit: Add image upload and OCR capability for document translation
+41d7e00 HEAD@{69}: commit: Improve translation speed and accuracy for longer documents
+d536a74 HEAD@{70}: commit: Improve translation reliability for documents by increasing timeouts and retrying failed chunks
+c5ca693 HEAD@{71}: commit: Improve document viewing experience for teachers and students
+38a115a HEAD@{72}: commit: Update PDF parsing to support a new library version
+c38e4ec HEAD@{73}: commit: Improve translation reliability and add audio streaming capabilities
+21873d6 HEAD@{74}: commit: Add visual deterrents to discourage unauthorized sharing of content
+0f15b96 HEAD@{75}: commit: Add a button to clear lesson history and notify students
+d485dc6 HEAD@{76}: commit: Add accessibility and interaction features for students
+ffeb427 HEAD@{77}: commit: Add ability to share documents and presentations with students
+698d78a HEAD@{78}: commit: Add live video captioning and translation to student view
+0aea8b6 HEAD@{79}: commit: Add synchronized YouTube video playback for instructors and students
+b941c02 HEAD@{80}: commit: Add a pause and resume button for the microphone functionality
+862dc5e HEAD@{81}: commit: Add brute-force protection to prevent unauthorized access
+9639679 HEAD@{82}: commit: Saved progress at the end of the loop
+93afdfb HEAD@{83}: commit: Add a teacher passcode to secure the publishing endpoint
+e0c2174 HEAD@{84}: commit: Add live translation and transcription for multilingual classrooms
+bb1217f HEAD@{85}: commit: Saved progress at the end of the loop
+1d1deaf HEAD@{86}: commit: Improve translation accuracy and user experience for classroom tool
+69f6822 HEAD@{87}: commit (initial): Initial commit
+
+===== BRANCHES (all) =====
+* main
+  replit-agent
+  subrepl-0divdwse
+  remotes/gitsafe-backup/main
+
+===== CONTRIBUTOR STATS =====
+    88	mandy1eighricha <48847574-mandy1eighricha@users.noreply.replit.com>
+
+===== PER-FILE CHANGE FREQUENCY (most-edited first) =====
+     31 server.js
+     30 public/teach.html
+     23 public/student.html
+     14 public/kids.html
+     11 public/style.css
+      8 .replit
+      8 package-lock.json
+      8 package.json
+      7 public/index.html
+      7 attached_assets/screenshots/5d89d0ef-2838-4a65-a071-a66fb2d97a65-00-4joevwkmvtjf_worf_replit_dev_mockup_preview_classlingo-landing_Pastel.png
+      7 artifacts/mockup-sandbox/src/components/mockups/classlingo-landing/Pastel.tsx
+      4 artifacts/mockup-sandbox/src/.generated/mockup-components.ts
+      3 public/avatars/teacher.png
+      3 public/avatars/kids-welcome.png
+      3 artifacts/mockup-sandbox/public/images/classlingo-neon-portrait.png
+      2 artifacts/mockup-sandbox/src/components/mockups/brand-directions/WarmRetro.tsx
+      2 artifacts/mockup-sandbox/public/images/classlingo-neon-hero.png
+      2 .agents/agent_assets_metadata.toml
+      1 zipFile.zip
+      1 replit.nix
+      1 .replit_integration_files/shared/models/chat.ts
+      1 .replit_integration_files/server/replit_integrations/image/routes.ts
+      1 .replit_integration_files/server/replit_integrations/image/index.ts
+      1 .replit_integration_files/server/replit_integrations/image/client.ts
+      1 .replit_integration_files/server/replit_integrations/chat/storage.ts
+      1 .replit_integration_files/server/replit_integrations/chat/routes.ts
+      1 .replit_integration_files/server/replit_integrations/chat/index.ts
+      1 .replit_integration_files/server/replit_integrations/batch/utils.ts
+      1 .replit_integration_files/server/replit_integrations/batch/index.ts
+      1 .replit_integration_files/server/replit_integrations/audio/routes.ts
+      1 .replit_integration_files/server/replit_integrations/audio/index.ts
+      1 .replit_integration_files/server/replit_integrations/audio/client.ts
+      1 .replit_integration_files/client/replit_integrations/audio/useVoiceStream.ts
+      1 .replit_integration_files/client/replit_integrations/audio/useVoiceRecorder.ts
+      1 .replit_integration_files/client/replit_integrations/audio/useAudioPlayback.ts
+      1 .replit_integration_files/client/replit_integrations/audio/index.ts
+      1 .replit_integration_files/client/replit_integrations/audio/audio-utils.ts
+      1 .replit_integration_files/client/replit_integrations/audio/audio-playback-worklet.js
+      1 README.md
+      1 public/images/classlingo-neon-portrait.png
+      1 public/images/classlingo-neon-hero.png
+      1 public/images/classlingo-neon-accent.png
+      1 public/avatars/kids-repeat.png
+      1 public/avatars/kids-help.png
+      1 public/avatars/kids-gotit.png
+      1 public/avatars/12-skeleton.png
+      1 public/avatars/11-snacks.png
+      1 public/avatars/10-husky.png
+      1 public/avatars/09-car.png
+      1 public/avatars/08-croc.png
+      1 public/avatars/07-plane.png
+      1 public/avatars/06-laptop.png
+      1 public/avatars/05-flowers.png
+      1 public/avatars/04-scooter.png
+      1 public/avatars/03-shark.png
+      1 public/avatars/02-spider.png
+      1 public/avatars/01-mummy.png
+      1 attached_assets/Welcome_page_-_kids_1779415638279.png
+      1 attached_assets/Welcome_page_-_kids_1779414714501.png
+      1 attached_assets/Welcome_page_-_kids_1779414412172.png
+      1 attached_assets/screenshots/figma_com_community_file_1213788643220429581_education-app.png
+      1 attached_assets/screenshots/5d89d0ef-2838-4a65-a071-a66fb2d97a65-00-4joevwkmvtjf_worf_replit_dev_mockup_preview_brand-directions_WarmMono.png
+      1 attached_assets/repeat_-_kids_1779414714501.png
+      1 attached_assets/repeat_-_kids_1779414412174.png
+      1 attached_assets/Pasted-import-React-from-react-import-Search-Bell-User-HardHat_1779227144966.txt
+      1 attached_assets/IMG_7970_1779240528017.jpeg
+      1 attached_assets/image_1779415305354.png
+      1 attached_assets/image_1779415111052.png
+      1 attached_assets/image_1779403633406.png
+      1 attached_assets/image_1779394220420.png
+      1 attached_assets/image_1779232566207.png
+      1 attached_assets/image_1779221108394.png
+      1 attached_assets/image_1779220646357.png
+      1 attached_assets/image_1779220217443.png
+      1 attached_assets/image_1779216726260.png
+      1 attached_assets/help_-_kids_1779414714502.png
+      1 attached_assets/help_-_kids_1779414412174.png
+      1 attached_assets/got_it_-_kids_1779414714502.png
+      1 attached_assets/got_it_-_kids_1779414412173.png
+      1 attached_assets/Digital_Stickers_1779408982454.zip
+      1 attached_assets/ChatGPT_Image_May_21,_2026,_05_25_43_PM_1779416679184.png
+      1 attached_assets/ChatGPT_Image_May_21,_2026,_05_25_43_PM_1779409590132.png
+      1 attached_assets/ChatGPT_Image_May_19,_2026,_02_38_52_PM_1779226747784.png
+      1 attached_assets/ChatGPT_Image_May_19,_2026,_02_36_26_PM_1779226797469.png
+      1 attached_assets/ChatGPT_Image_May_19,_2026,_02_35_27_PM_1779226747783.png
+      1 attached_assets/ChatGPT_Image_May_19,_2026,_02_35_27_PM_1779226547633.png
+      1 artifacts/mockup-sandbox/vite.config.ts
+      1 artifacts/mockup-sandbox/tsconfig.json
+      1 artifacts/mockup-sandbox/src/main.tsx
+      1 artifacts/mockup-sandbox/src/lib/utils.ts
+      1 artifacts/mockup-sandbox/src/index.css
+      1 artifacts/mockup-sandbox/src/hooks/use-toast.ts
+      1 artifacts/mockup-sandbox/src/hooks/use-mobile.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/tooltip.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/toggle.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/toggle-group.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/toast.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/toaster.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/textarea.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/tabs.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/table.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/switch.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/spinner.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/sonner.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/slider.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/skeleton.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/sidebar.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/sheet.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/separator.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/select.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/scroll-area.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/resizable.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/radio-group.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/progress.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/popover.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/pagination.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/navigation-menu.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/menubar.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/label.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/kbd.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/item.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/input.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/input-otp.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/input-group.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/hover-card.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/form.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/field.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/empty.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/dropdown-menu.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/drawer.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/dialog.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/context-menu.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/command.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/collapsible.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/checkbox.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/chart.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/carousel.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/card.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/calendar.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/button.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/button-group.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/breadcrumb.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/badge.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/avatar.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/aspect-ratio.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/alert.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/alert-dialog.tsx
+      1 artifacts/mockup-sandbox/src/components/ui/accordion.tsx
+      1 artifacts/mockup-sandbox/src/components/mockups/classlingo-landing/Purple.tsx
+      1 artifacts/mockup-sandbox/src/components/mockups/classlingo-landing/pastel-neon.css
+      1 artifacts/mockup-sandbox/src/components/mockups/classlingo-landing/Glass.tsx
+      1 artifacts/mockup-sandbox/src/components/mockups/classlingo-landing/Glass.css
+      1 artifacts/mockup-sandbox/src/components/mockups/brand-directions/WarmPastel.tsx
+      1 artifacts/mockup-sandbox/src/components/mockups/brand-directions/WarmMono.tsx
+      1 artifacts/mockup-sandbox/src/components/mockups/brand-directions/WarmLight.tsx
+      1 artifacts/mockup-sandbox/src/components/mockups/brand-directions/NeonDark.tsx
+      1 artifacts/mockup-sandbox/src/components/mockups/brand-directions/Duotone.tsx
+      1 artifacts/mockup-sandbox/src/App.tsx
+      1 artifacts/mockup-sandbox/.replit-artifact/artifact.toml
+      1 artifacts/mockup-sandbox/public/images/purple-hero.png
+      1 artifacts/mockup-sandbox/public/images/classlingo-pastel-hero.png
+      1 artifacts/mockup-sandbox/public/images/classlingo-pastel-class.png
+      1 artifacts/mockup-sandbox/public/images/classlingo-neon-accent.png
+      1 artifacts/mockup-sandbox/public/images/classlingo-glass-hero.png
+      1 artifacts/mockup-sandbox/public/favicon.svg
+      1 artifacts/mockup-sandbox/package-lock.json
+      1 artifacts/mockup-sandbox/package.json
+      1 artifacts/mockup-sandbox/mockupPreviewPlugin.ts
+      1 artifacts/mockup-sandbox/index.html
+      1 artifacts/mockup-sandbox/dist/index.html
+      1 artifacts/mockup-sandbox/dist/images/purple-hero.png
+      1 artifacts/mockup-sandbox/dist/images/classlingo-pastel-hero.png
+      1 artifacts/mockup-sandbox/dist/images/classlingo-pastel-class.png
+      1 artifacts/mockup-sandbox/dist/images/classlingo-glass-hero.png
+      1 artifacts/mockup-sandbox/dist/favicon.svg
+      1 artifacts/mockup-sandbox/dist/assets/sparkles-DtVw4c0i.js
+      1 artifacts/mockup-sandbox/dist/assets/Purple-vGbaYjYu.js
+      1 artifacts/mockup-sandbox/dist/assets/Pastel-C1dAeaIC.js
+      1 artifacts/mockup-sandbox/dist/assets/mic-HSkvHDVB.js
+      1 artifacts/mockup-sandbox/dist/assets/index-Dq7yEm0C.js
+      1 artifacts/mockup-sandbox/dist/assets/index-DeM23Nw0.css
+      1 artifacts/mockup-sandbox/dist/assets/Glass-p1yxml2Z.css
+      1 artifacts/mockup-sandbox/dist/assets/Glass-BoIbDPyK.js
+      1 artifacts/mockup-sandbox/dist/assets/ear-CTkU2_rj.js
+      1 artifacts/mockup-sandbox/components.json

@@ -1,0 +1,38 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "c5kn3-YQ2rwMiewiVCc42"
+uri = "file://artifacts/mockup-sandbox/public/images/purple-hero.png"
+type = "image"
+title = "friendly purple education app hero"
+
+[[generated]]
+id = "2RAxE8SJ6JSqsAxlTwuJb"
+uri = "file://artifacts/mockup-sandbox/public/images/classlingo-pastel-hero.png"
+type = "image"
+title = "Pastel academic open book"
+
+[[generated]]
+id = "dT8ATc0JHs68n78I8-ZQC"
+uri = "file://artifacts/mockup-sandbox/public/images/classlingo-pastel-class.png"
+type = "image"
+title = "Calm warm classroom"
+
+[[generated]]
+id = "65vYCY3-pJJgSguEJzjw_"
+uri = "file://artifacts/mockup-sandbox/public/images/classlingo-glass-hero.png"
+type = "image"
+title = "Aurora gradient glowing purple cyan"
+
+[[generated]]
+id = "RuPgbJVJhU-qF0QVeVsOQ"
+uri = "file://artifacts/mockup-sandbox/public/images/classlingo-neon-hero.png"
+type = "image"
+title = "neon line art hero class"
+
+[[generated]]
+id = "FD8tGHVMDF5kDoZhh_jSg"
+uri = "file://artifacts/mockup-sandbox/public/images/classlingo-neon-portrait.png"
+type = "image"
+title = "neon line art portrait teacher"

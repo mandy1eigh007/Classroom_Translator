@@ -1,0 +1,51 @@
+run = "node server.js"
+entrypoint = "server.js"
+hidden = [".config", "node_modules"]
+modules = ["nodejs-20", "python-3.11"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["node", "server.js"]
+deploymentTarget = "gce"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 23636
+externalPort = 3001
+
+[agent]
+expertMode = true
+integrations = ["javascript_openai_ai_integrations:2.0.0"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=5000 node server.js"
+waitForPort = 5000

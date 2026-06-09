@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClassLingo — Live Classroom Translation</title>
+  <meta name="description" content="Live classroom translation for pre-apprentice construction. You teach in English. Every student follows live in their own language." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@0.460.0"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #f3e9d2;
+      --paper: #fdf6e3;
+      --ink: #2a1a0f;
+      --ink2: #6b4f3a;
+      --red: #c2362e;
+      --mustard: #e0a82e;
+      --teal: #2b7a78;
+      --orange: #e2733a;
+    }
+    html, body { background: var(--cream); color: var(--ink); }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-image:
+        radial-gradient(rgba(42,26,15,0.05) 1px, transparent 1px),
+        radial-gradient(rgba(42,26,15,0.03) 1px, transparent 1px);
+      background-size: 24px 24px, 8px 8px;
+      background-position: 0 0, 4px 4px;
+    }
+    ::selection { background: var(--mustard); color: var(--ink); }
+    .display { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-weight: 700; }
+    .mono    { font-family: 'DM Mono', monospace; }
+    .ink     { color: var(--ink); }
+    .ink2    { color: var(--ink2); }
+
+    .retro-card {
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 14px;
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+    .retro-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--red); color: var(--paper);
+      border: 3px solid var(--ink); border-radius: 10px;
+      padding: 14px 22px;
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase;
+      box-shadow: 5px 5px 0 var(--ink);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s;
+    }
+    .retro-btn:hover { transform: translate(-1px,-1px); box-shadow: 6px 6px 0 var(--ink); filter: brightness(1.05); }
+    .retro-btn:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 var(--ink); }
+    .retro-btn.mustard { background: var(--mustard); color: var(--ink); }
+    .retro-btn.teal    { background: var(--teal); color: var(--paper); }
+    .retro-btn.ghost   { background: var(--paper); color: var(--ink); }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--paper); color: var(--ink);
+      border: 2px solid var(--ink); border-radius: 999px;
+      padding: 6px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      font-weight: 500;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: pulse 1.4s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+    .ico-tile {
+      display: grid; place-items: center;
+      width: 48px; height: 48px;
+      border: 2.5px solid var(--ink); border-radius: 10px;
+      background: var(--red); color: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ico-tile.mustard { background: var(--mustard); color: var(--ink); }
+    .ico-tile.teal    { background: var(--teal);    color: var(--paper); }
+    .ico-tile.orange  { background: var(--orange);  color: var(--paper); }
+
+    .divider {
+      border-top: 2px dashed var(--ink);
+      opacity: 0.45;
+    }
+
+    .nav-link {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+      border: 2px solid var(--ink); border-radius: 8px;
+      padding: 8px 14px;
+      background: var(--paper); color: var(--ink);
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .nav-link:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+    .nav-link.primary { background: var(--red); color: var(--paper); }
+    .nav-link.secondary { background: var(--mustard); color: var(--ink); }
+
+    .h-display { font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700; line-height: 1.02; letter-spacing: 0.01em; }
+    .label-mono { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; }
+  </style>
+</head>
+<body class="relative min-h-screen w-full overflow-x-hidden">
+
+  <!-- NAV -->
+  <nav class="sticky top-0 z-50 border-b-[3px] border-[#2a1a0f] bg-[#f3e9d2]/95 px-6 py-4 backdrop-blur-md lg:px-10">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-6">
+      <a href="/" class="flex items-center gap-3">
+        <div class="ico-tile" style="width:44px; height:44px;">
+          <i aria-hidden="true" data-lucide="hard-hat" class="h-5 w-5" stroke-width="2"></i>
+        </div>
+        <div class="leading-none">
+          <div class="h-display" style="font-size: 22px;"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
+          <div class="label-mono mt-1 ink2">Construction · Live</div>
+        </div>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="/teach" class="nav-link primary hidden sm:inline-flex">Instructor</a>
+        <a href="/student" class="nav-link secondary">Student</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="relative z-10">
+
+    <!-- HERO -->
+    <section class="relative px-6 py-20 lg:px-10 lg:py-28">
+      <div class="mx-auto max-w-7xl">
+        <div class="max-w-3xl">
+          <div class="mb-7"><span class="chip"><span class="dot"></span>Live Classroom Translation</span></div>
+          <h1 class="h-display ink" style="font-size: clamp(48px, 8vw, 96px);">
+            Build Smarter.<br/>
+            <span style="color: var(--red);">Work Together.</span>
+          </h1>
+          <p class="mt-7 max-w-xl text-base leading-7 ink2 sm:text-lg" style="font-weight:500;">
+            You teach the class in English. Every student follows live in their own language — no accounts, no app to install, nothing stored after class.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-4">
+            <a href="/teach" class="retro-btn">
+              I'm Instructing
+              <i aria-hidden="true" data-lucide="arrow-right" class="h-4 w-4" stroke-width="2.4"></i>
+            </a>
+            <a href="/student" class="retro-btn mustard">
+              I'm a Student
+              <i aria-hidden="true" data-lucide="arrow-right" class="h-4 w-4" stroke-width="2.4"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT IT DOES -->
+    <section class="relative z-20 border-y-[3px] border-[#2a1a0f] bg-[#fdf6e3] px-6 py-14 lg:px-10 lg:py-20">
+      <div class="mx-auto max-w-7xl">
+        <div class="mb-10 flex items-end justify-between gap-6 flex-wrap">
+          <h2 class="h-display ink" style="font-size: clamp(32px, 4.5vw, 48px);">What it does</h2>
+          <span class="label-mono ink2">Six things · Nothing extra</span>
+        </div>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" id="features-grid"></div>
+      </div>
+    </section>
+
+    <!-- TWO-UP -->
+    <section class="px-6 py-20 lg:px-10 lg:py-28">
+      <div class="mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-2">
+
+        <!-- Instructor -->
+        <div class="retro-card p-8 lg:p-10">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="ico-tile"><i data-lucide="mic" class="h-5 w-5" stroke-width="2"></i></div>
+            <span class="label-mono" style="color: var(--red);">Instructor · /teach</span>
+          </div>
+          <h3 class="h-display ink" style="font-size: clamp(28px, 3.4vw, 40px);">
+            Talk. <span style="color: var(--red);">Share.</span> Done.
+          </h3>
+          <p class="mt-4 text-sm leading-7 ink2" style="font-weight:500;">
+            Sign in with the teacher passcode, throw the QR on the screen, and start talking. Pause the mic anytime. Drop a PDF, photo, or YouTube link and everyone follows along — in their language, in sync.
+          </p>
+          <div class="divider my-6"></div>
+          <ul class="space-y-3 text-sm ink" style="font-weight:500;">
+            <li class="flex items-center gap-3"><i data-lucide="mic" class="h-4 w-4" style="color: var(--red);" stroke-width="2"></i> Mic pause / resume</li>
+            <li class="flex items-center gap-3"><i data-lucide="file-text" class="h-4 w-4" style="color: var(--red);" stroke-width="2"></i> PDF / DOCX / TXT / images — per-page translation + OCR</li>
+            <li class="flex items-center gap-3"><i data-lucide="play-circle" class="h-4 w-4" style="color: var(--red);" stroke-width="2"></i> Synced YouTube playback</li>
+          </ul>
+          <a href="/teach" class="retro-btn mt-8">
+            Open Instructor View <i data-lucide="arrow-right" class="h-4 w-4" stroke-width="2.4"></i>
+          </a>
+        </div>
+
+        <!-- Student -->
+        <div class="retro-card p-8 lg:p-10" style="box-shadow: 6px 6px 0 var(--mustard);">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="ico-tile mustard"><i data-lucide="languages" class="h-5 w-5" stroke-width="2"></i></div>
+            <span class="label-mono" style="color: var(--mustard);">Student · /student</span>
+          </div>
+          <h3 class="h-display ink" style="font-size: clamp(28px, 3.4vw, 40px);">
+            Pick a language. <span style="color: var(--mustard);">Follow along.</span>
+          </h3>
+          <p class="mt-4 text-sm leading-7 ink2" style="font-weight:500;">
+            Open the link on your phone, pick your language, and read along live. Tap to hear it out loud, hold to pause, hit replay if you missed something, bump the font size up — whatever you need.
+          </p>
+          <div class="divider my-6"></div>
+          <ul class="grid grid-cols-1 gap-3 text-sm ink sm:grid-cols-2" style="font-weight:500;" id="student-list"></ul>
+          <a href="/student" class="retro-btn mustard mt-8">
+            Join as Student <i data-lucide="arrow-right" class="h-4 w-4" stroke-width="2.4"></i>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CLOSING CTA -->
+    <section class="px-6 pb-20 lg:px-10 lg:pb-28">
+      <div class="mx-auto flex max-w-7xl flex-col gap-6 retro-card p-7 sm:flex-row sm:items-center sm:justify-between lg:p-9" style="box-shadow: 6px 6px 0 var(--teal);">
+        <div class="flex items-start gap-5">
+          <div class="ico-tile teal" style="width:56px; height:56px;">
+            <i data-lucide="languages" class="h-6 w-6" stroke-width="2"></i>
+          </div>
+          <div>
+            <h2 class="h-display ink" style="font-size: 28px;">Ready when you are.</h2>
+            <p class="mt-2 ink2" style="font-weight:500;">Open the instructor view to start a session, or join as a student with a class link.</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <a href="/teach" class="retro-btn">Instructor</a>
+          <a href="/student" class="retro-btn mustard">Student</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="relative z-10 border-t-[3px] border-[#2a1a0f] bg-[#fdf6e3] px-6 py-10 text-center lg:px-10">
+    <div class="label-mono ink2">© <span id="year"></span> ClassLingo · Pre-Apprentice Construction</div>
+  </footer>
+
+  <script>
+    const features = [
+      { icon: 'languages',    title: 'LIVE TRANSLATION',  copy: 'You speak English. Students follow in their own language in real time.',  tone: 'red' },
+      { icon: 'mic',          title: 'MIC PAUSE / RESUME', copy: 'Hit pause for a side conversation, resume when you\u2019re back on topic.', tone: 'mustard' },
+      { icon: 'file-text',    title: 'SHARE DOCS',         copy: 'Drop PDFs, DOCX, TXT, or photos. Each page is translated per language.',   tone: 'teal' },
+      { icon: 'scan-line',    title: 'OCR ON IMAGES',      copy: 'Snap a worksheet or handout photo \u2014 text is read and translated.',    tone: 'orange' },
+      { icon: 'play-circle',  title: 'SYNCED YOUTUBE',     copy: 'Play a class video; every student watches in sync on their phone.',       tone: 'red' },
+      { icon: 'shield-check', title: 'EPHEMERAL',          copy: 'No accounts, nothing stored after class. Privacy by default.',            tone: 'teal' },
+    ];
+    const toneShadow = { red: 'var(--red)', mustard: 'var(--mustard)', teal: 'var(--teal)', orange: 'var(--orange)' };
+    const studentFeatures = [
+      { icon: 'languages',  label: 'Pick your language' },
+      { icon: 'volume-2',   label: 'Tap to hear (TTS)' },
+      { icon: 'pause',      label: 'Hold to pause incoming text' },
+      { icon: 'rotate-ccw', label: 'Replay anything you missed' },
+      { icon: 'type',       label: 'Bump font size up' },
+    ];
+    document.getElementById('features-grid').innerHTML = features.map(f => `
+      <div class="retro-card p-6" style="box-shadow: 5px 5px 0 ${toneShadow[f.tone]};">
+        <div class="flex items-start gap-4">
+          <div class="ico-tile ${f.tone === 'red' ? '' : f.tone}"><i aria-hidden="true" data-lucide="${f.icon}" class="h-5 w-5" stroke-width="2"></i></div>
+          <div>
+            <h3 class="h-display ink" style="font-size: 18px; letter-spacing: 0.04em;">${f.title}</h3>
+            <p class="mt-2 text-sm leading-6 ink2" style="font-weight:500;">${f.copy}</p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('student-list').innerHTML = studentFeatures.map(t => `
+      <li class="flex items-center gap-3"><i aria-hidden="true" data-lucide="${t.icon}" class="h-4 w-4" style="color: var(--mustard);" stroke-width="2"></i> ${t.label}</li>
+    `).join('');
+    document.getElementById('year').textContent = new Date().getFullYear();
+    lucide.createIcons();
+  </script>
+</body>
+</html>

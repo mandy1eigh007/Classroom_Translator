@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Space+Grotesk:wght@300;400;500;700;800&display=swap');
+
+.neon-theme {
+  --bg-navy: #0a0826;
+  --bg-panel: #0d0a26;
+  --neon-cyan: #00f0ff;
+  --neon-magenta: #ff00ff;
+  --neon-purple: #8a2be2;
+  
+  background-color: var(--bg-navy);
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.glow-cyan {
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(0, 240, 255, 0.1);
+}
+
+.glow-cyan:hover {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.4), inset 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+.glow-magenta {
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.2), inset 0 0 10px rgba(255, 0, 255, 0.1);
+}
+
+.glow-magenta:hover {
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.4), inset 0 0 15px rgba(255, 0, 255, 0.2);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.text-glow-magenta {
+  text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+}
+
+.bg-radial-glow {
+  background: radial-gradient(circle at center, rgba(138, 43, 226, 0.15) 0%, transparent 70%);
+}
+
+.border-white-5 {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.neon-gradient-text {
+  background: linear-gradient(to right, var(--neon-cyan), var(--neon-magenta));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
