@@ -30,8 +30,8 @@ pages_build_output_dir = "public"
 
 [[kv_namespaces]]
 binding = "SESSION_KV"
-id = "PLACEHOLDER_SESSION_KV_ID"
+id = "3b3706c8f3114a91a887186cb34db1c7"
 
 [[kv_namespaces]]
 binding = "PHRASEBOOK_KV"
-id = "PLACEHOLDER_PHRASEBOOK_KV_ID"
+id = "6668697d2717492ea1c7fdc4a78ba0cf"
