@@ -492,7 +492,7 @@ function refreshAuthUi() {
 async function loadProfile() {
   if (!sbClient || !authUser) return;
   try {
-    let { data } = await sbClient.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
+    let { data } = await sbClient.from('cl_profiles').select('*').eq('id', authUser.id).maybeSingle();
     if (!data) {
       const ins = {
         id: authUser.id,
@@ -501,7 +501,7 @@ async function loadProfile() {
         email: authUser.email,
         preferred_language: pendingLang || 'English',
       };
-      const res = await sbClient.from('profiles').insert(ins).select('*').maybeSingle();
+      const res = await sbClient.from('cl_profiles').insert(ins).select('*').maybeSingle();
       data = (res && res.data) || ins;
     }
     authProfile = data;
@@ -526,7 +526,7 @@ function saveProfilePrefs(lang) {
   const patch = { preferred_language: lang };
   const nick = (localStorage.getItem('nick') || '').trim().slice(0, 40);
   if (nick) patch.display_name = nick;
-  sbClient.from('profiles').update(patch).eq('id', authUser.id)
+  sbClient.from('cl_profiles').update(patch).eq('id', authUser.id)
     .then(() => { if (authProfile) Object.assign(authProfile, patch); });
 }
 $('auth-guest').addEventListener('click', () => {
@@ -1145,7 +1145,7 @@ $('nick-input').addEventListener('input', () => {
   if (sbClient && authUser && nick) {
     clearTimeout(nickSyncTimer);
     nickSyncTimer = setTimeout(() => {
-      sbClient.from('profiles').update({ display_name: nick }).eq('id', authUser.id)
+      sbClient.from('cl_profiles').update({ display_name: nick }).eq('id', authUser.id)
         .then(() => { if (authProfile) authProfile.display_name = nick; }, () => {});
     }, 1500);
   }
@@ -1164,7 +1164,7 @@ function pbAdd(entry) {
   // Signed in: the phrasebook lives in Supabase too (only insert when this
   // exact pair isn't already saved — re-saving a word just bumps it locally).
   if (sbClient && authUser && currentLang && i < 0) {
-    sbClient.from('phrasebook_entries').insert({
+    sbClient.from('cl_phrasebook_entries').insert({
       student_id: authUser.id,
       original_text: entry.en || '',
       translation: entry.tr || '',
@@ -1175,7 +1175,7 @@ function pbAdd(entry) {
 async function pullPhrasebookSupabase() {
   if (!sbClient || !authUser || !currentLang) return;
   try {
-    const { data } = await sbClient.from('phrasebook_entries')
+    const { data } = await sbClient.from('cl_phrasebook_entries')
       .select('original_text, translation, created_at')
       .eq('student_id', authUser.id).eq('language', currentLang)
       .order('created_at', { ascending: false }).limit(200);
@@ -1197,7 +1197,7 @@ async function pullPhrasebookSupabase() {
     const remoteKeys = new Set(remote.map(it => (it.en || '') + '|' + (it.tr || '')));
     const missing = merged.filter(it => !remoteKeys.has((it.en || '') + '|' + (it.tr || '')));
     if (missing.length) {
-      sbClient.from('phrasebook_entries').insert(missing.map(it => ({
+      sbClient.from('cl_phrasebook_entries').insert(missing.map(it => ({
         student_id: authUser.id,
         original_text: it.en || '',
         translation: it.tr || '',
@@ -1229,7 +1229,7 @@ function renderPhrasebook() {
     row.querySelector('.pb-del').addEventListener('click', () => {
       const a = pbLoad(); a.splice(i, 1); pbSave(a); renderPhrasebook();
       if (sbClient && authUser && currentLang) {
-        sbClient.from('phrasebook_entries').delete().match({
+        sbClient.from('cl_phrasebook_entries').delete().match({
           student_id: authUser.id,
           original_text: item.en || '',
           translation: item.tr || '',

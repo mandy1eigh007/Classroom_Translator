@@ -1,9 +1,8 @@
--- ClassLingo schema — organizations, profiles, sessions, messages,
--- phrasebook, participants. Apply with `supabase db push` (project:
--- lfizcpaqolckemrvsooy / 2BlackFeathers).
+-- ClassLingo schema — all tables prefixed cl_ to avoid collisions
+-- with existing tables in the 2BlackFeathers project.
+-- Applied 2026-07-10 via MCP apply_migration.
 
--- Organizations (schools, companies, programs)
-create table if not exists organizations (
+create table if not exists cl_organizations (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   slug text unique not null,
@@ -11,10 +10,9 @@ create table if not exists organizations (
   created_at timestamptz default now()
 );
 
--- User profiles (all roles)
-create table if not exists profiles (
+create table if not exists cl_profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  organization_id uuid references organizations(id),
+  organization_id uuid references cl_organizations(id),
   role text not null check (role in ('admin', 'teacher', 'student')),
   display_name text,
   preferred_language text default 'en',
@@ -23,11 +21,10 @@ create table if not exists profiles (
   created_at timestamptz default now()
 );
 
--- Class sessions
-create table if not exists class_sessions (
+create table if not exists cl_class_sessions (
   id uuid primary key default gen_random_uuid(),
-  teacher_id uuid references profiles(id),
-  organization_id uuid references organizations(id),
+  teacher_id uuid references cl_profiles(id),
+  organization_id uuid references cl_organizations(id),
   class_code text unique not null,
   title text,
   mode text default 'general',
@@ -37,97 +34,80 @@ create table if not exists class_sessions (
   ended_at timestamptz
 );
 
--- Session messages (full transcript)
-create table if not exists session_messages (
+create table if not exists cl_session_messages (
   id uuid primary key default gen_random_uuid(),
-  session_id uuid references class_sessions(id) on delete cascade,
-  speaker_id uuid references profiles(id),
+  session_id uuid references cl_class_sessions(id) on delete cascade,
+  speaker_id uuid references cl_profiles(id),
   original_text text not null,
   translations jsonb default '{}',
   message_type text default 'speech',
   created_at timestamptz default now()
 );
 
--- Student phrasebook
-create table if not exists phrasebook_entries (
+create table if not exists cl_phrasebook_entries (
   id uuid primary key default gen_random_uuid(),
-  student_id uuid references profiles(id) on delete cascade,
+  student_id uuid references cl_profiles(id) on delete cascade,
   original_text text not null,
   translation text not null,
   language text not null,
   created_at timestamptz default now()
 );
 
--- Session participants
-create table if not exists session_participants (
-  session_id uuid references class_sessions(id) on delete cascade,
-  student_id uuid references profiles(id) on delete cascade,
+create table if not exists cl_session_participants (
+  session_id uuid references cl_class_sessions(id) on delete cascade,
+  student_id uuid references cl_profiles(id) on delete cascade,
   joined_at timestamptz default now(),
   left_at timestamptz,
   language text,
   primary key (session_id, student_id)
 );
 
--- App-wide settings (admin panel: default languages, modes, model choice)
-create table if not exists app_settings (
+create table if not exists cl_app_settings (
   key text primary key,
   value jsonb not null default '{}',
   updated_at timestamptz default now()
 );
 
--- Admin check as a SECURITY DEFINER function. A policy on `profiles` that
--- subqueries `profiles` directly recurses through RLS and errors at query
--- time ("infinite recursion detected in policy"); this function bypasses
--- RLS for the one lookup, which is the standard Supabase pattern.
-create or replace function public.is_admin()
+-- SECURITY DEFINER avoids RLS recursion when policies subquery cl_profiles
+create or replace function public.cl_is_admin()
 returns boolean
 language sql
 security definer
 set search_path = public
 stable
 as $$
-  select exists (select 1 from profiles where id = auth.uid() and role = 'admin');
+  select exists (select 1 from cl_profiles where id = auth.uid() and role = 'admin');
 $$;
 
--- RLS policies
-alter table organizations enable row level security;
-alter table profiles enable row level security;
-alter table class_sessions enable row level security;
-alter table session_messages enable row level security;
-alter table phrasebook_entries enable row level security;
-alter table session_participants enable row level security;
-alter table app_settings enable row level security;
+alter table cl_organizations enable row level security;
+alter table cl_profiles enable row level security;
+alter table cl_class_sessions enable row level security;
+alter table cl_session_messages enable row level security;
+alter table cl_phrasebook_entries enable row level security;
+alter table cl_session_participants enable row level security;
+alter table cl_app_settings enable row level security;
 
--- Organizations: admins manage, any signed-in user can read (org names show
--- in teacher/session views)
-create policy "admins manage organizations" on organizations for all using (public.is_admin());
-create policy "authenticated read organizations" on organizations for select to authenticated using (true);
+create policy "cl admins manage organizations" on cl_organizations for all using (public.cl_is_admin());
+create policy "cl authenticated read organizations" on cl_organizations for select to authenticated using (true);
 
--- Profiles: users can read their own, admins can read all
-create policy "users read own profile" on profiles for select using (auth.uid() = id);
-create policy "admins read all profiles" on profiles for select using (public.is_admin());
-create policy "users update own profile" on profiles for update using (auth.uid() = id);
-create policy "users insert own profile" on profiles for insert with check (auth.uid() = id);
-create policy "admins update profiles" on profiles for update using (public.is_admin());
+create policy "cl users read own profile" on cl_profiles for select using (auth.uid() = id);
+create policy "cl admins read all profiles" on cl_profiles for select using (public.cl_is_admin());
+create policy "cl users update own profile" on cl_profiles for update using (auth.uid() = id);
+create policy "cl users insert own profile" on cl_profiles for insert with check (auth.uid() = id);
+create policy "cl admins update profiles" on cl_profiles for update using (public.cl_is_admin());
 
--- Sessions: teachers manage their own, students can read active ones,
--- admins read all
-create policy "teachers manage own sessions" on class_sessions for all using (teacher_id = auth.uid());
-create policy "students read active sessions" on class_sessions for select using (status = 'active');
-create policy "admins read all sessions" on class_sessions for select using (public.is_admin());
+create policy "cl teachers manage own sessions" on cl_class_sessions for all using (teacher_id = auth.uid());
+create policy "cl students read active sessions" on cl_class_sessions for select using (status = 'active');
+create policy "cl admins read all sessions" on cl_class_sessions for select using (public.cl_is_admin());
 
--- Messages: anyone in session can read, teacher/system inserts
-create policy "session messages readable" on session_messages for select using (true);
-create policy "insert messages" on session_messages for insert with check (auth.uid() = speaker_id);
+create policy "cl session messages readable" on cl_session_messages for select using (true);
+create policy "cl insert messages" on cl_session_messages for insert with check (auth.uid() = speaker_id);
 
--- Phrasebook: students manage their own
-create policy "students manage phrasebook" on phrasebook_entries for all using (student_id = auth.uid());
+create policy "cl students manage phrasebook" on cl_phrasebook_entries for all using (student_id = auth.uid());
 
--- Participants: manageable by owner, readable by teacher
-create policy "participants insert self" on session_participants for insert with check (student_id = auth.uid());
-create policy "participants read" on session_participants for select using (true);
-create policy "participants update self" on session_participants for update using (student_id = auth.uid());
+create policy "cl participants insert self" on cl_session_participants for insert with check (student_id = auth.uid());
+create policy "cl participants read" on cl_session_participants for select using (true);
+create policy "cl participants update self" on cl_session_participants for update using (student_id = auth.uid());
 
--- Settings: admin-managed, readable by any signed-in user
-create policy "admins manage settings" on app_settings for all using (public.is_admin());
-create policy "authenticated read settings" on app_settings for select to authenticated using (true);
+create policy "cl admins manage settings" on cl_app_settings for all using (public.cl_is_admin());
+create policy "cl authenticated read settings" on cl_app_settings for select to authenticated using (true);

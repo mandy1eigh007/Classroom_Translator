@@ -1295,7 +1295,7 @@
       const { data: { session } } = await sbClient.auth.getSession();
       if (!session) return false;
       const uid = session.user.id;
-      const { data: ins, error } = await sbClient.from('class_sessions').insert({
+      const { data: ins, error } = await sbClient.from('cl_class_sessions').insert({
         teacher_id: uid,
         class_code: currentClassCode + '-' + Date.now().toString(36),
         title: 'Class ' + new Date().toLocaleDateString(),
@@ -1316,7 +1316,7 @@
         created_at: new Date(m.ts).toISOString(),
       }));
       for (let i = 0; i < rows.length; i += 100) {
-        const { error: e2 } = await sbClient.from('session_messages').insert(rows.slice(i, i + 100));
+        const { error: e2 } = await sbClient.from('cl_session_messages').insert(rows.slice(i, i + 100));
         if (e2) return false;
       }
       return true;

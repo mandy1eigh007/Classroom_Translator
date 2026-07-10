@@ -360,7 +360,7 @@
 
   // ---------------- auth gate ----------------
   async function verifyAdmin(user) {
-    const { data, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
+    const { data, error } = await sb.from('cl_profiles').select('*').eq('id', user.id).single();
     if (error || !data || data.role !== 'admin') return null;
     return data;
   }
@@ -433,7 +433,7 @@
 
   // ---------------- dashboard ----------------
   async function countSessions(sinceIso) {
-    let q = sb.from('class_sessions').select('id', { count: 'exact', head: true });
+    let q = sb.from('cl_class_sessions').select('id', { count: 'exact', head: true });
     if (sinceIso) q = q.gte('started_at', sinceIso);
     const { count, error } = await q;
     return error ? '—' : (count ?? 0);
@@ -446,13 +446,13 @@
     countSessions(dayStart).then(n => $('st-today').textContent = n);
     countSessions(weekStart).then(n => $('st-week').textContent = n);
     countSessions(monthStart).then(n => $('st-month').textContent = n);
-    sb.from('session_participants').select('student_id', { count: 'exact', head: true })
+    sb.from('cl_session_participants').select('student_id', { count: 'exact', head: true })
       .then(({ count, error }) => $('st-students').textContent = error ? '—' : (count ?? 0));
-    sb.from('class_sessions').select('id', { count: 'exact', head: true }).eq('status', 'active')
+    sb.from('cl_class_sessions').select('id', { count: 'exact', head: true }).eq('status', 'active')
       .then(({ count, error }) => $('st-active').textContent = error ? '—' : (count ?? 0));
 
     // Language breakdown from recent sessions
-    const { data: recent } = await sb.from('class_sessions')
+    const { data: recent } = await sb.from('cl_class_sessions')
       .select('languages').order('started_at', { ascending: false }).limit(300);
     const tally = {};
     for (const r of (recent || [])) for (const l of (r.languages || [])) tally[l] = (tally[l] || 0) + 1;
@@ -462,7 +462,7 @@
       ? entries.map(([l, n]) => '<span class="pill" style="margin:0 6px 6px 0;">' + esc(l) + ' — ' + n + ' sessions</span>').join(' ')
       : 'No saved sessions yet.';
 
-    const { data: act } = await sb.from('class_sessions')
+    const { data: act } = await sb.from('cl_class_sessions')
       .select('id, title, class_code, mode, started_at, languages').eq('status', 'active')
       .order('started_at', { ascending: false }).limit(20);
     const el = $('dash-active-list');
@@ -476,7 +476,7 @@
 
   // ---------------- orgs ----------------
   async function loadOrgs() {
-    const { data, error } = await sb.from('organizations').select('*').order('created_at');
+    const { data, error } = await sb.from('cl_organizations').select('*').order('created_at');
     orgsCache = error ? [] : (data || []);
     // org selects
     for (const selId of ['nt-org']) {
@@ -507,7 +507,7 @@
     const slug = $('no-slug').value.trim();
     if (!name || !slug) { $('no-status').textContent = 'Name and slug are required.'; return; }
     $('no-create').disabled = true;
-    const { error } = await sb.from('organizations').insert({ name, slug });
+    const { error } = await sb.from('cl_organizations').insert({ name, slug });
     $('no-create').disabled = false;
     if (error) { $('no-status').textContent = error.message; return; }
     $('no-status').textContent = '';
@@ -518,7 +518,7 @@
 
   // ---------------- teachers ----------------
   async function loadTeachers() {
-    const { data, error } = await sb.from('profiles').select('*').eq('role', 'teacher').order('created_at');
+    const { data, error } = await sb.from('cl_profiles').select('*').eq('role', 'teacher').order('created_at');
     teachersCache = error ? [] : (data || []);
     const orgName = Object.fromEntries(orgsCache.map(o => [o.id, o.name]));
     const tbody = $('teacher-rows');
@@ -564,14 +564,14 @@
       setTimeout(() => { btn.textContent = 'Reset password'; }, 3000);
     } else if (btn.dataset.act === 'deact' || btn.dataset.act === 'react') {
       btn.disabled = true;
-      await sb.from('profiles').update({ active: btn.dataset.act === 'react' }).eq('id', id);
+      await sb.from('cl_profiles').update({ active: btn.dataset.act === 'react' }).eq('id', id);
       await loadTeachers();
     }
   });
   $('teacher-rows').addEventListener('change', async (e) => {
     const sel = e.target.closest('select[data-act="org"]');
     if (!sel) return;
-    await sb.from('profiles').update({ organization_id: sel.value || null }).eq('id', sel.dataset.id);
+    await sb.from('cl_profiles').update({ organization_id: sel.value || null }).eq('id', sel.dataset.id);
     await loadTeachers();
   });
   $('nt-create').addEventListener('click', async () => {
@@ -591,7 +591,7 @@
       if (!uid) throw new Error('Account created but no user id returned.');
       if (data.session) {
         // Confirmation off: the new user's own session can insert their profile.
-        const { error: pErr } = await sbCreate.from('profiles').insert({
+        const { error: pErr } = await sbCreate.from('cl_profiles').insert({
           id: uid, role: 'teacher', display_name: name, email, organization_id: orgId,
         });
         if (pErr) throw pErr;
@@ -611,7 +611,7 @@
 
   // ---------------- sessions ----------------
   async function loadSessions() {
-    let q = sb.from('class_sessions').select('*').order('started_at', { ascending: false }).limit(150);
+    let q = sb.from('cl_class_sessions').select('*').order('started_at', { ascending: false }).limit(150);
     if ($('sf-teacher').value) q = q.eq('teacher_id', $('sf-teacher').value);
     if ($('sf-mode').value) q = q.eq('mode', $('sf-mode').value);
     if ($('sf-date').value) {
@@ -649,7 +649,7 @@
       ' — code ' + (s.class_code || '') + ' — ' + (MODE_LABEL[s.mode] || s.mode || '');
     $('tx-body').innerHTML = '<div class="empty">Loading transcript…</div>';
     $('tx-overlay').style.display = 'flex';
-    const { data, error } = await sb.from('session_messages')
+    const { data, error } = await sb.from('cl_session_messages')
       .select('*').eq('session_id', s.id).order('created_at').limit(1000);
     if (error || !data || !data.length) {
       $('tx-body').innerHTML = '<div class="empty">No transcript messages saved for this session.</div>';
@@ -678,7 +678,7 @@
   }
   renderSettingChecks();
   async function loadSettings() {
-    const { data } = await sb.from('app_settings').select('*');
+    const { data } = await sb.from('cl_app_settings').select('*');
     const map = Object.fromEntries((data || []).map(r => [r.key, r.value]));
     if (Array.isArray(map.default_languages)) {
       document.querySelectorAll('#set-langs input[data-lang]').forEach(cb => {
@@ -696,7 +696,7 @@
     const langs = [...document.querySelectorAll('#set-langs input[data-lang]:checked')].map(cb => cb.dataset.lang);
     const modes = [...document.querySelectorAll('#set-modes input[data-mode]:checked')].map(cb => cb.dataset.mode);
     $('set-save').disabled = true;
-    const { error } = await sb.from('app_settings').upsert([
+    const { error } = await sb.from('cl_app_settings').upsert([
       { key: 'default_languages', value: langs, updated_at: new Date().toISOString() },
       { key: 'trade_modes_enabled', value: modes, updated_at: new Date().toISOString() },
       { key: 'openai_model', value: $('set-model').value, updated_at: new Date().toISOString() },
@@ -724,7 +724,7 @@
   $('sub-rows').addEventListener('change', async (e) => {
     const sel = e.target.closest('select.sub-plan');
     if (!sel) return;
-    await sb.from('organizations').update({ plan: sel.value }).eq('id', sel.dataset.org);
+    await sb.from('cl_organizations').update({ plan: sel.value }).eq('id', sel.dataset.org);
     await loadOrgs();
     loadSubscription();
   });
