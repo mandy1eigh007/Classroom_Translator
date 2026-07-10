@@ -6,6 +6,8 @@
   <title>Student — ClassLingo</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@0.460.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/supabase-config.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
@@ -113,6 +115,33 @@
     <span class="display text-3xl">Class<span style="color:var(--red)">Lingo</span></span>
     <span class="label-mono">Student</span>
   </div>
+  <!-- optional account (guest is the default path) -->
+  <div id="auth-card" class="retro-card mb-4 p-4" style="box-shadow:4px 4px 0 var(--teal);">
+    <div class="mb-1 flex items-center justify-between gap-2">
+      <h2 class="display text-lg" data-i18n="auth_title">Your account</h2>
+      <span id="auth-state" class="label-mono"></span>
+    </div>
+    <p class="mb-3 text-sm" style="color:var(--ink2)" data-i18n="auth_hint">Sign in to keep your name, language, and phrasebook on any device — or just join as a guest.</p>
+    <div id="auth-buttons" class="flex flex-wrap gap-2">
+      <button id="auth-guest" class="retro-btn px-4 py-2 text-sm" data-i18n="auth_guest">Join as guest</button>
+      <button id="auth-show" class="retro-btn px-4 py-2 text-sm" style="background:var(--teal); color:var(--paper);" data-i18n="auth_signin">Sign in with email</button>
+    </div>
+    <div id="auth-form" class="mt-3 hidden">
+      <input id="auth-email" type="email" class="mb-2 w-full px-3 py-2 text-sm" placeholder="Email" autocomplete="username" />
+      <input id="auth-pass" type="password" class="mb-2 w-full px-3 py-2 text-sm" placeholder="Password" autocomplete="current-password" />
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="auth-login" class="retro-btn px-4 py-2 text-sm" style="background:var(--teal); color:var(--paper);" data-i18n="auth_login">Sign in</button>
+        <button id="auth-signup" class="retro-btn px-4 py-2 text-sm" data-i18n="auth_signup">Create account</button>
+        <button id="auth-cancel" class="chipbtn" data-i18n="auth_cancel">Cancel</button>
+      </div>
+      <div id="auth-err" class="mt-2 text-xs" style="color:var(--red); min-height:1em;"></div>
+    </div>
+    <div id="auth-signed" class="mt-2 hidden flex-wrap items-center gap-2">
+      <span class="text-sm font-bold" id="auth-who"></span>
+      <button id="auth-signout" class="chipbtn" data-i18n="auth_signout">Sign out</button>
+    </div>
+  </div>
+
   <h1 class="display mb-1 text-2xl" data-i18n="join_title">Pick your language</h1>
   <p class="label-mono mb-4" data-i18n="join_sub">Tap one, then join</p>
   <div id="lang-grid" class="grid grid-cols-2 gap-3"></div>
@@ -315,7 +344,7 @@ let currentLang = null;
 let pendingLang = localStorage.getItem('lang') || null;
 
 // ---------- i18n (UI itself translated into the student's language) ----------
-const UI_VERSION = '3';
+const UI_VERSION = '4';
 const UI_STRINGS = {
   join_title: 'Pick your language', join_sub: 'Tap one, then join', join_btn: 'Join class',
   stale_ask: 'Ask your instructor for the current class link.',
@@ -344,6 +373,13 @@ const UI_STRINGS = {
   def_meaning: 'Meaning', def_example: 'Example', def_mylang: 'My language 🔊', def_save: 'Save',
   teacher_label: 'TEACHER',
   doc_show_en: 'Show English', doc_hide_en: 'Hide English', doc_page: 'Page {n} / {total}',
+  auth_title: 'Your account',
+  auth_hint: 'Sign in to keep your name, language, and phrasebook on any device — or just join as a guest.',
+  auth_guest: 'Join as guest', auth_signin: 'Sign in with email',
+  auth_login: 'Sign in', auth_signup: 'Create account', auth_cancel: 'Cancel',
+  auth_signout: 'Sign out', auth_signed: 'Signed in',
+  auth_check_email: 'Check your email to confirm your account, then sign in.',
+  auth_failed: 'Could not sign in.',
 };
 let TR = Object.assign({}, UI_STRINGS);
 function t(key, vars) {
@@ -422,8 +458,126 @@ function showJoinStale(msg) {
 $('join-btn').addEventListener('click', () => {
   if (!pendingLang) return;
   localStorage.setItem('lang', pendingLang);
+  saveProfilePrefs(pendingLang);
   enterClass(pendingLang);
 });
+
+// ---------- optional Supabase account ----------
+// Guests keep the existing flow untouched. Signing in remembers the
+// student's name + language and moves the phrasebook to Supabase so it
+// follows them across devices and sessions.
+let sbClient = null;
+let authUser = null;      // Supabase auth user
+let authProfile = null;   // row from profiles
+try {
+  if (window.supabase && window.CLASSLINGO_SUPABASE) {
+    sbClient = window.supabase.createClient(
+      window.CLASSLINGO_SUPABASE.url, window.CLASSLINGO_SUPABASE.anonKey);
+  }
+} catch (_) {}
+if (!sbClient) $('auth-card').classList.add('hidden');
+
+function myName() {
+  return ((authProfile && authProfile.display_name) || localStorage.getItem('nick') || '').slice(0, 40);
+}
+function refreshAuthUi() {
+  const signed = !!authUser;
+  $('auth-buttons').classList.toggle('hidden', signed);
+  $('auth-form').classList.add('hidden');
+  $('auth-signed').classList.toggle('hidden', !signed);
+  $('auth-signed').classList.toggle('flex', signed);
+  $('auth-state').textContent = signed ? t('auth_signed') : '';
+  $('auth-who').textContent = signed ? ((authProfile && authProfile.display_name) || authUser.email || '') : '';
+}
+async function loadProfile() {
+  if (!sbClient || !authUser) return;
+  try {
+    let { data } = await sbClient.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
+    if (!data) {
+      const ins = {
+        id: authUser.id,
+        role: 'student',
+        display_name: (localStorage.getItem('nick') || (authUser.email || '').split('@')[0] || '').slice(0, 40),
+        email: authUser.email,
+        preferred_language: pendingLang || 'English',
+      };
+      const res = await sbClient.from('profiles').insert(ins).select('*').maybeSingle();
+      data = (res && res.data) || ins;
+    }
+    authProfile = data;
+    if (authProfile.display_name) {
+      try { localStorage.setItem('nick', authProfile.display_name); } catch (_) {}
+      $('nick-input').value = authProfile.display_name;
+    }
+    // Saved language preference: preselect it automatically.
+    const saved = authProfile.preferred_language;
+    if (saved && LANGS.some(L => L.name === saved)) {
+      pendingLang = saved;
+      try { localStorage.setItem('lang', saved); } catch (_) {}
+      renderLangGrid();
+      if (roomVerified) loadI18n(saved);
+    }
+    refreshAuthUi();
+    if (currentLang) pullPhrasebookSupabase();
+  } catch (_) {}
+}
+function saveProfilePrefs(lang) {
+  if (!sbClient || !authUser) return;
+  const patch = { preferred_language: lang };
+  const nick = (localStorage.getItem('nick') || '').trim().slice(0, 40);
+  if (nick) patch.display_name = nick;
+  sbClient.from('profiles').update(patch).eq('id', authUser.id)
+    .then(() => { if (authProfile) Object.assign(authProfile, patch); });
+}
+$('auth-guest').addEventListener('click', () => {
+  $('auth-card').classList.add('hidden');
+});
+$('auth-show').addEventListener('click', () => {
+  $('auth-form').classList.remove('hidden');
+  $('auth-email').focus();
+});
+$('auth-cancel').addEventListener('click', () => {
+  $('auth-form').classList.add('hidden');
+  $('auth-err').textContent = '';
+});
+async function doAuth(kind) {
+  if (!sbClient) return;
+  const email = ($('auth-email').value || '').trim();
+  const password = $('auth-pass').value || '';
+  if (!email || !password) return;
+  $('auth-err').textContent = '';
+  $('auth-login').disabled = true; $('auth-signup').disabled = true;
+  try {
+    const { data, error } = kind === 'signup'
+      ? await sbClient.auth.signUp({ email, password })
+      : await sbClient.auth.signInWithPassword({ email, password });
+    if (error) { $('auth-err').textContent = error.message || t('auth_failed'); return; }
+    if (kind === 'signup' && !data.session) {
+      $('auth-err').textContent = t('auth_check_email');
+      return;
+    }
+    authUser = data.user;
+    await loadProfile();
+    refreshAuthUi();
+  } catch (_) {
+    $('auth-err').textContent = t('auth_failed');
+  } finally {
+    $('auth-login').disabled = false; $('auth-signup').disabled = false;
+  }
+}
+$('auth-login').addEventListener('click', () => doAuth('login'));
+$('auth-signup').addEventListener('click', () => doAuth('signup'));
+$('auth-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doAuth('login'); });
+$('auth-signout').addEventListener('click', async () => {
+  try { await sbClient.auth.signOut(); } catch (_) {}
+  authUser = null; authProfile = null;
+  refreshAuthUi();
+});
+if (sbClient) {
+  sbClient.auth.getSession().then(({ data: { session } }) => {
+    if (session) { authUser = session.user; loadProfile(); }
+  }).catch(() => {});
+}
 
 let roomVerified = false;
 if (!roomCode) {
@@ -446,6 +600,7 @@ function enterClass(lang) {
   $('live-lang').textContent = lang;
   loadI18n(lang);
   startPolling();
+  if (authUser) pullPhrasebookSupabase();
   lucide.createIcons();
 }
 $('open-study').addEventListener('click', () => { $('screen-study').classList.remove('hidden'); renderPhrasebook(); lucide.createIcons(); });
@@ -632,8 +787,13 @@ let pollBusy = false;
 async function pollOnce() {
   if (!currentLang || ended || pollBusy) return;
   pollBusy = true;
-  const hb = Date.now() - lastHeartbeat > 25000 ? '&hb=1' : '';
-  if (hb) lastHeartbeat = Date.now();
+  let hb = '';
+  if (Date.now() - lastHeartbeat > 25000) {
+    lastHeartbeat = Date.now();
+    // Heartbeats carry the student's display name for the teacher's
+    // classroom grid (name only — never the email).
+    hb = '&hb=1&n=' + encodeURIComponent(myName());
+  }
   try {
     const res = await fetch('/api/poll?since=' + lastTimestamp +
       '&lang=' + encodeURIComponent(currentLang) +
@@ -978,7 +1138,18 @@ $('msg-send').addEventListener('click', async () => {
   setTimeout(() => { $('msg-send').disabled = false; $('msg-status').textContent = ''; }, 4000);
 });
 $('nick-input').value = localStorage.getItem('nick') || '';
-$('nick-input').addEventListener('input', () => localStorage.setItem('nick', $('nick-input').value.trim().slice(0, 40)));
+let nickSyncTimer = null;
+$('nick-input').addEventListener('input', () => {
+  const nick = $('nick-input').value.trim().slice(0, 40);
+  localStorage.setItem('nick', nick);
+  if (sbClient && authUser && nick) {
+    clearTimeout(nickSyncTimer);
+    nickSyncTimer = setTimeout(() => {
+      sbClient.from('profiles').update({ display_name: nick }).eq('id', authUser.id)
+        .then(() => { if (authProfile) authProfile.display_name = nick; }, () => {});
+    }, 1500);
+  }
+});
 
 // ---------- phrasebook ----------
 function pbKey() { return 'pb_' + (currentLang || 'unk'); }
@@ -990,6 +1161,51 @@ function pbAdd(entry) {
   if (i >= 0) arr.splice(i, 1);
   arr.unshift({ ...entry, ts: Date.now() });
   pbSave(arr);
+  // Signed in: the phrasebook lives in Supabase too (only insert when this
+  // exact pair isn't already saved — re-saving a word just bumps it locally).
+  if (sbClient && authUser && currentLang && i < 0) {
+    sbClient.from('phrasebook_entries').insert({
+      student_id: authUser.id,
+      original_text: entry.en || '',
+      translation: entry.tr || '',
+      language: currentLang,
+    }).then(() => {}, () => {});
+  }
+}
+async function pullPhrasebookSupabase() {
+  if (!sbClient || !authUser || !currentLang) return;
+  try {
+    const { data } = await sbClient.from('phrasebook_entries')
+      .select('original_text, translation, created_at')
+      .eq('student_id', authUser.id).eq('language', currentLang)
+      .order('created_at', { ascending: false }).limit(200);
+    if (!Array.isArray(data)) return;
+    const remote = data.map(r => ({
+      en: r.original_text, tr: r.translation,
+      ts: Date.parse(r.created_at) || Date.now(), kind: 'word',
+    }));
+    const local = pbLoad();
+    const map = new Map();
+    for (const it of [...remote, ...local]) {
+      const k = (it.en || '') + '|' + (it.tr || '');
+      const prev = map.get(k);
+      if (!prev || (it.ts || 0) > (prev.ts || 0)) map.set(k, it);
+    }
+    const merged = [...map.values()].sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 200);
+    try { localStorage.setItem(pbKey(), JSON.stringify(merged)); } catch (_) {}
+    // Push local-only entries up so both sides converge.
+    const remoteKeys = new Set(remote.map(it => (it.en || '') + '|' + (it.tr || '')));
+    const missing = merged.filter(it => !remoteKeys.has((it.en || '') + '|' + (it.tr || '')));
+    if (missing.length) {
+      sbClient.from('phrasebook_entries').insert(missing.map(it => ({
+        student_id: authUser.id,
+        original_text: it.en || '',
+        translation: it.tr || '',
+        language: currentLang,
+      }))).then(() => {}, () => {});
+    }
+    renderPhrasebook();
+  } catch (_) {}
 }
 function renderPhrasebook() {
   const list = $('pb-list');
@@ -1010,7 +1226,17 @@ function renderPhrasebook() {
     row.querySelector('.tr').textContent = item.tr || '';
     row.querySelector('.en').textContent = item.en || '';
     row.querySelector('.pb-speak').addEventListener('click', () => speak(item.tr || item.en));
-    row.querySelector('.pb-del').addEventListener('click', () => { const a = pbLoad(); a.splice(i, 1); pbSave(a); renderPhrasebook(); });
+    row.querySelector('.pb-del').addEventListener('click', () => {
+      const a = pbLoad(); a.splice(i, 1); pbSave(a); renderPhrasebook();
+      if (sbClient && authUser && currentLang) {
+        sbClient.from('phrasebook_entries').delete().match({
+          student_id: authUser.id,
+          original_text: item.en || '',
+          translation: item.tr || '',
+          language: currentLang,
+        }).then(() => {}, () => {});
+      }
+    });
     list.appendChild(row);
   });
 }
