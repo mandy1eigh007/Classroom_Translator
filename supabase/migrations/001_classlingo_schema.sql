@@ -19,6 +19,7 @@ create table if not exists profiles (
   display_name text,
   preferred_language text default 'en',
   email text,
+  active boolean default true,
   created_at timestamptz default now()
 );
 
@@ -67,6 +68,27 @@ create table if not exists session_participants (
   primary key (session_id, student_id)
 );
 
+-- App-wide settings (admin panel: default languages, modes, model choice)
+create table if not exists app_settings (
+  key text primary key,
+  value jsonb not null default '{}',
+  updated_at timestamptz default now()
+);
+
+-- Admin check as a SECURITY DEFINER function. A policy on `profiles` that
+-- subqueries `profiles` directly recurses through RLS and errors at query
+-- time ("infinite recursion detected in policy"); this function bypasses
+-- RLS for the one lookup, which is the standard Supabase pattern.
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (select 1 from profiles where id = auth.uid() and role = 'admin');
+$$;
+
 -- RLS policies
 alter table organizations enable row level security;
 alter table profiles enable row level security;
@@ -74,17 +96,25 @@ alter table class_sessions enable row level security;
 alter table session_messages enable row level security;
 alter table phrasebook_entries enable row level security;
 alter table session_participants enable row level security;
+alter table app_settings enable row level security;
+
+-- Organizations: admins manage, any signed-in user can read (org names show
+-- in teacher/session views)
+create policy "admins manage organizations" on organizations for all using (public.is_admin());
+create policy "authenticated read organizations" on organizations for select to authenticated using (true);
 
 -- Profiles: users can read their own, admins can read all
 create policy "users read own profile" on profiles for select using (auth.uid() = id);
-create policy "admins read all profiles" on profiles for select using (
-  exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-);
+create policy "admins read all profiles" on profiles for select using (public.is_admin());
 create policy "users update own profile" on profiles for update using (auth.uid() = id);
+create policy "users insert own profile" on profiles for insert with check (auth.uid() = id);
+create policy "admins update profiles" on profiles for update using (public.is_admin());
 
--- Sessions: teachers manage their own, students can read active ones
+-- Sessions: teachers manage their own, students can read active ones,
+-- admins read all
 create policy "teachers manage own sessions" on class_sessions for all using (teacher_id = auth.uid());
 create policy "students read active sessions" on class_sessions for select using (status = 'active');
+create policy "admins read all sessions" on class_sessions for select using (public.is_admin());
 
 -- Messages: anyone in session can read, teacher/system inserts
 create policy "session messages readable" on session_messages for select using (true);
@@ -97,3 +127,7 @@ create policy "students manage phrasebook" on phrasebook_entries for all using (
 create policy "participants insert self" on session_participants for insert with check (student_id = auth.uid());
 create policy "participants read" on session_participants for select using (true);
 create policy "participants update self" on session_participants for update using (student_id = auth.uid());
+
+-- Settings: admin-managed, readable by any signed-in user
+create policy "admins manage settings" on app_settings for all using (public.is_admin());
+create policy "authenticated read settings" on app_settings for select to authenticated using (true);

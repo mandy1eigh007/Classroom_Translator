@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — ClassLingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/supabase-config.js"></script>
+  <style>
+    :root {
+      --bg: #0f1216;
+      --panel: #171c23;
+      --panel-2: #1e2530;
+      --border: #2a3342;
+      --text: #e8ecf3;
+      --muted: #8b95a8;
+      --accent: #3e8ed0;
+      --accent-2: #2b6ca3;
+      --green: #3dae7c;
+      --yellow: #d9a53a;
+      --red: #cf5c56;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; background: var(--bg); color: var(--text); }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
+    .mono { font-family: 'DM Mono', monospace; }
+    a { color: var(--accent); }
+
+    /* ---- login gate ---- */
+    #gate {
+      min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .gate-card {
+      width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--border);
+      border-radius: 12px; padding: 28px;
+    }
+    .gate-card h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .gate-card h1 span { color: var(--accent); }
+    .gate-card .sub { color: var(--muted); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 22px; font-family: 'DM Mono', monospace; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 5px; font-weight: 500; }
+    input, select, textarea {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      color: var(--text); font-family: inherit; font-size: 14px; padding: 10px 12px;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius);
+      color: var(--text); font-family: inherit; font-size: 13px; font-weight: 600;
+      padding: 9px 16px; cursor: pointer; min-height: 38px;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-2); }
+    .btn-danger { color: var(--red); border-color: var(--red); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; min-height: 30px; }
+    .err { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 1em; }
+    .ok-msg { color: var(--green); font-size: 13px; margin-top: 10px; min-height: 1em; }
+
+    /* ---- app shell ---- */
+    #app { display: none; min-height: 100dvh; }
+    .shell { display: flex; min-height: 100dvh; }
+    .sidebar {
+      width: 220px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 18px 12px;
+      position: sticky; top: 0; height: 100dvh;
+    }
+    .sidebar .brand { font-size: 18px; font-weight: 700; padding: 4px 10px 2px; }
+    .sidebar .brand span { color: var(--accent); }
+    .sidebar .brand-sub { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); padding: 0 10px 18px; }
+    .nav-btn {
+      display: block; width: 100%; text-align: left; background: transparent; border: none;
+      color: var(--muted); font-family: inherit; font-size: 14px; font-weight: 500;
+      padding: 10px 12px; border-radius: var(--radius); cursor: pointer; margin-bottom: 2px;
+    }
+    .nav-btn:hover { color: var(--text); background: var(--panel-2); }
+    .nav-btn.active { color: var(--text); background: var(--panel-2); border-left: 3px solid var(--accent); padding-left: 9px; }
+    .sidebar .spacer { flex: 1; }
+    .sidebar .who { font-size: 12px; color: var(--muted); padding: 8px 12px; overflow: hidden; text-overflow: ellipsis; }
+    main { flex: 1; min-width: 0; padding: 26px 30px 60px; }
+    h2.page-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    p.page-sub { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+    .panel h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+    .stat .num { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; }
+    .stat .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; color: var(--muted); font-weight: 500; font-size: 12px; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover td { background: var(--panel-2); }
+    .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid var(--border); }
+    .pill.green { color: var(--green); border-color: var(--green); }
+    .pill.red { color: var(--red); border-color: var(--red); }
+    .pill.muted { color: var(--muted); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+    .row > div { flex: 1; min-width: 150px; }
+    .tab-page { display: none; }
+    .tab-page.active { display: block; }
+    .empty { color: var(--muted); font-style: italic; padding: 14px 4px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; display: none; align-items: flex-start; justify-content: center; padding: 5vh 16px; overflow-y: auto; }
+    .modal { width: 100%; max-width: 760px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; }
+    .modal h3 { font-size: 16px; margin-bottom: 4px; }
+    .transcript-line { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .transcript-line .t-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .transcript-line .t-tr { color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .check-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .check-row input[type="checkbox"] { width: auto; }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+    @media (max-width: 760px) {
+      .shell { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 2px; padding: 10px; }
+      .sidebar .brand-sub, .sidebar .who { display: none; }
+      .nav-btn { width: auto; padding: 8px 10px; margin: 0; }
+      .nav-btn.active { border-left: none; border-bottom: 2px solid var(--accent); border-radius: 4px 4px 0 0; padding-left: 10px; }
+      main { padding: 18px 14px 50px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============ LOGIN GATE ============ -->
+<div id="gate">
+  <div class="gate-card">
+    <h1>Class<span>Lingo</span></h1>
+    <div class="sub">Admin console</div>
+    <label for="gate-email">Email</label>
+    <input id="gate-email" type="email" autocomplete="username" placeholder="you@example.com" />
+    <label for="gate-pass">Password</label>
+    <input id="gate-pass" type="password" autocomplete="current-password" placeholder="Password" />
+    <div style="margin-top:18px;">
+      <button id="gate-submit" class="btn btn-primary" style="width:100%;">Sign in</button>
+    </div>
+    <div id="gate-err" class="err"></div>
+    <p class="hint">Admin accounts only. Sign in with the Supabase Auth account whose profile role is "admin".</p>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="brand">Class<span>Lingo</span></div>
+      <div class="brand-sub">Admin console</div>
+      <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+      <button class="nav-btn" data-tab="teachers">Teachers</button>
+      <button class="nav-btn" data-tab="sessions">Sessions</button>
+      <button class="nav-btn" data-tab="orgs">Organizations</button>
+      <button class="nav-btn" data-tab="settings">Settings</button>
+      <button class="nav-btn" data-tab="subscription">Subscription</button>
+      <div class="spacer"></div>
+      <div class="who" id="who"></div>
+      <button class="nav-btn" id="sign-out">Sign out</button>
+    </nav>
+
+    <main>
+      <!-- ===== Dashboard ===== -->
+      <div class="tab-page active" id="tab-dashboard">
+        <h2 class="page-title">Dashboard</h2>
+        <p class="page-sub">Live overview of ClassLingo usage.</p>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" id="st-today">–</div><div class="lbl">Sessions today</div></div>
+          <div class="stat"><div class="num" id="st-week">–</div><div class="lbl">Sessions this week</div></div>
+          <div class="stat"><div class="num" id="st-month">–</div><div class="lbl">Sessions this month</div></div>
+          <div class="stat"><div class="num" id="st-students">–</div><div class="lbl">Students served</div></div>
+          <div class="stat"><div class="num" id="st-active">–</div><div class="lbl">Active sessions now</div></div>
+        </div>
+        <div class="panel">
+          <h3>Languages used</h3>
+          <div id="dash-langs" class="empty">Loading…</div>
+        </div>
+        <div class="panel">
+          <h3>Active sessions right now</h3>
+          <div id="dash-active-list" class="empty">Loading…</div>
+        </div>
+        <p class="hint">Counts come from sessions saved to Supabase (transcript export on the instructor page and signed-in
+          usage). Live KV-only classes that were never saved do not appear here.</p>
+      </div>
+
+      <!-- ===== Teachers ===== -->
+      <div class="tab-page" id="tab-teachers">
+        <h2 class="page-title">Teachers</h2>
+        <p class="page-sub">Create and manage instructor accounts.</p>
+        <div class="panel">
+          <h3>New teacher</h3>
+          <div class="row">
+            <div><label>Name</label><input id="nt-name" type="text" placeholder="Full name" /></div>
+            <div><label>Email</label><input id="nt-email" type="email" placeholder="teacher@school.org" /></div>
+            <div><label>Temporary password</label><input id="nt-pass" type="text" placeholder="Min 8 characters" /></div>
+            <div><label>Organization</label><select id="nt-org"><option value="">No organization</option></select></div>
+            <div style="flex:0;"><button id="nt-create" class="btn btn-primary">Create</button></div>
+          </div>
+          <div id="nt-status" class="err"></div>
+          <p class="hint">The teacher signs in with this email and password, then changes the password with "Reset password".
+            If your Supabase project requires email confirmation, the teacher must confirm before their profile activates.</p>
+        </div>
+        <div class="panel">
+          <h3>All teachers</h3>
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Organization</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="teacher-rows"></tbody>
+          </table>
+          <div id="teachers-empty" class="empty" style="display:none;">No teacher accounts yet.</div>
+        </div>
+      </div>
+
+      <!-- ===== Sessions ===== -->
+      <div class="tab-page" id="tab-sessions">
+        <h2 class="page-title">Sessions</h2>
+        <p class="page-sub">Every saved class session — click a row to read the transcript.</p>
+        <div class="panel">
+          <div class="row">
+            <div><label>Teacher</label><select id="sf-teacher"><option value="">All teachers</option></select></div>
+            <div><label>Mode</label><select id="sf-mode">
+              <option value="">All modes</option>
+              <option value="general">General</option>
+              <option value="osha">OSHA / Safety</option>
+              <option value="trades">Construction / Trades</option>
+              <option value="forklift">Forklift / BFET</option>
+              <option value="flagging">Flagging</option>
+              <option value="kindergarten">Kindergarten</option>
+            </select></div>
+            <div><label>Date</label><input id="sf-date" type="date" /></div>
+            <div style="flex:0;"><button id="sf-apply" class="btn">Filter</button></div>
+            <div style="flex:0;"><button id="sf-clear" class="btn">Clear</button></div>
+          </div>
+        </div>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Started</th><th>Title</th><th>Teacher</th><th>Mode</th><th>Languages</th><th>Status</th></tr></thead>
+            <tbody id="session-rows"></tbody>
+          </table>
+          <div id="sessions-empty" class="empty" style="display:none;">No sessions found.</div>
+        </div>
+      </div>
+
+      <!-- ===== Organizations ===== -->
+      <div class="tab-page" id="tab-orgs">
+        <h2 class="page-title">Organizations</h2>
+        <p class="page-sub">Schools, companies, and programs using ClassLingo.</p>
+        <div class="panel">
+          <h3>New organization</h3>
+          <div class="row">
+            <div><label>Name</label><input id="no-name" type="text" placeholder="e.g. Rainier Skills Center" /></div>
+            <div><label>Slug (auto)</label><input id="no-slug" type="text" placeholder="rainier-skills-center" /></div>
+            <div style="flex:0;"><button id="no-create" class="btn btn-primary">Create</button></div>
+          </div>
+          <div id="no-status" class="err"></div>
+        </div>
+        <div class="panel">
+          <h3>All organizations</h3>
+          <table>
+            <thead><tr><th>Name</th><th>Slug</th><th>Plan</th><th>Teachers</th><th>Created</th></tr></thead>
+            <tbody id="org-rows"></tbody>
+          </table>
+          <div id="orgs-empty" class="empty" style="display:none;">No organizations yet.</div>
+          <p class="hint">Assign teachers to an organization from the Teachers tab (Organization column).</p>
+        </div>
+      </div>
+
+      <!-- ===== Settings ===== -->
+      <div class="tab-page" id="tab-settings">
+        <h2 class="page-title">Settings</h2>
+        <p class="page-sub">App-wide defaults. Stored in Supabase (app_settings).</p>
+        <div class="panel">
+          <h3>Default languages offered</h3>
+          <div id="set-langs"></div>
+        </div>
+        <div class="panel">
+          <h3>Trade modes enabled</h3>
+          <div id="set-modes"></div>
+        </div>
+        <div class="panel">
+          <h3>OpenAI translation model</h3>
+          <select id="set-model" style="max-width:320px;">
+            <option value="gpt-4o-mini">gpt-4o-mini (fast, cheapest — default)</option>
+            <option value="gpt-4o">gpt-4o (higher quality)</option>
+            <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+          </select>
+          <p class="hint">Model selection is stored here for reference and future server wiring; the Cloudflare Functions
+            currently use gpt-4o-mini.</p>
+        </div>
+        <button id="set-save" class="btn btn-primary">Save settings</button>
+        <div id="set-status" class="ok-msg"></div>
+      </div>
+
+      <!-- ===== Subscription ===== -->
+      <div class="tab-page" id="tab-subscription">
+        <h2 class="page-title">Subscription</h2>
+        <p class="page-sub">Plan per organization. Billing integration is a future step — this sets the plan flag each org runs under.</p>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Organization</th><th>Plan</th><th>Monthly session limit</th><th>Student limit / session</th><th></th></tr></thead>
+            <tbody id="sub-rows"></tbody>
+          </table>
+          <div id="sub-empty" class="empty" style="display:none;">Create an organization first.</div>
+        </div>
+        <div class="panel">
+          <h3>Plans (reference)</h3>
+          <table>
+            <thead><tr><th>Plan</th><th>Sessions / month</th><th>Students / session</th><th>Modes</th><th>Transcripts</th></tr></thead>
+            <tbody>
+              <tr><td>Free</td><td>10</td><td>15</td><td>General only</td><td>7-day history</td></tr>
+              <tr><td>Pro</td><td>Unlimited</td><td>40</td><td>All trade modes</td><td>Full history + export</td></tr>
+              <tr><td>Enterprise</td><td>Unlimited</td><td>Unlimited</td><td>All + custom vocab</td><td>Full history + API</td></tr>
+            </tbody>
+          </table>
+          <p class="hint">Usage limits are not enforced yet — enforcement lands with the service-role key wiring in
+            Cloudflare Functions.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- transcript modal -->
+<div class="modal-overlay" id="tx-overlay">
+  <div class="modal">
+    <div style="display:flex; align-items:baseline; gap:10px;">
+      <h3 id="tx-title" style="flex:1;">Transcript</h3>
+      <button class="btn btn-sm" id="tx-close">Close</button>
+    </div>
+    <p class="page-sub" id="tx-meta"></p>
+    <div id="tx-body"></div>
+  </div>
+</div>
+
+<script>
+  const CFG = window.CLASSLINGO_SUPABASE;
+  const sb = window.supabase.createClient(CFG.url, CFG.anonKey);
+  // Secondary client for creating teacher accounts without clobbering the
+  // admin's own session (signUp signs the *new* user in on this client only).
+  const sbCreate = window.supabase.createClient(CFG.url, CFG.anonKey, {
+    auth: { persistSession: false, storageKey: 'clx-admin-create', autoRefreshToken: false },
+  });
+
+  const $ = (id) => document.getElementById(id);
+  const LANG_NAMES = ['English','Spanish','Dari','Somali','Vietnamese','Amharic','Arabic','Simplified Chinese',
+    'Tagalog','Swahili','French','Portuguese','Korean','Hindi','Punjabi','Russian','Ukrainian'];
+  const MODES = [
+    { id: 'general', label: 'General' },
+    { id: 'osha', label: 'OSHA / Safety' },
+    { id: 'trades', label: 'Construction / Trades' },
+    { id: 'forklift', label: 'Forklift / BFET' },
+    { id: 'flagging', label: 'Flagging' },
+    { id: 'kindergarten', label: 'Kindergarten' },
+  ];
+  const MODE_LABEL = Object.fromEntries(MODES.map(m => [m.id, m.label]));
+
+  let me = null;           // { id, email, display_name }
+  let orgsCache = [];
+  let teachersCache = [];
+
+  // ---------------- auth gate ----------------
+  async function verifyAdmin(user) {
+    const { data, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
+    if (error || !data || data.role !== 'admin') return null;
+    return data;
+  }
+  async function tryEnter() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { showGate(); return; }
+    const prof = await verifyAdmin(session.user);
+    if (!prof) {
+      await sb.auth.signOut();
+      showGate('This account is not an admin.');
+      return;
+    }
+    me = { id: session.user.id, email: session.user.email, display_name: prof.display_name };
+    enterApp();
+  }
+  function showGate(err) {
+    $('gate').style.display = 'flex';
+    $('app').style.display = 'none';
+    $('gate-err').textContent = err || '';
+  }
+  function enterApp() {
+    $('gate').style.display = 'none';
+    $('app').style.display = 'block';
+    $('who').textContent = me.display_name || me.email;
+    loadDashboard();
+    loadOrgs().then(() => { loadTeachers(); loadSubscription(); });
+    loadSessions();
+    loadSettings();
+  }
+  $('gate-submit').addEventListener('click', doLogin);
+  $('gate-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+  async function doLogin() {
+    const email = $('gate-email').value.trim();
+    const password = $('gate-pass').value;
+    if (!email || !password) return;
+    $('gate-submit').disabled = true;
+    $('gate-err').textContent = '';
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    $('gate-submit').disabled = false;
+    if (error) { $('gate-err').textContent = error.message; return; }
+    const prof = await verifyAdmin(data.user);
+    if (!prof) {
+      await sb.auth.signOut();
+      $('gate-err').textContent = 'Signed in, but this account is not an admin.';
+      return;
+    }
+    me = { id: data.user.id, email: data.user.email, display_name: prof.display_name };
+    enterApp();
+  }
+  $('sign-out').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
+  tryEnter();
+
+  // ---------------- tabs ----------------
+  document.querySelectorAll('.nav-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn[data-tab]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+      $('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  function fmtDate(s) {
+    if (!s) return '—';
+    const d = new Date(s);
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' +
+           d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
+  // ---------------- dashboard ----------------
+  async function countSessions(sinceIso) {
+    let q = sb.from('class_sessions').select('id', { count: 'exact', head: true });
+    if (sinceIso) q = q.gte('started_at', sinceIso);
+    const { count, error } = await q;
+    return error ? '—' : (count ?? 0);
+  }
+  async function loadDashboard() {
+    const now = new Date();
+    const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const weekStart = new Date(now.getTime() - 7 * 864e5).toISOString();
+    const monthStart = new Date(now.getTime() - 30 * 864e5).toISOString();
+    countSessions(dayStart).then(n => $('st-today').textContent = n);
+    countSessions(weekStart).then(n => $('st-week').textContent = n);
+    countSessions(monthStart).then(n => $('st-month').textContent = n);
+    sb.from('session_participants').select('student_id', { count: 'exact', head: true })
+      .then(({ count, error }) => $('st-students').textContent = error ? '—' : (count ?? 0));
+    sb.from('class_sessions').select('id', { count: 'exact', head: true }).eq('status', 'active')
+      .then(({ count, error }) => $('st-active').textContent = error ? '—' : (count ?? 0));
+
+    // Language breakdown from recent sessions
+    const { data: recent } = await sb.from('class_sessions')
+      .select('languages').order('started_at', { ascending: false }).limit(300);
+    const tally = {};
+    for (const r of (recent || [])) for (const l of (r.languages || [])) tally[l] = (tally[l] || 0) + 1;
+    const entries = Object.entries(tally).sort((a, b) => b[1] - a[1]);
+    $('dash-langs').classList.toggle('empty', !entries.length);
+    $('dash-langs').innerHTML = entries.length
+      ? entries.map(([l, n]) => '<span class="pill" style="margin:0 6px 6px 0;">' + esc(l) + ' — ' + n + ' sessions</span>').join(' ')
+      : 'No saved sessions yet.';
+
+    const { data: act } = await sb.from('class_sessions')
+      .select('id, title, class_code, mode, started_at, languages').eq('status', 'active')
+      .order('started_at', { ascending: false }).limit(20);
+    const el = $('dash-active-list');
+    if (!act || !act.length) { el.className = 'empty'; el.textContent = 'No active sessions.'; return; }
+    el.className = '';
+    el.innerHTML = '<table><thead><tr><th>Started</th><th>Title</th><th>Code</th><th>Mode</th><th>Languages</th></tr></thead><tbody>' +
+      act.map(s => '<tr><td>' + fmtDate(s.started_at) + '</td><td>' + esc(s.title || 'Untitled') + '</td><td class="mono">' +
+        esc(s.class_code) + '</td><td>' + esc(MODE_LABEL[s.mode] || s.mode || '') + '</td><td>' +
+        esc((s.languages || []).join(', ')) + '</td></tr>').join('') + '</tbody></table>';
+  }
+
+  // ---------------- orgs ----------------
+  async function loadOrgs() {
+    const { data, error } = await sb.from('organizations').select('*').order('created_at');
+    orgsCache = error ? [] : (data || []);
+    // org selects
+    for (const selId of ['nt-org']) {
+      const sel = $(selId);
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">No organization</option>' +
+        orgsCache.map(o => '<option value="' + o.id + '">' + esc(o.name) + '</option>').join('');
+      sel.value = cur;
+    }
+    renderOrgRows();
+  }
+  function renderOrgRows() {
+    const tbody = $('org-rows');
+    const counts = {};
+    for (const t of teachersCache) if (t.organization_id) counts[t.organization_id] = (counts[t.organization_id] || 0) + 1;
+    tbody.innerHTML = orgsCache.map(o =>
+      '<tr><td>' + esc(o.name) + '</td><td class="mono">' + esc(o.slug) + '</td><td><span class="pill">' +
+      esc(o.plan || 'free') + '</span></td><td>' + (counts[o.id] || 0) + '</td><td>' + fmtDate(o.created_at) + '</td></tr>'
+    ).join('');
+    $('orgs-empty').style.display = orgsCache.length ? 'none' : 'block';
+  }
+  $('no-name').addEventListener('input', () => {
+    $('no-slug').value = $('no-name').value.trim().toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+  });
+  $('no-create').addEventListener('click', async () => {
+    const name = $('no-name').value.trim();
+    const slug = $('no-slug').value.trim();
+    if (!name || !slug) { $('no-status').textContent = 'Name and slug are required.'; return; }
+    $('no-create').disabled = true;
+    const { error } = await sb.from('organizations').insert({ name, slug });
+    $('no-create').disabled = false;
+    if (error) { $('no-status').textContent = error.message; return; }
+    $('no-status').textContent = '';
+    $('no-name').value = ''; $('no-slug').value = '';
+    await loadOrgs();
+    loadSubscription();
+  });
+
+  // ---------------- teachers ----------------
+  async function loadTeachers() {
+    const { data, error } = await sb.from('profiles').select('*').eq('role', 'teacher').order('created_at');
+    teachersCache = error ? [] : (data || []);
+    const orgName = Object.fromEntries(orgsCache.map(o => [o.id, o.name]));
+    const tbody = $('teacher-rows');
+    tbody.innerHTML = '';
+    for (const t of teachersCache) {
+      const tr = document.createElement('tr');
+      const orgSel = '<select data-act="org" data-id="' + t.id + '" class="btn-sm" style="width:auto; padding:5px 8px;">' +
+        '<option value="">No organization</option>' +
+        orgsCache.map(o => '<option value="' + o.id + '"' + (o.id === t.organization_id ? ' selected' : '') + '>' +
+          esc(o.name) + '</option>').join('') + '</select>';
+      tr.innerHTML =
+        '<td>' + esc(t.display_name || '—') + '</td>' +
+        '<td class="mono">' + esc(t.email || '') + '</td>' +
+        '<td>' + orgSel + '</td>' +
+        '<td><span class="pill ' + (t.active !== false ? 'green">Active' : 'red">Deactivated') + '</span></td>' +
+        '<td style="white-space:nowrap;">' +
+          '<button class="btn btn-sm" data-act="reset" data-id="' + t.id + '" data-email="' + esc(t.email || '') + '">Reset password</button> ' +
+          '<button class="btn btn-sm ' + (t.active !== false ? 'btn-danger" data-act="deact"' : '" data-act="react"') +
+            ' data-id="' + t.id + '">' + (t.active !== false ? 'Deactivate' : 'Reactivate') + '</button>' +
+        '</td>';
+      tbody.appendChild(tr);
+    }
+    $('teachers-empty').style.display = teachersCache.length ? 'none' : 'block';
+    // filter dropdown on sessions tab
+    const sf = $('sf-teacher');
+    const cur = sf.value;
+    sf.innerHTML = '<option value="">All teachers</option>' +
+      teachersCache.map(t => '<option value="' + t.id + '">' + esc(t.display_name || t.email || t.id) + '</option>').join('');
+    sf.value = cur;
+    renderOrgRows();
+  }
+  $('teacher-rows').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.act === 'reset') {
+      const email = btn.dataset.email;
+      if (!email) return;
+      btn.disabled = true;
+      const { error } = await sb.auth.resetPasswordForEmail(email);
+      btn.disabled = false;
+      btn.textContent = error ? 'Failed' : 'Email sent';
+      setTimeout(() => { btn.textContent = 'Reset password'; }, 3000);
+    } else if (btn.dataset.act === 'deact' || btn.dataset.act === 'react') {
+      btn.disabled = true;
+      await sb.from('profiles').update({ active: btn.dataset.act === 'react' }).eq('id', id);
+      await loadTeachers();
+    }
+  });
+  $('teacher-rows').addEventListener('change', async (e) => {
+    const sel = e.target.closest('select[data-act="org"]');
+    if (!sel) return;
+    await sb.from('profiles').update({ organization_id: sel.value || null }).eq('id', sel.dataset.id);
+    await loadTeachers();
+  });
+  $('nt-create').addEventListener('click', async () => {
+    const name = $('nt-name').value.trim();
+    const email = $('nt-email').value.trim();
+    const pass = $('nt-pass').value;
+    const orgId = $('nt-org').value || null;
+    const status = $('nt-status');
+    if (!name || !email || !pass) { status.textContent = 'Name, email, and password are required.'; return; }
+    if (pass.length < 8) { status.textContent = 'Password must be at least 8 characters.'; return; }
+    $('nt-create').disabled = true;
+    status.textContent = '';
+    try {
+      const { data, error } = await sbCreate.auth.signUp({ email, password: pass });
+      if (error) throw error;
+      const uid = data.user && data.user.id;
+      if (!uid) throw new Error('Account created but no user id returned.');
+      if (data.session) {
+        // Confirmation off: the new user's own session can insert their profile.
+        const { error: pErr } = await sbCreate.from('profiles').insert({
+          id: uid, role: 'teacher', display_name: name, email, organization_id: orgId,
+        });
+        if (pErr) throw pErr;
+        await sbCreate.auth.signOut();
+        status.textContent = '';
+      } else {
+        status.textContent = 'Account created — the teacher must confirm their email, then their profile is created on first sign-in.';
+      }
+      $('nt-name').value = ''; $('nt-email').value = ''; $('nt-pass').value = '';
+      await loadTeachers();
+    } catch (err) {
+      status.textContent = err.message || 'Could not create the teacher.';
+    } finally {
+      $('nt-create').disabled = false;
+    }
+  });
+
+  // ---------------- sessions ----------------
+  async function loadSessions() {
+    let q = sb.from('class_sessions').select('*').order('started_at', { ascending: false }).limit(150);
+    if ($('sf-teacher').value) q = q.eq('teacher_id', $('sf-teacher').value);
+    if ($('sf-mode').value) q = q.eq('mode', $('sf-mode').value);
+    if ($('sf-date').value) {
+      const d = new Date($('sf-date').value + 'T00:00:00');
+      q = q.gte('started_at', d.toISOString()).lt('started_at', new Date(d.getTime() + 864e5).toISOString());
+    }
+    const { data, error } = await q;
+    const rows = error ? [] : (data || []);
+    const tName = Object.fromEntries(teachersCache.map(t => [t.id, t.display_name || t.email]));
+    const tbody = $('session-rows');
+    tbody.innerHTML = '';
+    for (const s of rows) {
+      const tr = document.createElement('tr');
+      tr.className = 'clickable';
+      tr.innerHTML =
+        '<td style="white-space:nowrap;">' + fmtDate(s.started_at) + '</td>' +
+        '<td>' + esc(s.title || 'Untitled') + '</td>' +
+        '<td>' + esc(tName[s.teacher_id] || '—') + '</td>' +
+        '<td>' + esc(MODE_LABEL[s.mode] || s.mode || '') + '</td>' +
+        '<td>' + esc((s.languages || []).join(', ')) + '</td>' +
+        '<td><span class="pill ' + (s.status === 'active' ? 'green' : 'muted') + '">' + esc(s.status || '') + '</span></td>';
+      tr.addEventListener('click', () => openTranscript(s, tName[s.teacher_id]));
+      tbody.appendChild(tr);
+    }
+    $('sessions-empty').style.display = rows.length ? 'none' : 'block';
+  }
+  $('sf-apply').addEventListener('click', loadSessions);
+  $('sf-clear').addEventListener('click', () => {
+    $('sf-teacher').value = ''; $('sf-mode').value = ''; $('sf-date').value = '';
+    loadSessions();
+  });
+  async function openTranscript(s, teacherName) {
+    $('tx-title').textContent = s.title || 'Untitled session';
+    $('tx-meta').textContent = (teacherName || 'Unknown teacher') + ' — ' + fmtDate(s.started_at) +
+      ' — code ' + (s.class_code || '') + ' — ' + (MODE_LABEL[s.mode] || s.mode || '');
+    $('tx-body').innerHTML = '<div class="empty">Loading transcript…</div>';
+    $('tx-overlay').style.display = 'flex';
+    const { data, error } = await sb.from('session_messages')
+      .select('*').eq('session_id', s.id).order('created_at').limit(1000);
+    if (error || !data || !data.length) {
+      $('tx-body').innerHTML = '<div class="empty">No transcript messages saved for this session.</div>';
+      return;
+    }
+    $('tx-body').innerHTML = data.map(m => {
+      const trs = m.translations && typeof m.translations === 'object'
+        ? Object.entries(m.translations).map(([l, t]) =>
+            '<div class="t-tr">' + esc(l) + ': ' + esc(t) + '</div>').join('')
+        : '';
+      return '<div class="transcript-line"><div class="t-meta">' + fmtDate(m.created_at) + ' — ' +
+        esc(m.message_type || 'speech') + '</div><div>' + esc(m.original_text) + '</div>' + trs + '</div>';
+    }).join('');
+  }
+  $('tx-close').addEventListener('click', () => { $('tx-overlay').style.display = 'none'; });
+  $('tx-overlay').addEventListener('click', (e) => { if (e.target === $('tx-overlay')) $('tx-overlay').style.display = 'none'; });
+
+  // ---------------- settings ----------------
+  function renderSettingChecks() {
+    $('set-langs').innerHTML = LANG_NAMES.map(l =>
+      '<div class="check-row"><input type="checkbox" id="lang-' + l.replace(/\s/g, '_') + '" data-lang="' + l + '" checked />' +
+      '<label for="lang-' + l.replace(/\s/g, '_') + '" style="margin:0;">' + l + '</label></div>').join('');
+    $('set-modes').innerHTML = MODES.map(m =>
+      '<div class="check-row"><input type="checkbox" id="mode-' + m.id + '" data-mode="' + m.id + '" checked />' +
+      '<label for="mode-' + m.id + '" style="margin:0;">' + m.label + '</label></div>').join('');
+  }
+  renderSettingChecks();
+  async function loadSettings() {
+    const { data } = await sb.from('app_settings').select('*');
+    const map = Object.fromEntries((data || []).map(r => [r.key, r.value]));
+    if (Array.isArray(map.default_languages)) {
+      document.querySelectorAll('#set-langs input[data-lang]').forEach(cb => {
+        cb.checked = map.default_languages.includes(cb.dataset.lang);
+      });
+    }
+    if (Array.isArray(map.trade_modes_enabled)) {
+      document.querySelectorAll('#set-modes input[data-mode]').forEach(cb => {
+        cb.checked = map.trade_modes_enabled.includes(cb.dataset.mode);
+      });
+    }
+    if (map.openai_model) $('set-model').value = map.openai_model;
+  }
+  $('set-save').addEventListener('click', async () => {
+    const langs = [...document.querySelectorAll('#set-langs input[data-lang]:checked')].map(cb => cb.dataset.lang);
+    const modes = [...document.querySelectorAll('#set-modes input[data-mode]:checked')].map(cb => cb.dataset.mode);
+    $('set-save').disabled = true;
+    const { error } = await sb.from('app_settings').upsert([
+      { key: 'default_languages', value: langs, updated_at: new Date().toISOString() },
+      { key: 'trade_modes_enabled', value: modes, updated_at: new Date().toISOString() },
+      { key: 'openai_model', value: $('set-model').value, updated_at: new Date().toISOString() },
+    ]);
+    $('set-save').disabled = false;
+    $('set-status').textContent = error ? ('Save failed: ' + error.message) : 'Saved.';
+    setTimeout(() => { $('set-status').textContent = ''; }, 3000);
+  });
+
+  // ---------------- subscription ----------------
+  function loadSubscription() {
+    const tbody = $('sub-rows');
+    tbody.innerHTML = orgsCache.map(o => {
+      const lim = o.plan === 'pro' ? ['Unlimited', '40'] : o.plan === 'enterprise' ? ['Unlimited', 'Unlimited'] : ['10', '15'];
+      return '<tr><td>' + esc(o.name) + '</td>' +
+        '<td><select data-org="' + o.id + '" class="sub-plan" style="width:auto; padding:5px 8px;">' +
+          ['free', 'pro', 'enterprise'].map(p => '<option value="' + p + '"' + ((o.plan || 'free') === p ? ' selected' : '') + '>' +
+            p.charAt(0).toUpperCase() + p.slice(1) + '</option>').join('') +
+        '</select></td>' +
+        '<td>' + lim[0] + '</td><td>' + lim[1] + '</td>' +
+        '<td><span class="pill muted">Billing: coming soon</span></td></tr>';
+    }).join('');
+    $('sub-empty').style.display = orgsCache.length ? 'none' : 'block';
+  }
+  $('sub-rows').addEventListener('change', async (e) => {
+    const sel = e.target.closest('select.sub-plan');
+    if (!sel) return;
+    await sb.from('organizations').update({ plan: sel.value }).eq('id', sel.dataset.org);
+    await loadOrgs();
+    loadSubscription();
+  });
+</script>
+</body>
+</html>
