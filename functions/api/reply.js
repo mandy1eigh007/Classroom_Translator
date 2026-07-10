@@ -1,5 +1,9 @@
-// /api/reply — instructor replies to one student's message. Replaces
-// Express /reply. Requires Bearer TEACHER_PASSWORD.
+// /api/reply — instructor replies to one student's message (and powers the
+// classroom grid's direct messages). Replaces Express /reply. Requires
+// Bearer TEACHER_PASSWORD.
+//
+// Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars in Cloudflare
+// Pages settings (follow-up: teacher Supabase JWT verification; not read yet).
 //
 // POST { sid, lang, text } -> { ok: true }
 //

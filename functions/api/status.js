@@ -1,6 +1,9 @@
 // /api/status — teacher dashboard poll (and public audience counter).
 // Replaces Express /status. The teacher's page polls this every 5 seconds.
 //
+// Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars in Cloudflare
+// Pages settings (follow-up: teacher Supabase JWT verification; not read yet).
+//
 // GET -> {
 //   students, byLang,                 // from presence heartbeats (60s TTL)
 //   confused: {lang: n},              // "I'm lost" flags newer than last publish

@@ -1,5 +1,9 @@
 // /api/poll — the student's heartbeat. Replaces the Express SSE /stream.
 //
+// Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars in Cloudflare
+// Pages settings (follow-up: attribute signed-in students server-side via
+// their Supabase JWT; not read yet).
+//
 // GET /api/poll?since={ts}&lang={langName}&c={roomCode}&sid={sessionId}
 //              &rv={lastSeenReplyV}&hb=1&n={displayName}
 //

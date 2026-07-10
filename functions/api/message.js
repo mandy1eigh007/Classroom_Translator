@@ -1,6 +1,10 @@
 // /api/message — teacher publishes a finalized English utterance.
 // Replaces Express /publish. Requires Bearer TEACHER_PASSWORD.
 //
+// Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars in Cloudflare
+// Pages settings (follow-up: verify teacher Supabase JWTs server-side here
+// instead of the shared passcode; not read yet).
+//
 // POST { text, c } -> { id, ts }
 //
 // The utterance is written to SESSION_KV as msg:{epoch}:{ts13}. The English

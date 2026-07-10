@@ -2,17 +2,19 @@
 #
 # SETUP (one-time, in the Cloudflare dashboard):
 #
-# 1. Create two KV namespaces:
-#      Workers & Pages -> KV -> Create namespace
+# 1. KV namespaces (already created; ids below are live):
 #        - "classlingo-session"     (live class state, messages, translations)
 #        - "classlingo-phrasebook"  (student phrasebook sync)
-#    Then replace the two PLACEHOLDER ids below with the real namespace IDs
-#    shown in the dashboard.
 #
 # 2. Set environment variables (Pages project -> Settings -> Environment
-#    variables, Production AND Preview):
-#        OPENAI_API_KEY    - OpenAI API key (translation, notes, TTS, Whisper, OCR)
-#        TEACHER_PASSWORD  - instructor login password
+#    variables, Production AND Preview) — full details in /public/SETUP.md:
+#        OPENAI_API_KEY             - OpenAI API key (translation, notes, TTS,
+#                                     Whisper, OCR)
+#        TEACHER_PASSWORD           - instructor login password
+#        SUPABASE_URL               - https://lfizcpaqolckemrvsooy.supabase.co
+#        SUPABASE_ANON_KEY          - anon key (Supabase -> Settings -> API)
+#        SUPABASE_SERVICE_ROLE_KEY  - service_role key (KEEP SECRET; server-
+#                                     side auth verification follow-up)
 #      optional:
 #        MYMEMORY_EMAIL    - contact email for the MyMemory free translation
 #                            fallback (bumps the free quota from 10k to 50k
