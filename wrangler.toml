@@ -1,0 +1,37 @@
+# ClassLingo — Cloudflare Pages configuration
+#
+# SETUP (one-time, in the Cloudflare dashboard):
+#
+# 1. Create two KV namespaces:
+#      Workers & Pages -> KV -> Create namespace
+#        - "classlingo-session"     (live class state, messages, translations)
+#        - "classlingo-phrasebook"  (student phrasebook sync)
+#    Then replace the two PLACEHOLDER ids below with the real namespace IDs
+#    shown in the dashboard.
+#
+# 2. Set environment variables (Pages project -> Settings -> Environment
+#    variables, Production AND Preview):
+#        OPENAI_API_KEY    - OpenAI API key (translation, notes, TTS, Whisper, OCR)
+#        TEACHER_PASSWORD  - instructor login password
+#      optional:
+#        MYMEMORY_EMAIL    - contact email for the MyMemory free translation
+#                            fallback (bumps the free quota from 10k to 50k
+#                            chars/day). Leave unset to skip.
+#
+# 3. If you created the Pages project from the dashboard instead of
+#    `wrangler pages deploy`, also bind the KV namespaces there:
+#    Pages project -> Settings -> Bindings -> Add -> KV namespace
+#        binding name SESSION_KV     -> classlingo-session
+#        binding name PHRASEBOOK_KV  -> classlingo-phrasebook
+
+name = "classroom-translator"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "public"
+
+[[kv_namespaces]]
+binding = "SESSION_KV"
+id = "PLACEHOLDER_SESSION_KV_ID"
+
+[[kv_namespaces]]
+binding = "PHRASEBOOK_KV"
+id = "PLACEHOLDER_PHRASEBOOK_KV_ID"

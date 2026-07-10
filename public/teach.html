@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Instructor — ClassLingo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/style.css" />
+  <!-- Client-side QR generation (the old server-side /qr.png is gone; this
+       keeps the join QR working with zero server code and no third parties). -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 </head>
 <body class="teach-body">
 <div class="app">
@@ -19,10 +22,6 @@
     Voice input requires Chrome on Android or desktop. Open this page in Chrome.
   </div>
 
-  <!-- Compatibility hint. Some Chrome builds (extensions, hardened policies,
-       VPN sandboxing) silently block the mic / file uploads. Edge — same
-       engine, different policies — usually works. Dismiss with the × and
-       it stays hidden for this browser. -->
   <div id="browser-tip" style="display:none; margin-bottom:14px; padding:10px 14px; background:#fff7e0; border:1px solid #f0c75a; border-radius:var(--radius); color:#5a4a14; font-size:13px; line-height:1.4;">
     <strong>Heads-up:</strong> if the mic won't pick up your voice, or videos
     / documents won't upload, try a different browser (Microsoft Edge or
@@ -40,7 +39,7 @@
     <p id="passcode-err" style="display:none; color:var(--red); font-size:12px; margin-top:8px;">
       Wrong passcode.
     </p>
-    <p class="hint">Ask whoever set up the app for the passcode.</p>
+    <p class="hint">Ask whoever set up the app for the passcode. (It's the TEACHER_PASSWORD environment variable in the Cloudflare dashboard.)</p>
   </div>
 
   <div id="main-ui" style="display:none;">
@@ -75,14 +74,11 @@
       <p id="video-err" style="display:none; color:var(--red); font-size:12px; margin:0 0 10px;"></p>
       <p id="video-status" style="display:none; font-size:12px; margin:0 0 10px; color:var(--muted);"></p>
       <div id="video-wrap" style="display:none;">
-        <!-- Outer box owns the 16:9 frame so the YT iframe (which replaces
-             #yt-player and ignores aspect-ratio styles) still renders at
-             the right size inside the grid cell. -->
         <div style="position:relative; aspect-ratio:16/9; width:100%; background:#000; border-radius:var(--radius); overflow:hidden;">
           <div id="yt-player" style="position:absolute; inset:0;"></div>
         </div>
         <p class="hint" style="margin-top:8px;">
-          Play / pause / seek — every student's video follows along.
+          Play / pause / seek — every student's video follows along (they sync within a couple of seconds).
         </p>
       </div>
     </section>
@@ -90,11 +86,12 @@
     <section class="card card--lime">
       <h3 class="card-title"><span class="ico" aria-hidden="true">📄</span> Share a document</h3>
       <div class="input-row" style="margin-bottom:8px;">
-        <input id="doc-file" type="file" accept=".pdf,.pptx,.docx,.txt,.png,.jpg,.jpeg,.webp,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,image/*"
+        <input id="doc-file" type="file" accept=".txt,.png,.jpg,.jpeg,.webp,.gif,text/plain,image/*"
                style="font-size:12px;" />
         <button id="doc-upload" class="btn btn-primary" type="button">Upload</button>
         <button id="doc-clear" class="btn" type="button" style="display:none; width:auto;">Clear</button>
       </div>
+      <p class="hint" style="margin:0 0 8px;">TXT and photos (JPG/PNG) work now — photos are OCR'd automatically. PDF/DOCX parsing is coming soon: for now save the page as text or snap a photo of it.</p>
       <p id="doc-err" style="display:none; color:var(--red); font-size:12px; margin:0 0 8px;"></p>
       <div id="doc-nav" style="display:none; padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -103,7 +100,7 @@
           <span id="doc-pos" style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); min-width:78px; text-align:center;"></span>
           <button id="doc-next" class="btn" type="button" style="width:auto; padding:8px 12px;">Next ›</button>
         </div>
-        <p class="hint" style="margin:8px 0 0;">Students see the rendered page + translated text. You see both below.</p>
+        <p class="hint" style="margin:8px 0 0;">Students see the page + translated text. You see both below.</p>
         <div id="doc-page-img-wrap" style="display:none; margin-top:10px;">
           <img id="doc-page-img" alt="Document page preview" style="display:block; max-width:100%; max-height:34vh; margin:0 auto; background:#fff; border:1px solid var(--border); border-radius:var(--radius); cursor:zoom-in;" />
         </div>
@@ -146,9 +143,6 @@
     <div class="feed" id="recent-feed"></div>
   </section>
 
-  <!-- Preview the same study notes the students see, so the teacher can
-       sanity-check accuracy. Calls the same /notes endpoint students do,
-       in English, against the current room code. -->
   <section class="card card--violet">
     <div class="card-head">
       <h3 class="card-title"><span class="ico" aria-hidden="true">📝</span> Preview class notes</h3>
@@ -179,8 +173,6 @@
       <button id="share-email" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send by email">✉ Email</button>
       <button id="share-qr" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Show a QR code students can scan">▦ QR</button>
     </div>
-    <!-- Parallel share link for the kids view (pre-readers). Same room code,
-         different page — no typing, no reading, big icons, auto-spoken. -->
     <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
       <p class="section-label" style="margin-bottom:8px;">Kids link (pre-readers)</p>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -204,11 +196,7 @@
   </div><!-- /#main-ui -->
 </div>
 
-<!-- Sticky YouTube transport bar. Hidden until a video is loaded. Stays
-     pinned to the bottom of the viewport so the teacher can play/pause/seek
-     and close without scrolling back up to the video card. Must be in the
-     DOM before <script> runs, since the script grabs these element refs
-     at parse time. -->
+<!-- Sticky YouTube transport bar -->
 <div id="yt-transport" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:60; padding:10px 14px; background:var(--ink, #1a1a1a); color:#fff; border-top:3px solid var(--accent, #d9534f); box-shadow:0 -6px 24px rgba(0,0,0,0.25); gap:10px; align-items:center; flex-wrap:wrap; font-family:'DM Mono',monospace;">
   <button id="yt-t-back" type="button" title="Back 10 seconds" style="background:#333; color:#fff; border:1px solid #555; border-radius:8px; padding:8px 12px; font-size:14px; cursor:pointer; min-width:54px;">−10s</button>
   <button id="yt-t-play" type="button" title="Play / pause" style="background:var(--accent,#d9534f); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:18px; cursor:pointer; min-width:54px;">▶</button>
@@ -219,6 +207,22 @@
 </div>
 
 <script>
+  // ============================================================
+  // ClassLingo instructor — Cloudflare Pages edition.
+  // Endpoint map (Express -> Pages Functions):
+  //   /auth/check        -> POST /api/session {action:"check"}
+  //   /class/current     -> GET  /api/session
+  //   /class/new         -> POST /api/session {action:"new"}
+  //   /history/clear     -> POST /api/session {action:"clear"}
+  //   /publish           -> POST /api/message
+  //   /status            -> GET  /api/status   (poll, 5s)
+  //   /reply             -> POST /api/reply
+  //   /transcribe        -> POST /api/transcribe
+  //   /video/*           -> POST /api/video {action}
+  //   /document/*        -> POST /api/document
+  //   /qr.png            -> client-side QR (qrcode.min.js)
+  // ============================================================
+
   // ---------- passcode auth ----------
   let passcode = sessionStorage.getItem('teach_pass') || localStorage.getItem('teach_pass') || '';
   const gate = document.getElementById('auth-gate');
@@ -227,15 +231,23 @@
   const passSubmit = document.getElementById('passcode-submit');
   const passErr = document.getElementById('passcode-err');
 
+  function authHeaders(extra) {
+    return Object.assign({ 'Authorization': 'Bearer ' + passcode }, extra || {});
+  }
   async function checkPass(p) {
     try {
-      const r = await fetch('/auth/check', {
+      const r = await fetch('/api/session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + p }
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + p },
+        body: JSON.stringify({ action: 'check' })
       });
       const d = await r.json().catch(() => ({}));
       return !!d.ok;
     } catch (_) { return false; }
+  }
+  function dropAuth() {
+    passcode = '';
+    try { localStorage.removeItem('teach_pass'); sessionStorage.removeItem('teach_pass'); } catch (_) {}
   }
   function showGate() {
     gate.style.display = 'block';
@@ -245,14 +257,12 @@
   function showMain() {
     gate.style.display = 'none';
     mainUI.style.display = 'block';
-    // Browser-compatibility nudge — dismissible, per-browser via localStorage.
     try {
       const tip = document.getElementById('browser-tip');
       if (tip && !localStorage.getItem('hide_browser_tip')) tip.style.display = 'block';
     } catch (_) {}
     start(); // arm the mic only after auth
   }
-  // Browser-tip × → remember dismissal for this device.
   document.getElementById('browser-tip-close').addEventListener('click', () => {
     document.getElementById('browser-tip').style.display = 'none';
     try { localStorage.setItem('hide_browser_tip', '1'); } catch (_) {}
@@ -279,7 +289,7 @@
 
   (async () => {
     if (passcode && await checkPass(passcode)) showMain();
-    else { passcode = ''; localStorage.removeItem('teach_pass'); showGate(); }
+    else { dropAuth(); showGate(); }
   })();
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -304,7 +314,7 @@
   }
   async function refreshShareUrl() {
     try {
-      const r = await fetch('/class/current');
+      const r = await fetch('/api/session');
       const d = await r.json();
       currentClassCode = d.code || '';
     } catch (_) { currentClassCode = ''; }
@@ -315,9 +325,6 @@
   refreshShareUrl();
 
   // ---------- preview class notes (teacher QA) ----------
-  // Calls the same /notes endpoint students use, asking for English. Lets
-  // the teacher sanity-check what summary their students will see, without
-  // having to open a separate student tab.
   const notesPreviewBtn = document.getElementById('notes-preview-btn');
   const notesPreviewStatus = document.getElementById('notes-preview-status');
   const notesPreviewOut = document.getElementById('notes-preview-out');
@@ -329,7 +336,7 @@
     notesPreviewBtn.disabled = true;
     notesPreviewStatus.textContent = 'Generating preview…';
     try {
-      const r = await fetch('/notes', {
+      const r = await fetch('/api/notes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ c: currentClassCode, lang: 'English' })
@@ -358,7 +365,7 @@
     setTimeout(() => { notesPreviewBtn.disabled = false; }, 2000);
   });
 
-  // ---------- share buttons ----------
+  // ---------- share buttons + client-side QR ----------
   const shareStatus = document.getElementById('share-status');
   const shareNativeBtn = document.getElementById('share-native');
   const qrWrap = document.getElementById('qr-wrap');
@@ -371,14 +378,18 @@
   function shareMessage() {
     return 'Join our class on ClassLingo (live translation): ' + currentShareUrl();
   }
-  function qrSrc() {
-    // Cache-bust on class-code change so the QR refreshes after /class/new.
-    return '/qr.png?v=' + encodeURIComponent(currentClassCode || 'none');
+  function makeQr(imgEl, url) {
+    try {
+      QRCode.toDataURL(url, {
+        errorCorrectionLevel: 'M', margin: 2, width: 400,
+        color: { dark: '#2a1a0f', light: '#ffffff' },
+      }, (err, dataUrl) => { if (!err && dataUrl) imgEl.src = dataUrl; });
+    } catch (_) {}
   }
   function updateQrIfOpen() {
-    if (qrWrap.style.display !== 'none') qrImg.src = qrSrc();
+    if (qrWrap.style.display !== 'none') makeQr(qrImg, currentShareUrl());
+    if (kidsQrWrap.style.display !== 'none') makeQr(kidsQrImg, currentKidsUrl());
   }
-  // Native share sheet (iPhone / Android pull up Messages, WhatsApp, etc.)
   if (navigator.share) {
     shareNativeBtn.style.display = 'inline-flex';
     shareNativeBtn.addEventListener('click', async () => {
@@ -397,7 +408,6 @@
       await navigator.clipboard.writeText(url);
       flashStatus('✓ Link copied');
     } catch (_) {
-      // Older browsers — select the text so the teacher can copy manually.
       const range = document.createRange();
       range.selectNode(studentUrlEl);
       const sel = window.getSelection();
@@ -406,7 +416,6 @@
     }
   });
   document.getElementById('share-sms').addEventListener('click', () => {
-    // iOS uses `&body=`; Android tolerates both. The leading `?` works on both.
     const body = encodeURIComponent(shareMessage());
     location.href = 'sms:?&body=' + body;
   });
@@ -423,19 +432,16 @@
     const showing = qrWrap.style.display !== 'none';
     if (showing) {
       qrWrap.style.display = 'none';
-      qrImg.src = '';
+      qrImg.removeAttribute('src');
     } else {
-      qrImg.src = qrSrc();
+      makeQr(qrImg, currentShareUrl());
       qrWrap.style.display = 'block';
     }
   });
 
-  // ---- Kids link share buttons (parallel to the student-link ones) ----
+  // ---- Kids link share buttons ----
   const kidsQrWrap = document.getElementById('kids-qr-wrap');
   const kidsQrImg = document.getElementById('kids-qr-img');
-  function kidsQrSrc() {
-    return '/qr.png?p=kids&v=' + encodeURIComponent(currentClassCode || 'none');
-  }
   document.getElementById('kids-copy').addEventListener('click', async () => {
     const url = currentKidsUrl();
     try {
@@ -453,67 +459,51 @@
     const showing = kidsQrWrap.style.display !== 'none';
     if (showing) {
       kidsQrWrap.style.display = 'none';
-      kidsQrImg.src = '';
+      kidsQrImg.removeAttribute('src');
     } else {
-      kidsQrImg.src = kidsQrSrc();
+      makeQr(kidsQrImg, currentKidsUrl());
       kidsQrWrap.style.display = 'block';
     }
   });
 
-  // "End class" — kicks every connected student (by minting a new code,
-  // same as /class/new) and then locks the instructor back to the passcode
-  // gate so the teacher has to deliberately re-auth to start another class.
+  // Teacher session actions
+  async function postSession(action) {
+    const r = await fetch('/api/session', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ action })
+    });
+    if (r.status === 401) { dropAuth(); showGate(); return null; }
+    return r.json().catch(() => ({}));
+  }
+
   document.getElementById('end-class').addEventListener('click', async () => {
     if (!confirm('End class now?\n\nEvery student will be disconnected and the lesson will be cleared. You\'ll need to re-enter the instructor passcode to start a new class.')) return;
-    try {
-      await fetch('/class/new', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + passcode }
-      }).catch(() => {});
-    } finally {
-      passcode = '';
-      try { localStorage.removeItem('teach_pass'); sessionStorage.removeItem('teach_pass'); } catch (_) {}
-      showGate();
-    }
+    try { await postSession('new'); } catch (_) {}
+    dropAuth();
+    showGate();
   });
 
-  // "Start new class" — confirms, mints a fresh code on the server (which
-  // also kicks every connected student and wipes lesson state), then
-  // refreshes the displayed link and clears the local "recently sent" list.
   document.getElementById('new-class').addEventListener('click', async () => {
     if (!confirm('Start a new class?\n\nCurrent students will be disconnected and the share link will change. Lesson history, video, and document will be cleared.')) return;
     try {
-      const r = await fetch('/class/new', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + passcode }
-      });
-      if (r.status === 401) {
-        passcode = '';
-        localStorage.removeItem('teach_pass');
-        sessionStorage.removeItem('teach_pass');
-        showGate();
-        return;
-      }
-      const d = await r.json().catch(() => ({}));
+      const d = await postSession('new');
+      if (!d) return; // got kicked to the gate
       if (d.code) {
         currentClassCode = d.code;
         studentUrlEl.textContent = currentShareUrl();
-        // Refresh the parallel kids share link + QR so the teacher doesn't
-        // accidentally hand out a stale /kids?c=... after class rotation.
         if (kidsUrlEl) kidsUrlEl.textContent = currentKidsUrl();
-        if (kidsQrWrap.style.display !== 'none') kidsQrImg.src = kidsQrSrc();
         updateQrIfOpen();
       } else {
         await refreshShareUrl();
       }
-      // Clear local UI state that mirrored the old class.
       recent.length = 0;
       latestUnderstood = {};
       feed.innerHTML = '';
       setLive('Waiting for English speech...', false);
       updateAudience(0);
       updateLost({}, {});
-      // Reset video panel UI (server already cleared the shared video state).
+      resetMsgFeed();
       try {
         const vUrl = document.getElementById('video-url');
         const vErr = document.getElementById('video-err');
@@ -523,23 +513,17 @@
         if (vErr) { vErr.style.display = 'none'; vErr.textContent = ''; }
         if (vClear) vClear.style.display = 'none';
         if (vWrap) vWrap.style.display = 'none';
+        showTransport(false);
+        if (ytPlayer) { try { ytPlayer.stopVideo(); } catch (_) {} }
       } catch (_) {}
-      // Reset document panel UI (server already cleared the shared document).
       try {
         const dFile = document.getElementById('doc-file');
         const dErr = document.getElementById('doc-err');
-        const dClear = document.getElementById('doc-clear');
-        const dNav = document.getElementById('doc-nav');
-        const dPage = document.getElementById('doc-page-text');
-        const dName = document.getElementById('doc-name');
-        const dPos = document.getElementById('doc-pos');
+        docInfo = null;
         if (dFile) dFile.value = '';
         if (dErr) { dErr.style.display = 'none'; dErr.textContent = ''; }
-        if (dClear) dClear.style.display = 'none';
-        if (dNav) dNav.style.display = 'none';
-        if (dPage) dPage.textContent = '';
-        if (dName) dName.textContent = '';
-        if (dPos) dPos.textContent = '';
+        renderDoc();
+        document.getElementById('doc-page-text').textContent = '';
       } catch (_) {}
     } catch (_) {}
   });
@@ -554,10 +538,8 @@
   let isPaused = false;
   let restartTimer = null;
   const micToggle = document.getElementById('mic-toggle');
-  // Whisper fallback: when browser ASR misbehaves (jobsite noise, accent,
-  // Chrome glitch), the teacher records a clip and we transcribe it
-  // server-side. The button is created here so we don't depend on HTML
-  // edits scattered across the file; it sits right next to the mic toggle.
+
+  // Whisper record-clip fallback
   let mediaRecorder = null;
   let recordedChunks = [];
   let recordTimer = null;
@@ -573,7 +555,7 @@
     function setIdle() { btn.textContent = '🎙 Record clip'; btn.disabled = false; btn.classList.remove('recording'); }
     function setRecording() { btn.textContent = '⏺ Stop & send'; btn.classList.add('recording'); }
     function setBusy(label) { btn.textContent = label; btn.disabled = true; }
-    async function start() {
+    async function startRec() {
       if (!navigator.mediaDevices || !window.MediaRecorder) {
         alert('Recording is not supported in this browser.');
         return;
@@ -582,8 +564,6 @@
       try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
       catch (_) { alert('Microphone permission needed to record.'); return; }
       recordedChunks = [];
-      // Pick a mime type the browser will actually let us record. Whisper
-      // accepts webm/opus, m4a, mp3, wav — we try webm first.
       const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
         : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '');
@@ -598,9 +578,9 @@
       mediaRecorder.start();
       setRecording();
       clearTimeout(recordTimer);
-      recordTimer = setTimeout(() => { stop(); }, RECORD_MAX_MS);
+      recordTimer = setTimeout(() => { stopRec(); }, RECORD_MAX_MS);
     }
-    function stop() {
+    function stopRec() {
       clearTimeout(recordTimer);
       if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
       try { mediaRecorder.stop(); } catch (_) {}
@@ -610,23 +590,14 @@
       try {
         const fd = new FormData();
         fd.append('audio', blob, 'clip.webm');
-        const r = await fetch('/transcribe', {
+        const r = await fetch('/api/transcribe', {
           method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + passcode },
+          headers: authHeaders(),
           body: fd
         });
-        if (r.status === 401) {
-          passcode = '';
-          localStorage.removeItem('teach_pass');
-          sessionStorage.removeItem('teach_pass');
-          setIdle();
-          showGate();
-          return;
-        }
+        if (r.status === 401) { dropAuth(); setIdle(); showGate(); return; }
         const data = await r.json().catch(() => ({}));
         if (data && data.text) {
-          // Reuse the existing publish queue so the clip enters the
-          // pipeline exactly like a dictated sentence.
           publish(data.text);
           setLive(data.text, true);
         } else {
@@ -639,26 +610,22 @@
       }
     }
     btn.addEventListener('click', () => {
-      if (mediaRecorder && mediaRecorder.state === 'recording') stop();
-      else start();
+      if (mediaRecorder && mediaRecorder.state === 'recording') stopRec();
+      else startRec();
     });
     return btn;
   }
-  // Insert the button next to the mic toggle once the DOM is settled —
-  // but only if the server reports Whisper is wired. Otherwise users would
-  // record a clip and get a 503 error every time, which is worse than no
-  // button at all.
   if (micToggle && micToggle.parentNode) {
     const btn = makeWhisperButton();
     btn.style.display = 'none';
     micToggle.parentNode.insertBefore(btn, micToggle.nextSibling);
-    fetch('/capabilities').then(r => r.json()).then(caps => {
-      if (caps && caps.whisper) btn.style.display = '';
-    }).catch(() => {/* leave hidden */});
+    fetch('/api/session').then(r => r.json()).then(d => {
+      if (d && d.caps && d.caps.whisper) btn.style.display = '';
+    }).catch(() => {});
   }
+
   let publishQueue = Promise.resolve();
-  const recent = []; // {id, en} most-recent first, cap 8. `id` lets us match
-                     // up server-side "I get it" tallies from kid clients.
+  const recent = []; // {id, en} most-recent first, cap 8
   let latestUnderstood = {}; // utterId -> [{avatar, initial}]
 
   function setMic(state, label) {
@@ -683,19 +650,20 @@
       tr.className = 'tr';
       tr.textContent = r.en;
       div.appendChild(tr);
-      // "I get it" tally from kids on this utterance, if any.
       const kids = (r.id && latestUnderstood[r.id]) || [];
       if (kids.length) {
         const badge = document.createElement('div');
         badge.style.cssText = 'margin-top:6px; display:flex; flex-wrap:wrap; align-items:center; gap:4px; font-size:12px; color:var(--muted);';
         const lead = document.createElement('span');
         lead.textContent = '😊 ' + kids.length + ' got it';
-        lead.style.cssText = 'font-weight:600; color:#62d4a0; margin-right:4px;';
+        lead.style.cssText = 'font-weight:600; color:var(--teal, #2b7a78); margin-right:4px;';
         badge.appendChild(lead);
         for (const k of kids.slice(0, 12)) {
           const chip = document.createElement('span');
           chip.style.cssText = 'display:inline-flex; align-items:center; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:2px 8px;';
-          chip.textContent = (k.avatar || '🙂') + (k.initial ? ' ' + k.initial : '');
+          // Kid avatars are image paths in the kids view; show the initial
+          // (and a generic face) rather than a raw path.
+          chip.textContent = '🙂' + (k.initial ? ' ' + k.initial : '');
           badge.appendChild(chip);
         }
         div.appendChild(badge);
@@ -707,35 +675,23 @@
   function publish(text) {
     const clean = text.trim();
     if (!clean) return;
-    // Snapshot the class code at speech time, not at fetch time — so if the
-    // teacher starts a new class with a publish still queued, the server
-    // can reject the stale one instead of letting it bleed into the new class.
     const cls = currentClassCode;
     publishQueue = publishQueue.then(async () => {
       try {
-        const r = await fetch('/publish', {
+        const r = await fetch('/api/message', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + passcode
-          },
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ text: clean, c: cls })
         });
         if (r.status === 410) return; // stale-class publish: drop silently
         if (r.status === 401) {
-          // Passcode changed/expired — force re-auth and stop the mic.
-          passcode = '';
-          localStorage.removeItem('teach_pass');
-          sessionStorage.removeItem('teach_pass');
+          dropAuth();
           isRunning = false;
           if (recognition) { try { recognition.stop(); } catch (_) {} }
           showGate();
           return;
         }
         const data = await r.json().catch(() => ({}));
-        if (typeof data.students === 'number') updateAudience(data.students);
-        // Backfill the utterance id on the recent entry we just inserted so
-        // kid "I get it" tallies can pair with the right sentence.
         if (data && data.id && recent.length) {
           for (let i = 0; i < recent.length; i++) {
             if (recent[i].en === clean && !recent[i].id) {
@@ -760,27 +716,24 @@
     const entries = Object.entries(confusedObj || {}).filter(([, n]) => n > 0);
     if (!entries.length) { lostPill.style.display = 'none'; return; }
     lostPill.style.display = 'inline-flex';
-    // Per-language summary. When a language has kid clients, append the
-    // raised-hand avatars so the teacher knows *which* kids need help.
     const parts = entries.map(([lang, n]) => {
       const kids = (kidsObj && kidsObj[lang]) || [];
       if (!kids.length) return n + ' ' + lang;
       const tags = kids.slice(0, 6)
-        .map(k => (k.avatar || '🙋') + (k.initial ? k.initial : ''))
+        .map(k => '🙋' + (k.initial ? k.initial : ''))
         .join(' ');
       const extra = kids.length > 6 ? ' +' + (kids.length - 6) : '';
       return n + ' ' + lang + ' (' + tags + extra + ')';
     });
     lostText.textContent = parts.join(', ') + ' need a moment';
   }
+
   // ---------- student messages ----------
   const msgFeed = document.getElementById('msg-feed');
   const msgClearBtn = document.getElementById('msg-clear');
   let lastSeenMsgId = 0;
   const dismissedMsgIds = new Set();
   msgClearBtn.addEventListener('click', () => {
-    // Hide everything currently shown without contacting the server. The
-    // server keeps the messages so a refresh restores them.
     for (const node of msgFeed.querySelectorAll('[data-msg-id]')) {
       dismissedMsgIds.add(Number(node.getAttribute('data-msg-id')));
       node.remove();
@@ -793,7 +746,6 @@
     if (!Array.isArray(messages) || !messages.length) return;
     const fresh = messages.filter(m => m.id > lastSeenMsgId && !dismissedMsgIds.has(m.id));
     if (!fresh.length) return;
-    // Drop the placeholder on first real message.
     const placeholder = msgFeed.querySelector('.utter:not([data-msg-id])');
     if (placeholder) placeholder.remove();
     for (const m of fresh) {
@@ -836,11 +788,11 @@
       replyRow.appendChild(replyBtn);
       replyRow.appendChild(replyStatus);
       wrap.appendChild(replyRow);
-      const subId = m.subId || '';
+      const sid = m.sid || '';
       const targetLang = m.lang || '';
       replyBtn.addEventListener('click', () => {
         if (wrap.querySelector('.reply-form')) return;
-        if (!subId) { replyStatus.textContent = '(can\'t reply to this message)'; return; }
+        if (!sid) { replyStatus.textContent = '(can\'t reply to this message)'; return; }
         const form = document.createElement('div');
         form.className = 'reply-form';
         form.style.cssText = 'margin-top:8px;';
@@ -872,19 +824,16 @@
           sendBtn.disabled = true; cancelBtn.disabled = true;
           replyStatus.textContent = 'Sending…';
           try {
-            const r = await fetch('/reply', {
+            const r = await fetch('/api/reply', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + passcode },
-              body: JSON.stringify({ subId, lang: targetLang, text })
+              headers: authHeaders({ 'Content-Type': 'application/json' }),
+              body: JSON.stringify({ sid, lang: targetLang, text })
             });
-            if (r.status === 401) {
-              passcode = ''; localStorage.removeItem('teach_pass'); sessionStorage.removeItem('teach_pass');
-              showGate(); return;
-            }
+            if (r.status === 401) { dropAuth(); showGate(); return; }
             const d = await r.json().catch(() => ({}));
             if (r.ok) {
               form.remove();
-              replyStatus.textContent = d.delivered ? '✓ Sent' : '✓ Sent — student may be offline';
+              replyStatus.textContent = '✓ Sent — the student sees it on their next refresh (a few seconds)';
               setTimeout(() => { replyStatus.textContent = ''; }, 6000);
             } else {
               replyStatus.textContent = d.error || 'Could not send.';
@@ -908,29 +857,28 @@
   }
   async function pollAudience() {
     try {
-      const r = await fetch('/status', {
+      const r = await fetch('/api/status', {
         headers: passcode ? { 'Authorization': 'Bearer ' + passcode } : {}
       });
       const data = await r.json();
       updateAudience(data.students || 0);
       updateLost(data.confused || {}, data.confusedKids || {});
-      // Refresh "I get it" tallies on recent feed items. Re-render if any
-      // counts changed so badges appear/grow as kids tap.
       const u = data.understood || {};
-      const before = JSON.stringify(latestUnderstood);
-      const after = JSON.stringify(u);
-      if (before !== after) {
+      if (JSON.stringify(latestUnderstood) !== JSON.stringify(u)) {
         latestUnderstood = u;
         renderRecent();
       }
-      // Detect server-side wipe (e.g. /history/clear, /class/new): if we've
-      // shown messages before but the server now returns none — or the highest
-      // id dropped below what we've already rendered — reset the feed so the
-      // teacher's screen matches reality.
       const msgs = Array.isArray(data.messages) ? data.messages : [];
       const maxServerId = msgs.reduce((a, m) => Math.max(a, m.id || 0), 0);
       if (lastSeenMsgId > 0 && maxServerId < lastSeenMsgId) resetMsgFeed();
       renderMessages(msgs);
+      // Keep the share link honest if the code rotated from another device.
+      if (data.code && data.code !== currentClassCode) {
+        currentClassCode = data.code;
+        studentUrlEl.textContent = currentShareUrl();
+        if (kidsUrlEl) kidsUrlEl.textContent = currentKidsUrl();
+        updateQrIfOpen();
+      }
     } catch (_) {}
   }
   setInterval(pollAudience, 5000);
@@ -975,7 +923,6 @@
     };
 
     recognition.onend = () => {
-      // Keep the mic perpetually alive — restart unless we hit a fatal error.
       if (!isRunning) return;
       clearTimeout(restartTimer);
       restartTimer = setTimeout(() => {
@@ -985,8 +932,6 @@
 
     try { recognition.start(); } catch (_) {}
   }
-
-  // start() is called from showMain() after the passcode check.
 
   function pauseMic() {
     isPaused = true;
@@ -1008,11 +953,6 @@
   });
 
   // ---------- shared YouTube video ----------
-  // Sync strategy: event-driven. We push state to the server ONLY when the
-  // teacher touches the player (play/pause/seek/load) or the YT API fires a
-  // state change. No 5-second polling — that's what caused the "have to
-  // refresh constantly" UX. A lightweight 1-second UI tick updates the
-  // sticky transport bar's scrub position, but it never hits the network.
   const videoUrlEl = document.getElementById('video-url');
   const videoLoadBtn = document.getElementById('video-load');
   const videoClearBtn = document.getElementById('video-clear');
@@ -1027,9 +967,9 @@
   let ytPlayer = null;
   let ytReady = false;
   let ytApiLoading = false;
-  let uiTickTimer = null;          // local-only, updates the scrub bar
-  let scrubbing = false;           // user is dragging the scrub thumb
-  let lastSentState = null;        // {state, positionSec, ts} — for dedup
+  let uiTickTimer = null;
+  let scrubbing = false;
+  let lastSentState = null;
 
   function loadYtApi(cb) {
     if (window.YT && window.YT.Player) return cb();
@@ -1046,48 +986,39 @@
     videoErr.style.display = msg ? 'block' : 'none';
   }
 
-  async function postVideo(path, body) {
+  async function postVideo(body) {
     try {
-      const r = await fetch(path, {
+      const r = await fetch('/api/video', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + passcode },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(body || {})
       });
-      if (r.status === 401) { passcode=''; localStorage.removeItem('teach_pass'); sessionStorage.removeItem('teach_pass'); showGate(); return null; }
+      if (r.status === 401) { dropAuth(); showGate(); return null; }
       return await r.json().catch(() => ({}));
     } catch (_) { return null; }
   }
 
-  // Push the player's current state to the server. Called on YT state
-  // change AND from the sticky transport bar after manual seek/play/pause.
-  // Dedups identical consecutive pushes to keep the network quiet.
-  // Monotonic sequence so the server can drop out-of-order control messages
-  // (rapid seek/pause/play). Without this, network reordering can leave
-  // students in the wrong final state.
   let videoCtrlSeq = 0;
   function pushState(force) {
     if (!ytPlayer || !ytReady) return;
     try {
-      const s = ytPlayer.getPlayerState(); // -1=unstarted, 0=ended, 1=playing, 2=paused, 3=buffering, 5=cued
+      const s = ytPlayer.getPlayerState();
       const pos = ytPlayer.getCurrentTime() || 0;
       let state;
       if (s === 1) state = 'playing';
       else if (s === 2 || s === 0) state = 'paused';
-      else return; // buffering / cued / unstarted — wait for the next real event
+      else return;
       if (!force && lastSentState
           && lastSentState.state === state
           && Math.abs(lastSentState.positionSec - pos) < 0.5
           && Date.now() - lastSentState.ts < 1500) return;
       lastSentState = { state, positionSec: pos, ts: Date.now() };
       videoCtrlSeq++;
-      postVideo('/video/control', { state, positionSec: pos, seq: videoCtrlSeq });
+      postVideo({ action: 'control', state, positionSec: pos, seq: videoCtrlSeq });
     } catch (_) {}
   }
 
   function onYtStateChange(e) {
-    // Fired by the YT iframe whenever play/pause/seek/buffer happens.
-    // We push on play, pause, and ended. Buffering is transient — ignore
-    // it so we don't flap state between buffering and playing.
     if (e.data === 1 || e.data === 2 || e.data === 0) {
       pushState(true);
     }
@@ -1099,13 +1030,10 @@
     const url = (videoUrlEl.value || '').trim();
     if (!url) return;
     videoLoadBtn.disabled = true;
-    const data = await postVideo('/video/set', { url });
+    const data = await postVideo({ action: 'set', url });
     videoLoadBtn.disabled = false;
     if (!data || !data.ok) { showVideoErr((data && data.error) || 'Could not load that video.'); return; }
     const videoId = data.videoId;
-    // Surface caption status so the teacher knows whether students will see
-    // translated captions or just the silent video. If YouTube's transcript
-    // fetch failed (rate limit, no captions), say so plainly.
     if (data.hasCaptions && data.captionCount) {
       showVideoStatus('Captions ready (' + data.captionCount + ' lines). Students will see translations as you play.', 'ok');
     } else {
@@ -1130,8 +1058,6 @@
           }
         });
       } else {
-        // New video into existing player — load fresh and start paused so
-        // the teacher controls when it begins.
         ytPlayer.loadVideoById({ videoId, startSeconds: 0 });
         try { ytPlayer.pauseVideo(); } catch (_) {}
         showTransport(true);
@@ -1141,7 +1067,7 @@
 
   videoClearBtn.addEventListener('click', async () => {
     showVideoStatus('');
-    await postVideo('/video/clear', {});
+    await postVideo({ action: 'clear' });
     if (ytPlayer) { try { ytPlayer.stopVideo(); } catch (_) {} }
     videoWrap.style.display = 'none';
     videoClearBtn.style.display = 'none';
@@ -1152,9 +1078,6 @@
   });
 
   // ---------- sticky transport bar ----------
-  // Always-on-screen Play/Pause · −10s · +10s · scrub · Close so the teacher
-  // doesn't have to scroll back up to the video card mid-class. Live actions
-  // push state immediately via pushState(true).
   const transportBar = document.getElementById('yt-transport');
   const tBtnPlay = document.getElementById('yt-t-play');
   const tBtnBack = document.getElementById('yt-t-back');
@@ -1239,7 +1162,7 @@
     clearHistoryBtn.disabled = true;
     const orig = clearHistoryBtn.textContent;
     try {
-      const d = await postVideo('/history/clear', {});
+      const d = await postSession('clear');
       if (d && d.ok) {
         recent.length = 0;
         feed.innerHTML = '';
@@ -1264,10 +1187,8 @@
   const docPageTextEl = document.getElementById('doc-page-text');
   const docPageImgWrap = document.getElementById('doc-page-img-wrap');
   const docPageImgEl = document.getElementById('doc-page-img');
-  let docInfo = null; // { docId, name, pageCount, currentPage }
+  let docInfo = null; // { docId, name, pageCount, currentPage, hasImage }
 
-  // Hide preview img on 404 (DOCX/TXT pages with no rendered image) and on
-  // click open full-size so the teacher can zoom into small text/diagrams.
   docPageImgEl.addEventListener('load', () => { docPageImgWrap.style.display = 'block'; });
   docPageImgEl.addEventListener('error', () => { docPageImgWrap.style.display = 'none'; });
   docPageImgEl.addEventListener('click', () => {
@@ -1281,8 +1202,8 @@
   }
   function refreshDocImg() {
     docPageImgWrap.style.display = 'none';
-    if (docInfo) {
-      docPageImgEl.src = '/document/preview/' + encodeURIComponent(docInfo.docId) + '/' + (docInfo.currentPage|0) + '?v=' + Date.now();
+    if (docInfo && docInfo.hasImage) {
+      docPageImgEl.src = '/api/docimage?d=' + encodeURIComponent(docInfo.docId) + '&p=' + (docInfo.currentPage|0) + '&v=' + Date.now();
     } else {
       docPageImgEl.removeAttribute('src');
     }
@@ -1304,16 +1225,12 @@
     refreshDocImg();
   }
 
-  // Track whether an upload or page-change is currently in flight. While
-  // it's true we lock the upload button AND the page-flip buttons so the
-  // teacher can't queue up requests while OCR is still running.
   let docBusy = false;
   function setDocBusy(busy, label) {
     docBusy = busy;
     docUploadBtn.disabled = busy;
     docUploadBtn.textContent = busy ? (label || 'Working…') : 'Upload';
     if (docInfo) {
-      // Re-apply prev/next enabled state honoring the busy flag.
       docPrevBtn.disabled = busy || docInfo.currentPage <= 0;
       docNextBtn.disabled = busy || docInfo.currentPage >= docInfo.pageCount - 1;
     }
@@ -1325,19 +1242,18 @@
     if (!f) { showDocErr('Pick a file first.'); return; }
     const fd = new FormData();
     fd.append('file', f);
-    // Hint the user that images/scans take longer than text PDFs.
-    const isImageLike = /^image\//.test(f.type) || /\.(png|jpe?g|webp|pdf)$/i.test(f.name);
+    const isImageLike = /^image\//.test(f.type) || /\.(png|jpe?g|webp|gif)$/i.test(f.name);
     setDocBusy(true, isImageLike ? 'Reading…' : 'Uploading…');
     try {
-      const r = await fetch('/document/upload', {
+      const r = await fetch('/api/document', {
         method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + passcode },
+        headers: authHeaders(),
         body: fd
       });
-      if (r.status === 401) { passcode=''; localStorage.removeItem('teach_pass'); sessionStorage.removeItem('teach_pass'); showGate(); return; }
+      if (r.status === 401) { dropAuth(); showGate(); return; }
       const d = await r.json().catch(() => ({}));
       if (!d || !d.ok) { showDocErr((d && d.error) || 'Upload failed.'); return; }
-      docInfo = { docId: d.docId, name: d.name, pageCount: d.pageCount, currentPage: d.currentPage };
+      docInfo = { docId: d.docId, name: d.name, pageCount: d.pageCount, currentPage: d.currentPage, hasImage: d.hasImage };
       docPageTextEl.textContent = d.pageText || '(no text on this page)';
       docPageTextEl.scrollTop = 0;
       renderDoc();
@@ -1354,7 +1270,13 @@
     if (target === docInfo.currentPage) return;
     setDocBusy(true, 'Loading page…');
     try {
-      const d = await postVideo('/document/page', { page: target });
+      const r = await fetch('/api/document', {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ action: 'page', page: target })
+      });
+      if (r.status === 401) { dropAuth(); showGate(); return; }
+      const d = await r.json().catch(() => ({}));
       if (d && d.ok) {
         docInfo.currentPage = d.currentPage;
         docPageTextEl.textContent = d.pageText || '(no text on this page)';
@@ -1369,7 +1291,13 @@
   docNextBtn.addEventListener('click', () => setDocPage(docInfo.currentPage + 1));
 
   docClearBtn.addEventListener('click', async () => {
-    await postVideo('/document/clear', {});
+    try {
+      await fetch('/api/document', {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ action: 'clear' })
+      });
+    } catch (_) {}
     docInfo = null;
     docFileEl.value = '';
     docPageTextEl.textContent = '';

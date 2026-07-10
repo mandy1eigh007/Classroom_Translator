@@ -4,1702 +4,1124 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Student — ClassLingo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@0.460.0"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/style.css" />
+  <style>
+    :root {
+      --cream: #f3e9d2; --paper: #fdf6e3; --ink: #2a1a0f; --ink2: #6b4f3a;
+      --red: #c2362e; --mustard: #e0a82e; --teal: #2b7a78; --orange: #e2733a;
+    }
+    * { -webkit-tap-highlight-color: transparent; }
+    html, body { background: var(--cream); color: var(--ink); }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-image:
+        radial-gradient(rgba(42,26,15,0.05) 1px, transparent 1px),
+        radial-gradient(rgba(42,26,15,0.03) 1px, transparent 1px);
+      background-size: 24px 24px, 8px 8px;
+      background-position: 0 0, 4px 4px;
+    }
+    .display { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-weight: 700; }
+    .mono { font-family: 'DM Mono', monospace; }
+    .retro-card { background: var(--paper); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 6px 6px 0 var(--ink); }
+    .retro-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--paper); color: var(--ink);
+      border: 3px solid var(--ink); border-radius: 10px;
+      font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      box-shadow: 4px 4px 0 var(--ink);
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      user-select: none;
+    }
+    .retro-btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--ink); }
+    .retro-btn.on { background: var(--mustard); }
+    .lang-tile {
+      display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+      min-height: 64px; padding: 10px 14px; width: 100%; text-align: left;
+      background: var(--paper); border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink);
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+    .lang-tile:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--ink); }
+    .lang-tile.selected { background: var(--mustard); box-shadow: 4px 4px 0 var(--red); }
+    .lang-tile .native { font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700; font-size: 19px; line-height: 1.15; }
+    .lang-tile .en-name { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink2); margin-top: 2px; }
+    /* Live feed */
+    .utter { background: var(--paper); border: 2px solid var(--ink); border-radius: 12px; padding: 10px 14px; box-shadow: 2px 2px 0 var(--ink); }
+    .utter .en { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.05em; color: var(--ink2); text-transform: uppercase; margin-bottom: 4px; line-height: 1.5; }
+    .utter .tr { font-weight: 500; font-size: 16px; line-height: 1.5; color: var(--ink2); }
+    .utter.latest { border-width: 3px; border-radius: 14px; padding: 18px 18px; box-shadow: 6px 6px 0 var(--red); }
+    .utter.latest .tr { font-family: 'Atkinson Hyperlegible', sans-serif; color: var(--ink); font-weight: 700; }
+    .utter.err { border-color: var(--red); background: #fbe8e6; }
+    .utter.err .tr { color: var(--red); font-size: 14px; }
+    /* Font size steps drive the latest bubble */
+    body[data-fs="sm"] .utter.latest .tr { font-size: 22px; line-height: 1.35; }
+    body[data-fs="md"] .utter.latest .tr { font-size: 28px; line-height: 1.35; }
+    body[data-fs="lg"] .utter.latest .tr { font-size: 36px; line-height: 1.3; }
+    body[data-fs="xl"] .utter.latest .tr { font-size: 44px; line-height: 1.25; }
+    body[data-fs="lg"] .utter .tr, body[data-fs="xl"] .utter .tr { font-size: 19px; }
+    .word { cursor: pointer; border-radius: 3px; }
+    .word:active { background: rgba(194,54,46,0.2); }
+    /* Big thumb buttons */
+    .thumb-btn {
+      flex: 1; min-height: 72px; border: 3px solid var(--ink); border-radius: 14px;
+      font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700;
+      font-size: 20px; letter-spacing: 0.04em; text-transform: uppercase;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 4px 4px 0 var(--ink);
+      transition: transform 0.08s, box-shadow 0.08s, filter 0.1s;
+      user-select: none;
+    }
+    .thumb-btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--ink); }
+    .thumb-confused { background: var(--red); color: var(--paper); }
+    .thumb-got { background: var(--teal); color: var(--paper); }
+    .thumb-btn.sent { filter: saturate(0.4) brightness(1.1); }
+    .chipbtn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border: 2px solid var(--ink); border-radius: 8px; background: var(--paper);
+      font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 8px 10px; min-height: 40px; box-shadow: 2px 2px 0 var(--ink);
+      user-select: none;
+    }
+    .chipbtn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--ink); }
+    .chipbtn.on { background: var(--mustard); }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ink2); }
+    .status-dot.live { background: var(--teal); }
+    .status-dot.err { background: var(--red); animation: pulse 1.4s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    .label-mono { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink2); }
+    /* Watermark deterrent */
+    .watermark {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+      display: flex; flex-wrap: wrap; align-content: flex-start; gap: 60px 80px; padding: 40px;
+      transform: rotate(-22deg) scale(1.4); transform-origin: center; opacity: 0.05;
+    }
+    .watermark span { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink); white-space: nowrap; user-select: none; }
+    input, textarea { background: var(--paper); border: 2px solid var(--ink); border-radius: 10px; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+    input:focus, textarea:focus { outline: none; box-shadow: 3px 3px 0 var(--red); }
+  </style>
 </head>
-<body class="student-body">
-<!-- Soft screenshot deterrent: faint diagonal watermark across the page
-     with a per-session id + date. Doesn't block screenshots (no browser
-     can) but makes leaked images traceable and discourages casual sharing. -->
+<body data-fs="md" class="min-h-screen">
 <div class="watermark" id="watermark" aria-hidden="true"></div>
-<div class="app">
-  <header>
-    <span class="logo">ClassLingo</span>
-    <span class="logo-sub">Student view</span>
-  </header>
 
-  <!-- LAYOUT (mobile-first for construction trainees on phones):
-       1. Compact identity bar at top (language, name, status). Slimmer than
-          a full card so the lesson is closer to the fold.
-       2. Lesson feed dominates the viewport — this is what students read
-          for the entire class. Full width, tall, always visible.
-       3. Video + Document are a side-by-side row that only appears when the
-          teacher shares one (they self-hide via display:none).
-       4. Notes (collapsible) and Message (collapsible) sit below.
-       5. Controls float as a sticky bottom action bar on mobile, becomes a
-          right-side rail on desktop, so primary actions stay in thumb reach. -->
-  <section class="card card--magenta card--identity">
-    <div class="identity-row">
-      <div class="identity-pick">
-        <h3 class="card-title"><span class="ico" aria-hidden="true">🌐</span> <span data-i18n="card_your_language">Your language</span></h3>
-        <select id="lang-select">
-          <option value="" data-i18n="pick_lang">Pick your language…</option>
-          <option value="English">English (testing)</option>
-          <option value="Spanish">Español (Spanish)</option>
-          <option value="Dari">دری (Dari)</option>
-          <option value="Somali">Soomaali (Somali)</option>
-          <option value="Vietnamese">Tiếng Việt (Vietnamese)</option>
-          <option value="Amharic">አማርኛ (Amharic)</option>
-          <option value="Arabic">العربية (Arabic)</option>
-          <option value="Simplified Chinese">简体中文 (Simplified Chinese)</option>
-          <option value="Tagalog">Tagalog (Filipino)</option>
-          <option value="Swahili">Kiswahili (Swahili)</option>
-          <option value="French">Français (French)</option>
-          <option value="Portuguese">Português (Portuguese)</option>
-          <option value="Korean">한국어 (Korean)</option>
-          <option value="Hindi">हिन्दी (Hindi)</option>
-          <option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option>
-          <option value="Russian">Русский (Russian)</option>
-          <option value="Ukrainian">Українська (Ukrainian)</option>
-        </select>
-      </div>
-      <div class="identity-name">
-        <label for="nick-input" data-i18n="your_name_label" style="display:block; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:4px;">YOUR NAME (so the teacher knows it's you)</label>
-        <input id="nick-input" type="text" maxlength="40" placeholder="e.g. Maria" data-i18n-placeholder="your_name_placeholder" autocomplete="off" />
-      </div>
-    </div>
-    <div class="toolbar" style="margin-top:12px;">
-      <span id="status" class="status-pill"><span class="dot"></span><span id="status-text" data-i18n="status_pick_lang">Pick a language to start</span></span>
-    </div>
-  </section>
+<!-- ============ SCREEN 1: JOIN (full-screen language picker) ============ -->
+<div id="screen-join" class="relative z-10 mx-auto flex min-h-[100dvh] max-w-lg flex-col px-5 pb-8 pt-6">
+  <div class="mb-5 flex items-baseline gap-3">
+    <span class="display text-3xl">Class<span style="color:var(--red)">Lingo</span></span>
+    <span class="label-mono">Student</span>
+  </div>
+  <h1 class="display mb-1 text-2xl" data-i18n="join_title">Pick your language</h1>
+  <p class="label-mono mb-4" data-i18n="join_sub">Tap one, then join</p>
+  <div id="lang-grid" class="grid grid-cols-2 gap-3"></div>
+  <div id="join-stale" class="retro-card mt-5 hidden p-4" style="box-shadow:6px 6px 0 var(--red);">
+    <p class="display text-lg" style="color:var(--red)" id="join-stale-msg"></p>
+    <p class="mt-1 text-sm" style="color:var(--ink2)" data-i18n="stale_ask">Ask your instructor for the current class link.</p>
+  </div>
+  <div class="sticky bottom-0 mt-6 pt-2" style="background:linear-gradient(180deg, transparent, var(--cream) 30%);">
+    <button id="join-btn" class="retro-btn w-full py-5 text-xl disabled:opacity-50" style="background:var(--red); color:var(--paper);" disabled>
+      <span data-i18n="join_btn">Join class</span>
+      <i data-lucide="arrow-right" class="h-5 w-5" stroke-width="2.6"></i>
+    </button>
+  </div>
+</div>
 
-  <!-- PRIMARY: the lesson feed. Lives above optional media so it never gets
-       pushed below the fold even when the teacher shares a video. -->
-  <section class="card card--cyan card--lesson">
-    <h3 class="card-title"><span class="ico" aria-hidden="true">💬</span> <span data-i18n="card_lesson">Lesson</span></h3>
-    <div class="feed" id="feed">
-      <div class="utter"><div class="tr" data-i18n="feed_placeholder" style="color:var(--muted); font-style:italic;">Translations will appear here as the instructor speaks.</div></div>
-    </div>
-  </section>
-
-  <div class="grid-aux">
-  <section class="card card--lime" id="video-wrap" style="display:none;">
-    <h3 class="card-title"><span class="ico" aria-hidden="true">▶</span> <span data-i18n="card_video">Video</span></h3>
-    <div style="position:relative; aspect-ratio:16/9; width:100%; background:#000; border-radius:var(--radius); overflow:hidden;">
-      <div id="yt-player" style="position:absolute; inset:0;"></div>
-    </div>
-    <button id="unmute-btn" class="btn btn-primary" data-i18n="btn_unmute" style="display:none; margin-top:10px; width:auto; padding:10px 16px;">Tap to enable sound</button>
-    <div id="caption-box" style="display:none; margin-top:10px; padding:12px 14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
-      <div id="caption-tr" style="font-size:16px; line-height:1.4; color:var(--text);"></div>
-      <div id="caption-en" style="font-size:12px; color:var(--muted); margin-top:4px; font-style:italic;"></div>
-    </div>
-    <p id="caption-hint" class="hint" data-i18n="caption_unavailable" style="display:none; margin-top:6px;">Captions aren't available for this video.</p>
-  </section>
-
-  <section class="card card--violet" id="doc-wrap" style="display:none;">
-    <div class="card-head">
-      <h3 class="card-title"><span class="ico" aria-hidden="true">📄</span> <span data-i18n="card_document">Document</span></h3>
-      <button id="doc-toggle-en" class="btn" type="button" data-i18n="doc_show_en" style="font-size:11px; padding:6px 10px; width:auto;">Show English original</button>
-    </div>
-    <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; margin-bottom:8px;">
-      <span id="doc-name" style="font-family:'DM Mono',monospace; font-size:13px; color:var(--muted); flex:1; min-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
-      <span id="doc-pos" style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted);"></span>
-    </div>
-    <div id="doc-lang-label" style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:6px;"></div>
-    <!-- Side-by-side preview + translation. Image on the left so the student
-         can see the actual page the teacher is on (PDF render / PowerPoint /
-         photo), translation on the right. Stacks on phones. The image is
-         loaded from /document/preview and hidden if the server has no
-         render for that page (DOCX/TXT, or older docs). -->
-    <div id="doc-split" style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
-      <div id="doc-img-wrap" style="display:none; flex:1 1 280px; min-width:0; max-width:100%; background:#000; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border);">
-        <img id="doc-img" alt="Document page" style="display:block; width:100%; height:auto; max-height:65vh; object-fit:contain; background:#fff; cursor:zoom-in;" />
-      </div>
-      <div style="flex:1 1 240px; min-width:0;">
-        <div id="doc-tr" style="font-size:16px; line-height:1.55; color:var(--text); white-space:pre-wrap; max-height:60vh; overflow:auto;"></div>
-        <div id="doc-en" style="display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:13px; color:var(--muted); white-space:pre-wrap; max-height:40vh; overflow:auto; font-style:italic;"></div>
-      </div>
-    </div>
-    <p id="doc-loading" class="hint" data-i18n="doc_translating" style="display:none; margin:8px 0 0;">Translating…</p>
-  </section>
+<!-- ============ SCREEN 2: LIVE ============ -->
+<div id="screen-live" class="relative z-10 mx-auto hidden min-h-[100dvh] max-w-2xl flex-col px-4 pt-3">
+  <!-- slim top bar -->
+  <div class="mb-2 flex items-center gap-2 border-b-2 pb-2" style="border-color:var(--ink);">
+    <span class="display text-lg leading-none">C<span style="color:var(--red)">L</span></span>
+    <span id="live-lang" class="label-mono truncate"></span>
+    <span class="status-dot" id="status-dot"></span>
+    <span class="flex-1"></span>
+    <button id="fs-down" class="chipbtn" aria-label="Smaller text">A−</button>
+    <button id="fs-up" class="chipbtn" aria-label="Bigger text">A+</button>
+    <button id="open-study" class="chipbtn"><i data-lucide="book-open" class="h-4 w-4" stroke-width="2.2"></i><span data-i18n="tab_study">Study</span></button>
   </div>
 
-  <section class="card card--orange" id="msg-card">
-    <h3 class="card-title"><span class="ico" aria-hidden="true">✉</span> <span data-i18n="card_message_teacher">Message the teacher</span></h3>
-    <p class="hint" data-i18n="msg_hint" style="margin:0 0 8px;">Write in your own language. The teacher will see it in English.</p>
-    <textarea id="msg-text" rows="3" maxlength="400" placeholder="Type your question or message…" data-i18n-placeholder="msg_placeholder" style="width:100%; resize:vertical; font-family:inherit; font-size:15px; padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); color:var(--text);"></textarea>
-    <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
-      <button id="msg-send" class="btn btn-primary" type="button" data-i18n="msg_send" style="width:auto; padding:10px 16px;">Send</button>
-      <span id="msg-status" style="font-size:12px; color:var(--muted);"></span>
+  <!-- shared video (hidden until teacher loads one) -->
+  <div id="video-wrap" class="retro-card mb-3 hidden overflow-hidden p-2" style="box-shadow:4px 4px 0 var(--teal);">
+    <div class="relative w-full overflow-hidden rounded-lg bg-black" style="aspect-ratio:16/9;">
+      <div id="yt-player" class="absolute inset-0"></div>
+      <div id="caption-overlay" class="absolute bottom-1 left-1 right-1 hidden rounded-lg px-3 py-2 text-center font-bold text-white" style="background:rgba(0,0,0,0.72); font-size:16px;"></div>
     </div>
-  </section>
+    <button id="unmute-btn" class="retro-btn mt-2 hidden w-full py-2 text-sm" style="background:var(--mustard);" data-i18n="btn_unmute">Tap to enable sound</button>
+  </div>
 
-  <section class="card card--violet" id="notes-card">
-    <h3 class="card-title"><span class="ico" aria-hidden="true">📝</span> <span data-i18n="card_class_notes">Class notes</span></h3>
-    <p class="hint" data-i18n="notes_hint" style="margin:0 0 10px;">AI-generated study notes from this class, in your language. Tap to generate at any time.</p>
-    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-      <button id="notes-btn" class="btn btn-primary" type="button" data-i18n="notes_btn" style="width:auto; padding:10px 16px;">📝 Generate notes</button>
-      <button id="notes-copy" class="btn" type="button" data-i18n="notes_copy" style="display:none; width:auto; padding:10px 14px;">📋 Copy</button>
-      <button id="notes-share" class="btn" type="button" data-i18n="notes_share" style="display:none; width:auto; padding:10px 14px;">📤 Share</button>
-      <span id="notes-status" style="font-size:12px; color:var(--muted);"></span>
+  <!-- shared document (hidden until teacher shares one) -->
+  <div id="doc-wrap" class="retro-card mb-3 hidden p-3" style="box-shadow:4px 4px 0 var(--mustard);">
+    <div class="mb-1 flex items-baseline gap-2">
+      <span class="label-mono flex-1 truncate" id="doc-name"></span>
+      <span class="label-mono" id="doc-pos"></span>
     </div>
-    <div id="notes-coverage" style="display:none; margin-top:10px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);"></div>
-    <div style="display:none; gap:8px; margin-top:10px; flex-wrap:wrap;" id="notes-secondary-row">
-      <button id="notes-listen" class="btn" type="button" data-i18n="notes_listen" style="width:auto; padding:8px 12px;">🔊 Listen</button>
-      <button id="study-sheet-btn" class="btn" type="button" style="width:auto; padding:8px 12px;" title="Open a printable vocabulary sheet from this class">📋 Study sheet</button>
-    </div>
-    <div id="notes-out" style="display:none; margin-top:12px; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); font-size:15px; line-height:1.6; color:var(--text); white-space:pre-wrap; max-height:60vh; overflow:auto;"></div>
-  </section>
+    <img id="doc-img" alt="" class="mb-2 hidden w-full rounded-lg border-2 bg-white" style="border-color:var(--ink); max-height:45vh; object-fit:contain;" />
+    <div id="doc-tr" class="max-h-[35vh] overflow-auto whitespace-pre-wrap text-base leading-relaxed"></div>
+    <button id="doc-toggle-en" class="chipbtn mt-2 hidden" data-i18n="doc_show_en">Show English</button>
+    <div id="doc-en" class="mt-2 hidden max-h-[25vh] overflow-auto whitespace-pre-wrap border-t-2 pt-2 text-sm italic" style="border-color:var(--ink); color:var(--ink2);"></div>
+  </div>
 
-  <!-- Sticky bottom control bar. Was a full card at the top; relocated so the
-       lesson dominates the viewport and Lost/Hold/TTS stay in thumb reach
-       on phones. Hidden until JS reveals #controls (display:flex). -->
-  <div id="controls-card" class="bottom-bar">
-    <div class="student-controls" id="controls">
-      <button id="btn-lost" class="btn danger" type="button" data-i18n-title="title_lost" title="Tell the teacher you need a moment"><span class="btn-label" data-i18n="btn_lost">🤔 I'm lost</span></button>
-      <button id="btn-hold" class="btn" type="button" data-i18n-title="title_hold" title="Pause the feed so you can finish reading"><span class="btn-label" data-i18n="btn_hold">⏸ Hold</span><span id="hold-badge" class="hold-badge" style="display:none;">0</span></button>
-      <button id="btn-tts" class="btn" type="button" data-i18n-title="title_tts" title="Read each translation out loud"><span data-i18n="btn_read_aloud">🔊 Read aloud</span></button>
-      <button id="btn-replay" class="btn" type="button" data-i18n-title="title_replay" title="Repeat the last translation out loud"><span data-i18n="btn_replay">↻ Replay</span></button>
-      <button id="btn-slow" class="btn" type="button" title="Slow down read-aloud (0.7×) — easier to follow as a learner.">🐢 Slow</button>
-      <button id="btn-natural" class="btn" type="button" title="Use a real human voice (OpenAI) instead of your browser's built-in voice. Better for French and most non-English languages.">🗣 Natural voice</button>
-      <button id="btn-phrasebook" class="btn" type="button" title="Words you've saved from class">📖 Phrasebook</button>
-      <div class="fs-group" title="Text size">
-        <button id="btn-fs-down" class="btn" type="button">A−</button>
-        <button id="btn-fs-up" class="btn" type="button">A+</button>
-      </div>
+  <!-- teacher replies land here -->
+  <div id="reply-inbox" class="mb-2 hidden flex-col gap-2"></div>
+
+  <!-- THE FEED — dominates the screen -->
+  <div id="feed" class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-2" style="min-height:46vh;">
+    <div class="utter latest" id="feed-placeholder"><div class="tr" style="color:var(--ink2); font-style:italic;" data-i18n="feed_placeholder">Translations appear here when your instructor speaks.</div></div>
+  </div>
+
+  <!-- bottom thumb zone -->
+  <div class="sticky bottom-0 z-20 -mx-4 border-t-[3px] px-4 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2" style="border-color:var(--ink); background:var(--paper);">
+    <div class="mb-2 flex justify-center gap-2">
+      <button id="btn-hold" class="chipbtn"><i data-lucide="pause" class="h-4 w-4" stroke-width="2.2"></i><span data-i18n="btn_hold">Hold</span><span id="hold-badge" class="hidden rounded px-1 font-bold" style="background:var(--mustard);"></span></button>
+      <button id="btn-tts" class="chipbtn"><i data-lucide="volume-2" class="h-4 w-4" stroke-width="2.2"></i><span data-i18n="btn_read">Read aloud</span></button>
+      <button id="btn-replay" class="chipbtn"><i data-lucide="rotate-ccw" class="h-4 w-4" stroke-width="2.2"></i><span data-i18n="btn_replay">Replay</span></button>
+    </div>
+    <div class="flex gap-3">
+      <button id="btn-confused" class="thumb-btn thumb-confused">
+        <i data-lucide="circle-help" class="h-6 w-6" stroke-width="2.4"></i><span data-i18n="btn_confused">Confused</span>
+      </button>
+      <button id="btn-got" class="thumb-btn thumb-got">
+        <i data-lucide="check" class="h-6 w-6" stroke-width="2.8"></i><span data-i18n="btn_got">Got it</span>
+      </button>
     </div>
   </div>
 </div>
 
+<!-- ============ SCREEN 3: STUDY (full-screen panel) ============ -->
+<div id="screen-study" class="fixed inset-0 z-40 hidden overflow-y-auto" style="background:var(--cream);">
+  <div class="mx-auto max-w-2xl px-4 pb-16 pt-4">
+    <div class="mb-4 flex items-center gap-3 border-b-2 pb-3" style="border-color:var(--ink);">
+      <button id="close-study" class="chipbtn"><i data-lucide="arrow-left" class="h-4 w-4" stroke-width="2.4"></i><span data-i18n="tab_back">Class</span></button>
+      <span class="display text-xl" data-i18n="study_title">Study tools</span>
+    </div>
+
+    <!-- Class notes -->
+    <section class="retro-card mb-4 p-4" style="box-shadow:6px 6px 0 var(--teal);">
+      <h3 class="display mb-1 text-lg" data-i18n="card_notes">Class notes</h3>
+      <p class="mb-3 text-sm" style="color:var(--ink2);" data-i18n="notes_hint">AI study notes from this class, in your language.</p>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="notes-btn" class="retro-btn px-4 py-2 text-sm" style="background:var(--teal); color:var(--paper);" data-i18n="notes_btn">Generate notes</button>
+        <button id="notes-copy" class="chipbtn hidden" data-i18n="notes_copy">Copy</button>
+        <button id="notes-share" class="chipbtn hidden" data-i18n="notes_share">Share</button>
+        <button id="notes-listen" class="chipbtn hidden" data-i18n="notes_listen">Listen</button>
+        <span id="notes-status" class="text-xs" style="color:var(--ink2);"></span>
+      </div>
+      <div id="notes-coverage" class="label-mono mt-2 hidden"></div>
+      <div id="notes-out" class="mt-3 hidden max-h-[55vh] overflow-auto whitespace-pre-wrap rounded-lg border-2 p-3 text-[15px] leading-relaxed" style="border-color:var(--ink); background:var(--paper);"></div>
+    </section>
+
+    <!-- Study sheet -->
+    <section class="retro-card mb-4 p-4" style="box-shadow:6px 6px 0 var(--orange);">
+      <h3 class="display mb-1 text-lg" data-i18n="card_sheet">Study sheet</h3>
+      <p class="mb-3 text-sm" style="color:var(--ink2);" data-i18n="sheet_hint">Printable vocabulary list from today's class.</p>
+      <button id="sheet-btn" class="retro-btn px-4 py-2 text-sm" style="background:var(--orange); color:var(--paper);" data-i18n="sheet_btn">Open study sheet</button>
+    </section>
+
+    <!-- Phrasebook -->
+    <section class="retro-card mb-4 p-4" style="box-shadow:6px 6px 0 var(--mustard);">
+      <div class="mb-1 flex items-center justify-between">
+        <h3 class="display text-lg" data-i18n="card_pb">My phrasebook</h3>
+        <button id="pb-sync" class="chipbtn" data-i18n="pb_sync">Sync</button>
+      </div>
+      <p class="mb-3 text-sm" style="color:var(--ink2);" data-i18n="pb_hint">Tap a word in class, then Save, to build your list.</p>
+      <div id="pb-list" class="flex flex-col gap-2"></div>
+    </section>
+
+    <!-- Message the teacher -->
+    <section class="retro-card mb-4 p-4" style="box-shadow:6px 6px 0 var(--red);">
+      <h3 class="display mb-1 text-lg" data-i18n="card_msg">Message the teacher</h3>
+      <p class="mb-2 text-sm" style="color:var(--ink2);" data-i18n="msg_hint">Write in your own language. The teacher sees it in English.</p>
+      <input id="nick-input" type="text" maxlength="40" class="mb-2 w-full px-3 py-2 text-sm" data-i18n-ph="nick_ph" placeholder="Your name (optional)" autocomplete="off" />
+      <textarea id="msg-text" rows="3" maxlength="400" class="w-full px-3 py-2 text-[15px]" data-i18n-ph="msg_ph" placeholder="Type your question…"></textarea>
+      <div class="mt-2 flex items-center gap-2">
+        <button id="msg-send" class="retro-btn px-4 py-2 text-sm" style="background:var(--red); color:var(--paper);" data-i18n="msg_send">Send</button>
+        <span id="msg-status" class="text-xs" style="color:var(--ink2);"></span>
+      </div>
+    </section>
+
+    <!-- Voice settings -->
+    <section class="retro-card mb-4 p-4">
+      <h3 class="display mb-2 text-lg" data-i18n="card_voice">Voice settings</h3>
+      <div class="flex flex-wrap gap-2">
+        <button id="btn-slow" class="chipbtn" data-i18n="btn_slow">Slow voice</button>
+        <button id="btn-natural" class="chipbtn hidden" data-i18n="btn_natural">Natural voice</button>
+      </div>
+    </section>
+
+    <button id="change-lang" class="chipbtn mb-8" data-i18n="btn_change_lang">Change language</button>
+  </div>
+</div>
+
+<!-- Define modal -->
+<div id="define-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(42,26,15,0.55);">
+  <div class="retro-card relative w-full max-w-md p-5">
+    <button id="define-close" class="chipbtn absolute right-3 top-3" aria-label="Close">✕</button>
+    <h3 id="define-word" class="display text-2xl"></h3>
+    <div id="define-tr" class="display mb-3 mt-1 text-2xl" style="color:var(--red);"></div>
+    <div class="label-mono" data-i18n="def_meaning">Meaning</div>
+    <div id="define-def-tr" class="text-[15px] leading-relaxed"></div>
+    <div id="define-def-en" class="mt-1 text-sm" style="color:var(--ink2);"></div>
+    <div class="label-mono mt-3" data-i18n="def_example">Example</div>
+    <div id="define-ex-tr" class="text-[15px] italic leading-relaxed"></div>
+    <div id="define-ex-en" class="mt-1 text-sm italic" style="color:var(--ink2);"></div>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button id="define-listen-en" class="chipbtn">EN 🔊</button>
+      <button id="define-listen-tr" class="chipbtn" data-i18n="def_mylang">My language 🔊</button>
+      <button id="define-save" class="retro-btn px-4 py-2 text-sm" style="background:var(--mustard);" data-i18n="def_save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="fixed bottom-28 left-1/2 z-[60] -translate-x-1/2 rounded-full px-4 py-2 text-sm text-white opacity-0 transition-opacity" style="background:rgba(42,26,15,0.92); pointer-events:none;"></div>
+
 <script>
-  const langSelect = document.getElementById('lang-select');
-  const feed = document.getElementById('feed');
-  const statusPill = document.getElementById('status');
-  const statusText = document.getElementById('status-text');
+// =============================================================
+// ClassLingo student — Cloudflare Pages edition.
+// SSE is gone; we poll /api/poll every 2 seconds (Workers are stateless,
+// so the server can't hold a connection open per student).
+// =============================================================
+const LANGS = [
+  { name: 'English',            native: 'English',     enName: 'Testing' },
+  { name: 'Spanish',            native: 'Español',     enName: 'Spanish' },
+  { name: 'Dari',               native: 'دری',         enName: 'Dari' },
+  { name: 'Somali',             native: 'Soomaali',    enName: 'Somali' },
+  { name: 'Vietnamese',         native: 'Tiếng Việt',  enName: 'Vietnamese' },
+  { name: 'Amharic',            native: 'አማርኛ',       enName: 'Amharic' },
+  { name: 'Arabic',             native: 'العربية',     enName: 'Arabic' },
+  { name: 'Simplified Chinese', native: '简体中文',     enName: 'Chinese' },
+  { name: 'Tagalog',            native: 'Tagalog',     enName: 'Filipino' },
+  { name: 'Swahili',            native: 'Kiswahili',   enName: 'Swahili' },
+  { name: 'French',             native: 'Français',    enName: 'French' },
+  { name: 'Portuguese',         native: 'Português',   enName: 'Portuguese' },
+  { name: 'Korean',             native: '한국어',       enName: 'Korean' },
+  { name: 'Hindi',              native: 'हिन्दी',        enName: 'Hindi' },
+  { name: 'Punjabi',            native: 'ਪੰਜਾਬੀ',       enName: 'Punjabi' },
+  { name: 'Russian',            native: 'Русский',     enName: 'Russian' },
+  { name: 'Ukrainian',          native: 'Українська',  enName: 'Ukrainian' },
+];
+const VOICE_FOR_LANG = {
+  'English':'en','Spanish':'es','Dari':'fa','Somali':'so','Vietnamese':'vi','Amharic':'am',
+  'Arabic':'ar','Simplified Chinese':'zh-CN','Tagalog':'tl','Swahili':'sw','French':'fr',
+  'Portuguese':'pt','Korean':'ko','Hindi':'hi','Punjabi':'pa','Russian':'ru','Ukrainian':'uk',
+};
 
-  let es = null;                  // EventSource
-  let currentLang = null;
-  const seen = new Map();         // id -> DOM node, so language change can replace cleanly
-  let placeholderCleared = false;
-  let latestUtter = null;         // for replay
-  const controlsEl = document.getElementById('controls');
+const $ = id => document.getElementById(id);
+const roomCode = (new URLSearchParams(location.search).get('c') || '').trim();
+let sessionId = localStorage.getItem('sid');
+if (!sessionId) { sessionId = 's' + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('sid', sessionId); }
 
-  // Stable per-device id for "I'm lost" deduplication on the server.
-  let sessionId = localStorage.getItem('sid');
-  if (!sessionId) {
-    sessionId = 's' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-    localStorage.setItem('sid', sessionId);
-  }
+let currentLang = null;
+let pendingLang = localStorage.getItem('lang') || null;
 
-  // Per-class room code (rotates whenever instructor starts a new class).
-  // Without it, the student can't connect — they need a fresh link.
-  const roomCode = (new URLSearchParams(location.search).get('c') || '').trim();
-  const langCard = document.querySelector('.card--magenta');
-  // Preserved across showStale so the notes button still works on the
-  // just-ended class (server keeps a 10-min snapshot keyed by old room code).
-  let lastLang = null;
-  function showStale(msg) {
-    if (es) { try { es.close(); } catch (_) {} es = null; }
-    if (currentLang) lastLang = currentLang;
-    currentLang = null;
-    controlsEl.style.display = 'none';
-    document.getElementById('lang-select').style.display = 'none';
-    document.querySelector('.card--magenta .toolbar').style.display = 'none';
-    // Tear down anything the previous class left on screen so a kicked
-    // student doesn't keep staring at the old transcript / video / doc.
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
-    heldQueue.length = 0;
-    isHeld = false;
-    latestUtter = null;
-    try { updateHoldUI(); } catch (_) {}
-    if (feed) feed.innerHTML = '';
-    const vWrap = document.getElementById('video-wrap');
-    if (vWrap) vWrap.style.display = 'none';
-    const dWrap = document.getElementById('doc-wrap');
-    if (dWrap) dWrap.style.display = 'none';
-    const mCard = document.getElementById('msg-card');
-    if (mCard) mCard.style.display = 'none';
-    // Keep the notes card visible & highlighted — students can still generate
-    // a final summary against the server's snapshot of the just-ended class.
-    const nCard = document.getElementById('notes-card');
-    if (nCard && lastLang) {
-      nCard.style.display = '';
-      nCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const banner = document.getElementById('notes-final-banner') || (() => {
-        const b = document.createElement('div');
-        b.id = 'notes-final-banner';
-        b.style.cssText = 'margin:0 0 10px; padding:10px 12px; background:var(--magenta-dim); border:2px solid var(--ink); border-radius:var(--radius); color:var(--ink); font-size:13px; line-height:1.5; font-weight:600; box-shadow:3px 3px 0 var(--mustard);';
-        nCard.insertBefore(b, nCard.children[1]);
-        return b;
-      })();
-      banner.textContent = t('notes_final_banner');
-    }
-    let notice = document.getElementById('stale-notice');
-    if (!notice) {
-      notice = document.createElement('div');
-      notice.id = 'stale-notice';
-      notice.style.cssText = 'color: var(--magenta); font-size: 15px; line-height: 1.55; margin-top: 8px;';
-      langCard.appendChild(notice);
-    }
-    notice.innerHTML = '<strong></strong><br/><span style="color:var(--muted); font-size:13px;"></span>';
-    notice.querySelector('strong').textContent = msg;
-    notice.querySelector('span').textContent = t('stale_ask');
-  }
-  if (!roomCode) {
-    // Defer so DOM is ready for any UI we touch.
-    setTimeout(() => showStale(t('stale_link_needed')), 0);
-  } else {
-    // Verify the code is current up front so a stale link doesn't pretend
-    // to work until the student picks a language and gets kicked.
-    fetch('/class/current')
-      .then(r => r.json())
-      .then(d => { if (!d || d.code !== roomCode) showStale(t('stale_expired')); })
-      .catch(() => {});
-  }
+// ---------- i18n (UI itself translated into the student's language) ----------
+const UI_VERSION = '3';
+const UI_STRINGS = {
+  join_title: 'Pick your language', join_sub: 'Tap one, then join', join_btn: 'Join class',
+  stale_ask: 'Ask your instructor for the current class link.',
+  stale_link_needed: 'You need a class link.', stale_expired: 'This class link has expired.',
+  stale_ended: 'This class has ended.',
+  feed_placeholder: 'Translations appear here when your instructor speaks.',
+  history_cleared: 'Lesson history cleared.',
+  tab_study: 'Study', tab_back: 'Class', study_title: 'Study tools',
+  btn_hold: 'Hold', btn_catchup: 'Catch up', btn_read: 'Read aloud', btn_replay: 'Replay',
+  btn_confused: 'Confused', btn_got: 'Got it', btn_sent: 'Sent', btn_unmute: 'Tap to enable sound',
+  card_notes: 'Class notes', notes_hint: 'AI study notes from this class, in your language.',
+  notes_btn: 'Generate notes', notes_regen: 'Regenerate', notes_loading: 'Generating…',
+  notes_empty: 'No lesson content yet — try again after the instructor starts.',
+  notes_failed: 'Could not generate notes.', notes_copy: 'Copy', notes_share: 'Share',
+  notes_copied: 'Copied', notes_listen: 'Listen', notes_stop: 'Stop',
+  notes_coverage: 'Summary of {count} sentences over {min} min',
+  notes_final: 'Class ended — generate your final notes now, they expire in a few minutes.',
+  card_sheet: 'Study sheet', sheet_hint: "Printable vocabulary list from today's class.", sheet_btn: 'Open study sheet',
+  card_pb: 'My phrasebook', pb_sync: 'Sync', pb_hint: 'Tap a word in class, then Save, to build your list.',
+  pb_empty: 'Nothing saved yet. Tap any English word in the lesson to look it up and save it.',
+  card_msg: 'Message the teacher', msg_hint: 'Write in your own language. The teacher sees it in English.',
+  nick_ph: 'Your name (optional)', msg_ph: 'Type your question…', msg_send: 'Send',
+  msg_sending: 'Sending…', msg_sent: 'Sent to teacher', msg_failed: 'Could not send.',
+  card_voice: 'Voice settings', btn_slow: 'Slow voice', btn_natural: 'Natural voice',
+  btn_change_lang: 'Change language',
+  def_meaning: 'Meaning', def_example: 'Example', def_mylang: 'My language 🔊', def_save: 'Save',
+  teacher_label: 'TEACHER',
+  doc_show_en: 'Show English', doc_hide_en: 'Hide English', doc_page: 'Page {n} / {total}',
+};
+let TR = Object.assign({}, UI_STRINGS);
+function t(key, vars) {
+  let s = TR[key] || UI_STRINGS[key] || key;
+  if (vars) for (const k of Object.keys(vars)) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (TR[k] != null) el.textContent = TR[k]; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { const k = el.getAttribute('data-i18n-ph'); if (TR[k] != null) el.setAttribute('placeholder', TR[k]); });
+}
+let i18nToken = 0;
+async function loadI18n(lang) {
+  const my = ++i18nToken;
+  if (!lang || lang === 'English') { TR = Object.assign({}, UI_STRINGS); applyI18n(); return; }
+  try {
+    const cached = localStorage.getItem('i18n:' + UI_VERSION + ':' + lang);
+    if (cached && my === i18nToken) { TR = Object.assign({}, UI_STRINGS, JSON.parse(cached)); applyI18n(); }
+  } catch (_) {}
+  try {
+    const r = await fetch('/api/i18n', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lang, c: roomCode, strings: UI_STRINGS }) });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (my !== i18nToken || !d || !d.tr) return;
+    TR = Object.assign({}, UI_STRINGS, d.tr);
+    applyI18n();
+    try { localStorage.setItem('i18n:' + UI_VERSION + ':' + lang, JSON.stringify(d.tr)); } catch (_) {}
+  } catch (_) {}
+}
 
-  // ---------- i18n (translate the UI itself into the student's language) ----------
-  // Every visible English string has a key; data-i18n attributes wire DOM
-  // nodes to those keys. On language change we POST the whole dictionary to
-  // /i18n once and replace every node's text. Cached in localStorage per
-  // language so a returning student sees their language instantly.
-  // Bump this whenever any English UI_STRINGS value changes so returning
-  // students don't keep seeing stale translations for edited keys.
-  const UI_VERSION = '2';
-  const UI_STRINGS = {
-    card_your_language: 'Your language',
-    card_controls: 'Controls',
-    card_video: 'Video',
-    card_document: 'Document',
-    card_lesson: 'Lesson',
-    card_message_teacher: 'Message the teacher',
-    card_class_notes: 'Class notes',
-    pick_lang: 'Pick your language…',
-    your_name_label: "YOUR NAME (so the teacher knows it's you)",
-    your_name_placeholder: 'e.g. Maria',
-    status_pick_lang: 'Pick a language to start',
-    status_connecting: 'Connecting…',
-    status_reconnecting: 'Reconnecting…',
-    status_live: 'Live — {lang}',
-    btn_lost: "🤔 I'm lost",
-    btn_lost_sent: '✓ Sent',
-    btn_hold: '⏸ Hold',
-    btn_catchup: '▶ Catch up',
-    btn_read_aloud: '🔊 Read aloud',
-    btn_replay: '↻ Replay',
-    btn_unmute: 'Tap to enable sound',
-    title_lost: 'Tell the teacher you need a moment',
-    title_hold: 'Pause the feed so you can finish reading',
-    title_tts: 'Read each translation out loud',
-    title_replay: 'Repeat the last translation out loud',
-    caption_unavailable: "Captions aren't available for this video.",
-    doc_show_en: 'Show English original',
-    doc_hide_en: 'Hide English original',
-    doc_translating: 'Translating…',
-    doc_in_lang: 'In {lang}:',
-    doc_page_x_of_y: 'Page {n} / {total}',
-    feed_placeholder: 'Translations will appear here as the instructor speaks.',
-    history_cleared: 'Lesson history cleared.',
-    msg_hint: 'Write in your own language. The teacher will see it in English.',
-    msg_placeholder: 'Type your question or message…',
-    msg_send: 'Send',
-    msg_sending: 'Sending…',
-    msg_sent: '✓ Sent to teacher',
-    msg_pick_lang: 'Pick a language first.',
-    msg_type_first: 'Type a message first.',
-    msg_failed: 'Could not send.',
-    notes_hint: 'AI-generated study notes from this class, in your language. Tap to generate at any time.',
-    notes_btn: '📝 Generate notes',
-    notes_regen: '↻ Regenerate',
-    notes_loading: 'Generating notes…',
-    notes_empty: 'No lesson content yet — wait for the instructor to start, then try again.',
-    notes_failed: 'Could not generate notes.',
-    notes_copy: '📋 Copy',
-    notes_share: '📤 Share',
-    notes_copied: '✓ Copied',
-    notes_share_title: 'Class notes',
-    notes_listen: '🔊 Listen',
-    notes_stop: '⏹ Stop',
-    notes_coverage: 'Summary of {count} sentences over {min} min',
-    notes_final_banner: 'Class ended. Generate your final notes now — they go away in a few minutes.',
-    class_ending_banner: 'The teacher is wrapping up — tap to save your notes.',
-    stale_link_needed: 'You need a class link.',
-    stale_expired: 'This class link has expired.',
-    stale_ended: 'This class has ended.',
-    stale_ask: 'Ask your instructor for the current class link.',
-    teacher_label: 'TEACHER',
-    reply_no_session: "(can't reply to this message)",
-  };
-  let TR = Object.assign({}, UI_STRINGS);
-  function t(key, vars) {
-    let s = TR[key] || UI_STRINGS[key] || key;
-    if (vars) for (const k of Object.keys(vars)) s = s.split('{' + k + '}').join(vars[k]);
-    return s;
+// ---------- watermark (soft screenshot deterrent, no PII) ----------
+(function () {
+  let sid = '';
+  try { sid = sessionStorage.getItem('wm-sid') || ''; } catch (_) {}
+  if (!sid) {
+    const buf = new Uint8Array(4); crypto.getRandomValues(buf);
+    sid = [...buf].map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    try { sessionStorage.setItem('wm-sid', sid); } catch (_) {}
   }
-  function applyI18n() {
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const k = el.getAttribute('data-i18n');
-      if (TR[k] != null) el.textContent = TR[k];
+  const tag = 'ClassLingo · ' + sid + ' · ' + new Date().toISOString().slice(0, 10);
+  let html = '';
+  for (let i = 0; i < 60; i++) html += '<span>' + tag + '</span>';
+  $('watermark').innerHTML = html;
+})();
+
+// ---------- Screen 1: language picker ----------
+const langGrid = $('lang-grid');
+function renderLangGrid() {
+  langGrid.innerHTML = '';
+  for (const L of LANGS) {
+    const b = document.createElement('button');
+    b.className = 'lang-tile' + (pendingLang === L.name ? ' selected' : '');
+    b.innerHTML = '<span class="native"></span><span class="en-name"></span>';
+    b.querySelector('.native').textContent = L.native;
+    b.querySelector('.en-name').textContent = L.enName;
+    b.addEventListener('click', () => {
+      pendingLang = L.name;
+      renderLangGrid();
+      $('join-btn').disabled = false;
     });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-      const k = el.getAttribute('data-i18n-placeholder');
-      if (TR[k] != null) el.setAttribute('placeholder', TR[k]);
-    });
-    document.querySelectorAll('[data-i18n-title]').forEach(el => {
-      const k = el.getAttribute('data-i18n-title');
-      if (TR[k] != null) el.setAttribute('title', TR[k]);
-    });
-    // Re-apply status pill text and a couple of dynamic labels that don't
-    // live on data-i18n nodes.
-    try { refreshDocLangLabel(); } catch (_) {}
-    try { if (typeof docToggleBtn !== 'undefined') docToggleBtn.textContent = docEnShown ? t('doc_hide_en') : t('doc_show_en'); } catch (_) {}
-    try { if (typeof updateHoldUI === 'function') updateHoldUI(); } catch (_) {}
+    langGrid.appendChild(b);
   }
-  // Monotonically increasing token. Each loadI18n() bumps it; a response
-  // only applies if its token still matches — protects against a slow earlier
-  // request overwriting a faster later one when the student switches
-  // languages quickly.
-  let i18nReqToken = 0;
-  async function loadI18n(lang) {
-    const myToken = ++i18nReqToken;
-    if (!lang || lang === 'English') { TR = Object.assign({}, UI_STRINGS); applyI18n(); return; }
-    // Show cached translation immediately if we have one.
-    try {
-      const cached = localStorage.getItem('i18n:' + UI_VERSION + ':' + lang);
-      if (cached && myToken === i18nReqToken) {
-        TR = Object.assign({}, UI_STRINGS, JSON.parse(cached));
-        applyI18n();
-      }
-    } catch (_) {}
-    try {
-      const r = await fetch('/i18n', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lang, c: roomCode, strings: UI_STRINGS })
-      });
-      if (!r.ok) return;
-      const d = await r.json();
-      if (myToken !== i18nReqToken) return; // a newer language switch happened
-      if (d && d.tr) {
-        TR = Object.assign({}, UI_STRINGS, d.tr);
-        applyI18n();
-        try {
-          localStorage.setItem('i18n:' + UI_VERSION + ':' + lang, JSON.stringify(d.tr));
-          // Best-effort cleanup of old-version cache entries so we don't pile up.
-          for (let i = localStorage.length - 1; i >= 0; i--) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('i18n:') && !k.startsWith('i18n:' + UI_VERSION + ':')) {
-              localStorage.removeItem(k);
-            }
-          }
-        } catch (_) {}
-      }
-    } catch (_) {}
-  }
+  $('join-btn').disabled = !pendingLang;
+}
+renderLangGrid();
 
-  // ---------- font size (sm / md / lg / xl) ----------
-  const FS_STEPS = ['sm', 'md', 'lg', 'xl'];
-  let fsIdx = Math.max(0, FS_STEPS.indexOf(localStorage.getItem('fs') || 'md'));
-  function applyFs() {
-    document.body.setAttribute('data-fs', FS_STEPS[fsIdx]);
-    localStorage.setItem('fs', FS_STEPS[fsIdx]);
-    document.getElementById('btn-fs-down').disabled = fsIdx <= 0;
-    document.getElementById('btn-fs-up').disabled = fsIdx >= FS_STEPS.length - 1;
-  }
-  document.getElementById('btn-fs-down').addEventListener('click', () => { if (fsIdx > 0) { fsIdx--; applyFs(); } });
-  document.getElementById('btn-fs-up').addEventListener('click', () => { if (fsIdx < FS_STEPS.length - 1) { fsIdx++; applyFs(); } });
-  applyFs();
+function showJoinStale(msg) {
+  $('join-stale').classList.remove('hidden');
+  $('join-stale-msg').textContent = msg;
+  $('join-btn').disabled = true;
+  langGrid.style.opacity = '0.4';
+  langGrid.style.pointerEvents = 'none';
+}
 
-  // ---------- text-to-speech ----------
-  // Use the device's built-in voices. We cancel any current speech before
-  // starting the next one so the student always hears the *current* sentence,
-  // not a backlog. Replay button bypasses this.
-  let ttsOn = localStorage.getItem('tts') === '1';
-  // Slow-mode toggle for ESL learners. 0.7× is the sweet spot — slow enough
-  // that beginners can catch each syllable, fast enough that it still feels
-  // like speech, not a tape pulled.
-  let ttsRate = localStorage.getItem('ttsSlow') === '1' ? 0.7 : 0.95;
-  const ttsBtn = document.getElementById('btn-tts');
-  const slowBtn = document.getElementById('btn-slow');
-  function refreshSlowBtn() {
-    slowBtn.classList.toggle('active', ttsRate < 0.9);
-    slowBtn.textContent = ttsRate < 0.9 ? '🐢 Slow ✓' : '🐢 Slow';
-  }
-  refreshSlowBtn();
-  slowBtn.addEventListener('click', () => {
-    ttsRate = ttsRate < 0.9 ? 0.95 : 0.7;
-    localStorage.setItem('ttsSlow', ttsRate < 0.9 ? '1' : '0');
-    refreshSlowBtn();
-  });
-  function refreshTtsBtn() { ttsBtn.classList.toggle('active', ttsOn); }
-  refreshTtsBtn();
-  ttsBtn.addEventListener('click', () => {
-    ttsOn = !ttsOn;
-    localStorage.setItem('tts', ttsOn ? '1' : '0');
-    refreshTtsBtn();
-    if (!ttsOn) try { window.speechSynthesis.cancel(); } catch (_) {}
-  });
+$('join-btn').addEventListener('click', () => {
+  if (!pendingLang) return;
+  localStorage.setItem('lang', pendingLang);
+  enterClass(pendingLang);
+});
 
-  const VOICE_FOR_LANG = {
-    'English': 'en',
-    'Spanish': 'es', 'Dari': 'fa', 'Somali': 'so', 'Vietnamese': 'vi',
-    'Amharic': 'am', 'Arabic': 'ar', 'Simplified Chinese': 'zh-CN',
-    'Tagalog': 'tl', 'Swahili': 'sw', 'French': 'fr', 'Portuguese': 'pt',
-    'Korean': 'ko', 'Hindi': 'hi', 'Punjabi': 'pa', 'Russian': 'ru',
-    'Ukrainian': 'uk'
-  };
-  function pickVoice(langName) {
-    if (!window.speechSynthesis) return null;
-    const want = (VOICE_FOR_LANG[langName] || '').toLowerCase();
-    const voices = window.speechSynthesis.getVoices();
-    if (!voices.length) return null;
-    // Best: full match. Next: language prefix. Last: nothing — browser default.
-    return voices.find(v => v.lang && v.lang.toLowerCase() === want)
-        || voices.find(v => v.lang && v.lang.toLowerCase().split('-')[0] === want.split('-')[0])
-        || null;
-  }
-  // Some browsers populate voices async.
-  if (window.speechSynthesis) {
-    try { window.speechSynthesis.onvoiceschanged = () => {}; } catch (_) {}
-  }
-  // Natural-voice mode swaps the browser's robotic SpeechSynthesis for
-  // OpenAI tts-1 audio played through an Audio element. The toggle is set
-  // up further down (after controls are wired). Stored on the function
-  // object so the closure stays tidy.
-  let ttsNatural = localStorage.getItem('ttsNatural') === '1';
-  let naturalAudioEl = null;
-  function speakNatural(text) {
-    if (!text) return;
-    try {
-      if (naturalAudioEl) { try { naturalAudioEl.pause(); } catch (_) {} naturalAudioEl = null; }
-      // Cancel any leftover browser speech too — we don't want both at once.
-      if (window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (_) {} }
-      fetch('/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, room: roomCode })
-      }).then(r => {
-        if (!r.ok) throw new Error('tts ' + r.status);
-        return r.blob();
-      }).then(blob => {
+let roomVerified = false;
+if (!roomCode) {
+  setTimeout(() => showJoinStale(t('stale_link_needed')), 0);
+} else {
+  fetch('/api/session').then(r => r.json()).then(d => {
+    if (!d || d.code !== roomCode) { showJoinStale(t('stale_expired')); return; }
+    roomVerified = true;
+    if (d.caps && d.caps.tts) $('btn-natural').classList.remove('hidden');
+    if (pendingLang) loadI18n(pendingLang);
+  }).catch(() => {});
+}
+
+// ---------- Screen switching ----------
+function enterClass(lang) {
+  currentLang = lang;
+  $('screen-join').classList.add('hidden');
+  $('screen-live').classList.remove('hidden');
+  $('screen-live').classList.add('flex');
+  $('live-lang').textContent = lang;
+  loadI18n(lang);
+  startPolling();
+  lucide.createIcons();
+}
+$('open-study').addEventListener('click', () => { $('screen-study').classList.remove('hidden'); renderPhrasebook(); lucide.createIcons(); });
+$('close-study').addEventListener('click', () => $('screen-study').classList.add('hidden'));
+$('change-lang').addEventListener('click', () => {
+  stopPolling();
+  currentLang = null;
+  clearFeed();
+  $('screen-study').classList.add('hidden');
+  $('screen-live').classList.add('hidden'); $('screen-live').classList.remove('flex');
+  $('screen-join').classList.remove('hidden');
+  renderLangGrid();
+});
+
+// ---------- font size ----------
+const FS_STEPS = ['sm', 'md', 'lg', 'xl'];
+let fsIdx = Math.max(0, FS_STEPS.indexOf(localStorage.getItem('fs') || 'md'));
+function applyFs() { document.body.setAttribute('data-fs', FS_STEPS[fsIdx]); localStorage.setItem('fs', FS_STEPS[fsIdx]); }
+$('fs-down').addEventListener('click', () => { if (fsIdx > 0) { fsIdx--; applyFs(); } });
+$('fs-up').addEventListener('click', () => { if (fsIdx < FS_STEPS.length - 1) { fsIdx++; applyFs(); } });
+applyFs();
+
+// ---------- TTS ----------
+let ttsOn = localStorage.getItem('tts') === '1';
+let ttsRate = localStorage.getItem('ttsSlow') === '1' ? 0.7 : 0.95;
+let ttsNatural = localStorage.getItem('ttsNatural') === '1';
+let naturalAudioEl = null;
+function refreshVoiceBtns() {
+  $('btn-tts').classList.toggle('on', ttsOn);
+  $('btn-slow').classList.toggle('on', ttsRate < 0.9);
+  $('btn-natural').classList.toggle('on', ttsNatural);
+}
+$('btn-tts').addEventListener('click', () => {
+  ttsOn = !ttsOn; localStorage.setItem('tts', ttsOn ? '1' : '0'); refreshVoiceBtns();
+  if (!ttsOn) try { speechSynthesis.cancel(); } catch (_) {}
+});
+$('btn-slow').addEventListener('click', () => {
+  ttsRate = ttsRate < 0.9 ? 0.95 : 0.7; localStorage.setItem('ttsSlow', ttsRate < 0.9 ? '1' : '0'); refreshVoiceBtns();
+});
+$('btn-natural').addEventListener('click', () => {
+  ttsNatural = !ttsNatural; localStorage.setItem('ttsNatural', ttsNatural ? '1' : '0'); refreshVoiceBtns();
+});
+refreshVoiceBtns();
+
+function pickVoice(langName) {
+  if (!window.speechSynthesis) return null;
+  const want = (VOICE_FOR_LANG[langName] || '').toLowerCase();
+  const voices = speechSynthesis.getVoices();
+  return voices.find(v => v.lang && v.lang.toLowerCase() === want)
+      || voices.find(v => v.lang && v.lang.toLowerCase().split('-')[0] === want.split('-')[0])
+      || null;
+}
+function speakBrowser(text, langName) {
+  if (!text || !window.speechSynthesis) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const v = pickVoice(langName || currentLang);
+    if (v) { u.voice = v; u.lang = v.lang; }
+    else if (VOICE_FOR_LANG[langName || currentLang]) u.lang = VOICE_FOR_LANG[langName || currentLang];
+    u.rate = ttsRate; u.pitch = 1;
+    speechSynthesis.speak(u);
+  } catch (_) {}
+}
+function speakNatural(text) {
+  if (!text) return;
+  try {
+    if (naturalAudioEl) { try { naturalAudioEl.pause(); } catch (_) {} naturalAudioEl = null; }
+    try { speechSynthesis.cancel(); } catch (_) {}
+    fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, room: roomCode }) })
+      .then(r => { if (!r.ok) throw new Error(); return r.blob(); })
+      .then(blob => {
         const url = URL.createObjectURL(blob);
         const a = new Audio(url);
         a.playbackRate = ttsRate < 0.9 ? 0.85 : 1.0;
         a.addEventListener('ended', () => URL.revokeObjectURL(url));
         naturalAudioEl = a;
-        a.play().catch(() => {/* autoplay blocked — silent */});
-      }).catch(() => {
-        // Fall back to browser voice so the student still hears something.
-        speakBrowser(text);
-      });
-    } catch (_) { speakBrowser(text); }
+        a.play().catch(() => {});
+      }).catch(() => speakBrowser(text));
+  } catch (_) { speakBrowser(text); }
+}
+function speak(text, langName) { if (ttsNatural) speakNatural(text); else speakBrowser(text, langName); }
+$('btn-replay').addEventListener('click', () => { if (latestUtter && latestUtter.tr) speak(latestUtter.tr); });
+
+// ---------- feed ----------
+const feed = $('feed');
+const seen = new Map();
+let latestUtter = null;
+function clearFeed() { feed.innerHTML = ''; seen.clear(); }
+function renderUtter(id, en, tr, isError) {
+  const ph = $('feed-placeholder'); if (ph) ph.remove();
+  let node = seen.get(id);
+  if (!node) {
+    node = document.createElement('div');
+    node.className = 'utter' + (isError ? ' err' : '');
+    node.dataset.id = String(id);
+    node.innerHTML = '<div class="en"></div><div class="tr"></div>';
+    let inserted = false;
+    for (const child of feed.children) {
+      if (id > Number(child.dataset.id || 0)) { feed.insertBefore(node, child); inserted = true; break; }
+    }
+    if (!inserted) feed.appendChild(node);
+    seen.set(id, node);
+    while (feed.children.length > 30) {
+      const last = feed.lastChild;
+      seen.delete(Number(last.dataset.id || 0));
+      feed.removeChild(last);
+    }
+  } else node.classList.toggle('err', !!isError);
+  feed.querySelectorAll('.utter.latest').forEach(n => n.classList.remove('latest'));
+  if (feed.firstChild) feed.firstChild.classList.add('latest');
+  // English words become tap targets for define
+  const enEl = node.querySelector('.en');
+  enEl.innerHTML = '';
+  const text = en || '';
+  const re = /[A-Za-z][A-Za-z'\-]*/g;
+  let last = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) enEl.appendChild(document.createTextNode(text.slice(last, m.index)));
+    const span = document.createElement('span');
+    span.className = 'word'; span.textContent = m[0];
+    enEl.appendChild(span);
+    last = m.index + m[0].length;
   }
-  function speakBrowser(text) {
-    if (!text || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      const v = pickVoice(currentLang);
-      if (v) { u.voice = v; u.lang = v.lang; }
-      else if (VOICE_FOR_LANG[currentLang]) u.lang = VOICE_FOR_LANG[currentLang];
-      u.rate = ttsRate; u.pitch = 1;
-      window.speechSynthesis.speak(u);
-    } catch (_) {}
-  }
-  function speak(text) {
-    if (ttsNatural) return speakNatural(text);
-    return speakBrowser(text);
-  }
-  // Wire the natural-voice toggle (button is in the controls bar).
-  // Hidden by default — only shown if the server reports TTS is wired,
-  // so we don't tease a feature that would silently fall back to browser
-  // voice on every click.
-  const naturalBtn = document.getElementById('btn-natural');
-  naturalBtn.style.display = 'none';
-  fetch('/capabilities').then(r => r.json()).then(caps => {
-    if (caps && caps.tts) naturalBtn.style.display = '';
-    else { ttsNatural = false; localStorage.removeItem('ttsNatural'); }
-    // Also hide the phrasebook sync button if the server has no DB.
-    if (caps && !caps.phrasebookSync) {
-      const s = document.getElementById('pb-sync');
-      if (s) s.style.display = 'none';
-    }
-  }).catch(() => { /* leave hidden */ });
-  function refreshNaturalBtn() {
-    naturalBtn.classList.toggle('active', ttsNatural);
-    naturalBtn.textContent = ttsNatural ? '🗣 Natural voice ✓' : '🗣 Natural voice';
-  }
-  refreshNaturalBtn();
-  naturalBtn.addEventListener('click', () => {
-    ttsNatural = !ttsNatural;
-    localStorage.setItem('ttsNatural', ttsNatural ? '1' : '0');
-    refreshNaturalBtn();
-  });
-  document.getElementById('btn-replay').addEventListener('click', () => {
-    if (latestUtter && latestUtter.tr) speak(latestUtter.tr);
-  });
+  if (last < text.length) enEl.appendChild(document.createTextNode(text.slice(last)));
+  node.querySelector('.tr').textContent = tr || '';
+  feed.scrollTop = 0;
+}
 
-  // ---------- nickname ----------
-  const nickInput = document.getElementById('nick-input');
-  nickInput.value = localStorage.getItem('nick') || '';
-  nickInput.addEventListener('input', () => {
-    localStorage.setItem('nick', nickInput.value.trim().slice(0, 40));
-  });
-
-  // ---------- teacher replies (rendered in the message card) ----------
-  // Replies arrive over SSE as `teacher-reply` events. We append them to a
-  // small inbox above the textarea so the student sees them next to where
-  // they wrote.
-  const seenReplyIds = new Set();
-  function handleTeacherReply(payload) {
-    if (!payload || payload.id == null) return;
-    if (seenReplyIds.has(payload.id)) return;  // dedupe across SSE reconnect races
-    seenReplyIds.add(payload.id);
-    if (seenReplyIds.size > 200) {
-      // keep the set bounded; oldest-out
-      const it = seenReplyIds.values(); for (let i = 0; i < 100; i++) seenReplyIds.delete(it.next().value);
-    }
-    let inbox = document.getElementById('reply-inbox');
-    if (!inbox) {
-      inbox = document.createElement('div');
-      inbox.id = 'reply-inbox';
-      inbox.style.cssText = 'margin-bottom:10px; display:flex; flex-direction:column; gap:8px;';
-      const card = document.getElementById('msg-card');
-      if (card) card.insertBefore(inbox, card.querySelector('#msg-text'));
-    }
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:var(--radius);';
-    const header = document.createElement('div');
-    header.style.cssText = 'font-family:"DM Mono",monospace; font-size:11px; color:var(--muted); margin-bottom:4px;';
-    header.textContent = t('teacher_label') + ' · ' + new Date(payload.ts || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    wrap.appendChild(header);
-    const tr = document.createElement('div');
-    tr.style.cssText = 'font-size:15px; line-height:1.5; color:var(--text);';
-    tr.textContent = payload.tr || '';
-    wrap.appendChild(tr);
-    if (payload.en && payload.en !== payload.tr) {
-      const en = document.createElement('div');
-      en.style.cssText = 'font-size:12px; color:var(--muted); margin-top:4px; font-style:italic;';
-      en.textContent = payload.en;
-      wrap.appendChild(en);
-    }
-    inbox.appendChild(wrap);
-    // Keep only the last 10 replies on screen.
-    while (inbox.children.length > 10) inbox.removeChild(inbox.firstChild);
-    // Speak it if read-aloud is on.
-    if (ttsOn && payload.tr) speak(payload.tr);
-  }
-
-  // ---------- message the teacher ----------
-  const msgText = document.getElementById('msg-text');
-  const msgSend = document.getElementById('msg-send');
-  const msgStatus = document.getElementById('msg-status');
-  let msgCooldownUntil = 0;
-  msgSend.addEventListener('click', async () => {
-    if (!currentLang) { msgStatus.textContent = t('msg_pick_lang'); return; }
-    if (Date.now() < msgCooldownUntil) return;
-    const text = (msgText.value || '').trim();
-    if (!text) { msgStatus.textContent = t('msg_type_first'); return; }
-    const nickname = (nickInput.value || '').trim().slice(0, 40);
-    msgSend.disabled = true;
-    msgStatus.textContent = t('msg_sending');
-    msgCooldownUntil = Date.now() + 4000;
-    try {
-      const r = await fetch('/message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ c: roomCode, sessionId, nickname, lang: currentLang, text })
-      });
-      if (r.ok) {
-        msgText.value = '';
-        msgStatus.textContent = t('msg_sent');
-      } else {
-        const d = await r.json().catch(() => ({}));
-        msgStatus.textContent = d.error || t('msg_failed');
-      }
-    } catch (_) {
-      msgStatus.textContent = t('msg_failed');
-    }
-    setTimeout(() => { msgSend.disabled = false; msgStatus.textContent = ''; }, 4000);
-  });
-
-  // ---------- AI class notes ----------
-  // Pull this session's transcript from the server, summarize it as study
-  // notes in the student's language, render inline. Copy + Share buttons
-  // let the student send it to themselves (text, email, save, etc.).
-  const notesBtn = document.getElementById('notes-btn');
-  const notesCopy = document.getElementById('notes-copy');
-  const notesShare = document.getElementById('notes-share');
-  const notesOut = document.getElementById('notes-out');
-  const notesStatus = document.getElementById('notes-status');
-  let notesCooldownUntil = 0;
-  let notesText = '';
-
-  const notesCoverage = document.getElementById('notes-coverage');
-  const notesSecondaryRow = document.getElementById('notes-secondary-row');
-  const notesListenBtn = document.getElementById('notes-listen');
-
-  notesBtn.addEventListener('click', async () => {
-    const useLang = currentLang || lastLang;
-    if (!useLang) { notesStatus.textContent = t('msg_pick_lang'); return; }
-    if (Date.now() < notesCooldownUntil) return;
-    notesCooldownUntil = Date.now() + 20000;
-    notesBtn.disabled = true;
-    notesStatus.textContent = t('notes_loading');
-    try {
-      const r = await fetch('/notes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ c: roomCode, lang: useLang })
-      });
-      const d = await r.json().catch(() => ({}));
-      if (r.ok && d.empty) {
-        notesOut.style.display = 'block';
-        notesOut.textContent = t('notes_empty');
-        notesCopy.style.display = 'none';
-        notesShare.style.display = 'none';
-        notesText = '';
-        notesStatus.textContent = '';
-      } else if (r.ok && d.notes) {
-        notesText = d.notes;
-        notesOut.style.display = 'block';
-        notesOut.textContent = notesText;
-        notesCopy.style.display = 'inline-flex';
-        if (navigator.share) notesShare.style.display = 'inline-flex';
-        notesStatus.textContent = '';
-        notesBtn.textContent = t('notes_regen');
-        if (d.coverage && d.coverage.count) {
-          notesCoverage.style.display = 'block';
-          notesCoverage.textContent = t('notes_coverage', { count: d.coverage.count, min: d.coverage.durationMin });
-        } else { notesCoverage.style.display = 'none'; }
-        notesSecondaryRow.style.display = 'flex';
-        // Speak in whichever language the notes were generated in.
-        notesListenLang = useLang;
-      } else {
-        notesStatus.textContent = d.error || t('notes_failed');
-      }
-    } catch (_) {
-      notesStatus.textContent = t('notes_failed');
-    }
-    setTimeout(() => { notesBtn.disabled = false; }, 2000);
-  });
-
-  notesCopy.addEventListener('click', async () => {
-    if (!notesText) return;
-    try {
-      await navigator.clipboard.writeText(notesText);
-      notesStatus.textContent = t('notes_copied');
-    } catch (_) {
-      // Fallback: select the notes block so the user can long-press/copy
-      try {
-        const r = document.createRange();
-        r.selectNodeContents(notesOut);
-        const s = window.getSelection();
-        s.removeAllRanges(); s.addRange(r);
-        notesStatus.textContent = t('notes_copied');
-      } catch (_) { notesStatus.textContent = t('msg_failed'); }
-    }
-    setTimeout(() => { notesStatus.textContent = ''; }, 3000);
-  });
-
-  notesShare.addEventListener('click', async () => {
-    if (!notesText || !navigator.share) return;
-    try {
-      await navigator.share({ title: t('notes_share_title'), text: notesText });
-    } catch (_) { /* user cancelled */ }
-  });
-
-  // Read the notes aloud. The notes text can be long (~250-450 words), so
-  // browsers will pause/resume across sentences via the synth queue. Tapping
-  // again while speaking stops playback. We pick the voice the same way the
-  // live lesson does so the language matches what's on screen.
-  let notesListenLang = null;
-  let notesSpeaking = false;
-  function notesStopSpeak() {
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
-    notesSpeaking = false;
-    notesListenBtn.textContent = t('notes_listen');
-  }
-  notesListenBtn.addEventListener('click', () => {
-    if (notesSpeaking) { notesStopSpeak(); return; }
-    if (!notesText || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
-    try { window.speechSynthesis.cancel(); } catch (_) {}
-    const lang = notesListenLang || currentLang;
-    const v = pickVoice(lang);
-    // Chunk by sentence so long notes don't trip browser-imposed length caps.
-    const chunks = notesText.match(/[^.!?。！？\n]+[.!?。！？]?/g) || [notesText];
-    notesSpeaking = true;
-    notesListenBtn.textContent = t('notes_stop');
-    let i = 0;
-    const speakNext = () => {
-      if (!notesSpeaking || i >= chunks.length) { notesStopSpeak(); return; }
-      const u = new SpeechSynthesisUtterance(chunks[i++].trim());
-      if (v) { u.voice = v; u.lang = v.lang; }
-      else if (VOICE_FOR_LANG[lang]) u.lang = VOICE_FOR_LANG[lang];
-      u.rate = ttsRate; u.pitch = 1;
-      u.onend = speakNext;
-      u.onerror = () => notesStopSpeak();
-      window.speechSynthesis.speak(u);
-    };
-    speakNext();
-  });
-
-  // ---------- "I'm lost" ----------
-  const lostBtn = document.getElementById('btn-lost');
-  let lostCooldownUntil = 0;
-  lostBtn.addEventListener('click', async () => {
-    if (!currentLang) return;
-    if (Date.now() < lostCooldownUntil) return;
-    lostCooldownUntil = Date.now() + 8000;
-    lostBtn.classList.add('active');
-    const label = lostBtn.querySelector('.btn-label') || lostBtn;
-    label.textContent = t('btn_lost_sent');
-    try {
-      await fetch('/confused', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lang: currentLang, sessionId, c: roomCode })
-      });
-    } catch (_) {}
-    setTimeout(() => {
-      lostBtn.classList.remove('active');
-      label.textContent = t('btn_lost');
-    }, 8000);
-  });
-
-  // ---------- Hold (pause the feed) ----------
-  const holdBtn = document.getElementById('btn-hold');
-  const holdBadge = document.getElementById('hold-badge');
-  let isHeld = false;
-  const heldQueue = []; // utterances that arrived while held
-  function updateHoldUI() {
-    holdBtn.classList.toggle('active', isHeld);
-    const label = holdBtn.querySelector('.btn-label');
-    if (isHeld) {
-      if (label) label.textContent = t('btn_catchup');
-      holdBadge.style.display = heldQueue.length ? 'inline-block' : 'none';
-      holdBadge.textContent = heldQueue.length;
-    } else {
-      if (label) label.textContent = t('btn_hold');
-      holdBadge.style.display = 'none';
-    }
-  }
-  holdBtn.addEventListener('click', () => {
-    if (isHeld) {
-      // Release: drain queued items into feed in order.
-      isHeld = false;
-      const drained = heldQueue.splice(0);
-      for (const u of drained) renderUtter(u.id, u.en, u.tr, !!u.err);
-      // Only speak the most recent so we don't dump a wall of audio.
-      if (ttsOn && drained.length) {
-        const last = drained[drained.length - 1];
-        latestUtter = { en: last.en, tr: last.tr };
-        if (last.tr) speak(last.tr);
-      }
-      updateHoldUI();
-    } else {
-      isHeld = true;
-      try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
-      updateHoldUI();
-    }
-  });
-
-  // Remember last choice
-  const saved = localStorage.getItem('lang');
-  if (saved) {
-    langSelect.value = saved;
-    loadI18n(saved);
-    connect(saved);
-  }
-
-  langSelect.addEventListener('change', () => {
-    const v = langSelect.value;
-    localStorage.setItem('lang', v);
-    loadI18n(v);
-    if (v) connect(v);
-    else disconnect();
-  });
-
-  function setStatus(state, text) {
-    statusPill.className = 'status-pill' + (state ? ' ' + state : '');
-    statusText.textContent = text;
-  }
-
-  function clearFeed() {
-    feed.innerHTML = '';
-    seen.clear();
-    placeholderCleared = true;
-  }
-
-  function renderUtter(id, en, tr, isError) {
-    let node = seen.get(id);
-    if (!node) {
-      node = document.createElement('div');
-      node.className = 'utter' + (isError ? ' err' : '');
-      node.dataset.id = String(id);
-      node.innerHTML = '<div class="en"></div><div class="tr"></div>';
-      // Insert sorted by id descending (newest first), so backfill and live
-      // events arriving in any order still produce a correctly-ordered feed.
-      let inserted = false;
-      for (const child of feed.children) {
-        const otherId = Number(child.dataset.id || 0);
-        if (id > otherId) { feed.insertBefore(node, child); inserted = true; break; }
-      }
-      if (!inserted) feed.appendChild(node);
-      seen.set(id, node);
-      // Cap feed length (drop oldest from the bottom)
-      while (feed.children.length > 40) {
-        const last = feed.lastChild;
-        const lastId = Number(last.dataset.id || 0);
-        feed.removeChild(last);
-        seen.delete(lastId);
-      }
-    } else {
-      node.classList.toggle('err', !!isError);
-    }
-    // Mark current top as "latest" for emphasis
-    feed.querySelectorAll('.utter.latest').forEach(n => n.classList.remove('latest'));
-    if (feed.firstChild) feed.firstChild.classList.add('latest');
-
-    // Render English words as individual tap targets so students can look
-    // up any unfamiliar word inline (P4: tap-to-define). The translated
-    // line stays as plain text — that's already in their language.
-    const enEl = node.querySelector('.en');
-    enEl.innerHTML = '';
-    const text = en || '';
-    const re = /[A-Za-z][A-Za-z'\-]*/g;
-    let lastIdx = 0; let m;
-    while ((m = re.exec(text))) {
-      if (m.index > lastIdx) enEl.appendChild(document.createTextNode(text.slice(lastIdx, m.index)));
-      const span = document.createElement('span');
-      span.className = 'word';
-      span.textContent = m[0];
-      enEl.appendChild(span);
-      lastIdx = m.index + m[0].length;
-    }
-    if (lastIdx < text.length) enEl.appendChild(document.createTextNode(text.slice(lastIdx)));
-    node.querySelector('.tr').textContent = tr || '';
-    // Attach phrasebook long-press once per node (idempotent — flag stored
-    // on the element). Long-press = 600ms, on the whole bubble.
-    if (!node.dataset.lp) {
-      node.dataset.lp = '1';
-      attachLongPress(node, () => savePhraseFromNode(node));
-    }
-  }
-
-  function disconnect() {
-    if (es) { es.close(); es = null; }
-    currentLang = null;
-    controlsEl.style.display = 'none';
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
-    // Reset Hold state so a queued utterance from the previous language can't
-    // drain into the next one's feed (would clobber by shared utterance id).
+// ---------- hold ----------
+let isHeld = false;
+const heldQueue = [];
+function updateHoldUI() {
+  $('btn-hold').classList.toggle('on', isHeld);
+  $('btn-hold').querySelector('span[data-i18n]').textContent = isHeld ? t('btn_catchup') : t('btn_hold');
+  const badge = $('hold-badge');
+  badge.classList.toggle('hidden', !isHeld || !heldQueue.length);
+  badge.textContent = heldQueue.length;
+}
+$('btn-hold').addEventListener('click', () => {
+  if (isHeld) {
     isHeld = false;
-    heldQueue.length = 0;
-    latestUtter = null;
-    updateHoldUI();
-    setStatus('', t('status_pick_lang'));
-  }
-
-  // Decide what to do with a freshly-arrived utterance: render immediately,
-  // or queue it if the student is holding the feed.
-  function handleIncoming(d, isError) {
-    if (isHeld) {
-      heldQueue.push({ id: d.id, en: d.en, tr: d.tr, err: !!isError });
-      updateHoldUI();
-      return;
+    const drained = heldQueue.splice(0);
+    for (const u of drained) renderUtter(u.id, u.en, u.err ? '⚠ ' + (u.tr || '') : u.tr, !!u.err);
+    if (ttsOn && drained.length) {
+      const lastU = drained[drained.length - 1];
+      latestUtter = { en: lastU.en, tr: lastU.tr };
+      if (lastU.tr && !lastU.err) speak(lastU.tr);
     }
-    renderUtter(d.id, d.en, d.tr, !!isError);
-    if (!isError) {
-      latestUtter = { en: d.en, tr: d.tr };
-      if (ttsOn && d.tr) speak(d.tr);
-    }
+  } else {
+    isHeld = true;
+    try { speechSynthesis.cancel(); } catch (_) {}
   }
+  updateHoldUI();
+});
 
-  function connect(lang) {
-    if (!roomCode) { showStale('You need a class link.'); return; }
-    disconnect();
-    if (!placeholderCleared || lang !== currentLang) clearFeed();
-    currentLang = lang;
-    controlsEl.style.display = 'flex';
-    setStatus('', t('status_connecting'));
+function handleIncoming(msg) {
+  if (isHeld) { heldQueue.push(msg); updateHoldUI(); return; }
+  renderUtter(msg.id, msg.en, msg.err ? '⚠ ' + (msg.tr || 'translation failed') : msg.tr, !!msg.err);
+  if (!msg.err) {
+    latestUtter = { en: msg.en, tr: msg.tr };
+    if (ttsOn && msg.tr) speak(msg.tr);
+  }
+}
 
-    es = new EventSource('/stream?lang=' + encodeURIComponent(lang) + '&c=' + encodeURIComponent(roomCode) + '&sid=' + encodeURIComponent(sessionId));
+// ---------- polling (replaces SSE) ----------
+let pollTimer = null;
+let lastTimestamp = 0;
+let lastState = { epoch: 0, videoV: -1, docV: -1, replyV: 0 };
+let lastHeartbeat = 0;
+let ended = false;
 
-    es.addEventListener('room-ended', () => {
-      // Server kicked us — instructor started a new class. Don't auto-retry.
-      showStale(t('stale_ended'));
-    });
-    es.addEventListener('class-ending', () => {
-      // Arrives just before room-ended. Prompt the student to save notes now
-      // (a banner will also appear in showStale, but this gets attention up top).
-      const card = document.getElementById('notes-card');
-      if (!card) return;
-      let banner = document.getElementById('class-ending-banner');
-      if (!banner) {
-        banner = document.createElement('div');
-        banner.id = 'class-ending-banner';
-        banner.style.cssText = 'margin:0 0 12px; padding:12px 14px; background:var(--magenta-dim); border:2px solid var(--ink); border-radius:var(--radius); color:var(--ink); font-size:14px; line-height:1.5; font-weight:600; cursor:pointer; box-shadow:3px 3px 0 var(--mustard);';
-        banner.addEventListener('click', () => { notesBtn.click(); banner.style.display = 'none'; });
-        card.insertBefore(banner, card.children[1]);
-      }
-      banner.textContent = t('class_ending_banner');
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+function startPolling() {
+  stopPolling();
+  ended = false;
+  setStatus('live');
+  pollOnce();
+  pollTimer = setInterval(pollOnce, 2000);
+}
+function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
 
-    es.onopen = () => setStatus('ok', t('status_live', { lang }));
-    es.onerror = () => {
-      // EventSource auto-reconnects; just reflect state
-      setStatus('live', t('status_reconnecting'));
-    };
-
-    es.addEventListener('utter', (ev) => {
-      try { handleIncoming(JSON.parse(ev.data), false); } catch (_) {}
-    });
-    es.addEventListener('teacher-reply', (ev) => {
-      try { handleTeacherReply(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.addEventListener('tr-error', (ev) => {
-      try {
-        const d = JSON.parse(ev.data);
-        // Render errors right away (don't TTS them, don't queue them — they're
-        // small notes the student can see at any time).
-        renderUtter(d.id, d.en, '⚠ ' + (d.err || 'translation failed'), true);
-      } catch (_) {}
-    });
-    es.addEventListener('video', (ev) => {
-      try { handleVideoEvent(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.addEventListener('video-caption', (ev) => {
-      try { handleCaptionEvent(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.addEventListener('doc', (ev) => {
-      try { handleDocEvent(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.addEventListener('doc-text', (ev) => {
-      try { handleDocTextEvent(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.addEventListener('history-cleared', () => {
-      // Teacher wiped the transcript — clear what's on screen too. Don't
-      // touch video/document panels; only the lesson feed.
-      try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
-      heldQueue.length = 0;
-      latestUtter = null;
-      if (isHeld) { isHeld = false; updateHoldUI(); }
-      clearFeed();
+let pollBusy = false;
+async function pollOnce() {
+  if (!currentLang || ended || pollBusy) return;
+  pollBusy = true;
+  const hb = Date.now() - lastHeartbeat > 25000 ? '&hb=1' : '';
+  if (hb) lastHeartbeat = Date.now();
+  try {
+    const res = await fetch('/api/poll?since=' + lastTimestamp +
+      '&lang=' + encodeURIComponent(currentLang) +
+      '&c=' + encodeURIComponent(roomCode) +
+      '&sid=' + encodeURIComponent(sessionId) +
+      '&rv=' + lastState.replyV + hb);
+    if (!res.ok) { setStatus('err'); pollBusy = false; return; }
+    const data = await res.json();
+    if (data.ended || data.active === false) { onClassEnded(); pollBusy = false; return; }
+    setStatus('live');
+    const st = data.state || {};
+    // History cleared / new epoch: wipe the feed.
+    if (lastState.epoch && st.epoch !== lastState.epoch) {
+      clearFeed(); heldQueue.length = 0; isHeld = false; updateHoldUI(); latestUtter = null;
+      lastTimestamp = 0;
       const note = document.createElement('div');
       note.className = 'utter';
-      const trDiv = document.createElement('div');
-      trDiv.className = 'tr';
-      trDiv.style.cssText = 'color:var(--muted); font-style:italic; font-size:14px;';
-      trDiv.textContent = t('history_cleared');
-      note.appendChild(trDiv);
+      note.innerHTML = '<div class="tr" style="color:var(--ink2);font-style:italic;font-size:14px;"></div>';
+      note.querySelector('.tr').textContent = t('history_cleared');
       feed.appendChild(note);
-    });
-  }
-
-  // ---------- screenshot deterrents (soft — a browser can't truly block) ----------
-  // Per-session id stays in sessionStorage so the same student keeps the same
-  // tag while their tab is open, but it resets next session. No PII.
-  (function setupWatermark() {
-    let sid = '';
-    try { sid = sessionStorage.getItem('follow-sid') || ''; } catch (_) {}
-    if (!sid) {
-      const buf = new Uint8Array(4);
-      (window.crypto || window.msCrypto).getRandomValues(buf);
-      sid = Array.from(buf).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-      try { sessionStorage.setItem('follow-sid', sid); } catch (_) {}
     }
-    const today = new Date().toISOString().slice(0, 10);
-    const tag = `ClassLingo · ${sid} · ${today}`;
-    const wm = document.getElementById('watermark');
-    // Tile the tag many times so a partial screenshot still catches it.
-    let html = '';
-    for (let i = 0; i < 60; i++) html += `<span>${tag}</span>`;
-    wm.innerHTML = html;
-  })();
-  // Discourage casual copy-paste of the transcript. Doesn't stop a determined
-  // user — it's a "please don't" signal, not security.
-  document.addEventListener('contextmenu', (e) => {
-    // Allow right-click in form fields so students can still paste their language pick, etc.
-    const t = e.target;
-    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
-    e.preventDefault();
-  });
-
-  // ---------- shared document ----------
-  const docWrap = document.getElementById('doc-wrap');
-  const docNameEl = document.getElementById('doc-name');
-  const docPosEl = document.getElementById('doc-pos');
-  const docTrEl = document.getElementById('doc-tr');
-  const docEnEl = document.getElementById('doc-en');
-  const docLoadingEl = document.getElementById('doc-loading');
-  const docToggleBtn = document.getElementById('doc-toggle-en');
-  const docImgWrap = document.getElementById('doc-img-wrap');
-  const docImgEl = document.getElementById('doc-img');
-  let currentDocId = null;
-  let currentDocPage = null;
-  let docEnShown = false;
-
-  // The image is hidden until it actually loads — that way DOCX/TXT (which
-  // have no rendered preview) don't show a broken icon. Tapping the image
-  // opens it full-screen so students can zoom in on small text or diagrams.
-  docImgEl.addEventListener('load', () => { docImgWrap.style.display = 'block'; });
-  docImgEl.addEventListener('error', () => { docImgWrap.style.display = 'none'; });
-  docImgEl.addEventListener('click', () => {
-    if (!docImgEl.src) return;
-    window.open(docImgEl.src, '_blank', 'noopener');
-  });
-
-  docToggleBtn.addEventListener('click', () => {
-    docEnShown = !docEnShown;
-    docEnEl.style.display = docEnShown ? 'block' : 'none';
-    docToggleBtn.textContent = docEnShown ? t('doc_hide_en') : t('doc_show_en');
-  });
-  // Show "In Spanish:" (or whichever language) above the translated text so
-  // students always know which version they're looking at.
-  const docLangLabel = document.getElementById('doc-lang-label');
-  function refreshDocLangLabel() {
-    const picked = (typeof langSelect !== 'undefined' && langSelect && langSelect.value) || '';
-    docLangLabel.textContent = picked ? t('doc_in_lang', { lang: picked }) : '';
-  }
-  refreshDocLangLabel();
-  if (typeof langSelect !== 'undefined' && langSelect) {
-    langSelect.addEventListener('change', refreshDocLangLabel);
-  }
-
-  function handleDocEvent(d) {
-    if (!d || !d.docId) {
-      currentDocId = null; currentDocPage = null;
-      docWrap.style.display = 'none';
-      docTrEl.textContent = ''; docEnEl.textContent = '';
-      docImgWrap.style.display = 'none';
-      docImgEl.removeAttribute('src');
-      return;
-    }
-    docWrap.style.display = 'block';
-    docNameEl.textContent = d.name || '';
-    docPosEl.textContent = t('doc_page_x_of_y', { n: (d.currentPage|0) + 1, total: d.pageCount });
-    // If this is a new doc or new page, show loading state until doc-text arrives.
-    if (d.docId !== currentDocId || d.currentPage !== currentDocPage) {
-      currentDocId = d.docId;
-      currentDocPage = d.currentPage;
-      docTrEl.textContent = ''; docEnEl.textContent = '';
-      docLoadingEl.style.display = 'block';
-      docTrEl.scrollTop = 0;
-      // Swap the preview image. The img stays hidden until the load event
-      // fires (or stays hidden on 404 — see error listener above).
-      docImgWrap.style.display = 'none';
-      docImgEl.src = '/document/preview/' + encodeURIComponent(d.docId) + '/' + (d.currentPage|0);
-    }
-  }
-  function handleDocTextEvent(d) {
-    if (!d || !d.docId) {
-      docWrap.style.display = 'none';
-      docTrEl.textContent = ''; docEnEl.textContent = '';
-      return;
-    }
-    // Only render if this matches the page we currently expect.
-    if (d.docId !== currentDocId || d.page !== currentDocPage) return;
-    docLoadingEl.style.display = 'none';
-    docTrEl.textContent = d.tr || '(no text on this page)';
-    docEnEl.textContent = d.en || '';
-  }
-
-  // ---------- video captions ----------
-  const captionBox = document.getElementById('caption-box');
-  const captionTr = document.getElementById('caption-tr');
-  const captionEn = document.getElementById('caption-en');
-  const captionHint = document.getElementById('caption-hint');
-  // Track the highest cueIndex we've actually rendered so a translation that
-  // finishes late (the server doesn't drop them anymore — translation can
-  // take longer than a 1-2 sec caption window) can't overwrite the newer cue
-  // that already appeared on screen. Keyed by videoId so a video swap or a
-  // backward seek (see resetCaptionOrder()) starts fresh and doesn't
-  // permanently suppress the new (lower) cue indexes.
-  let lastShownCueIndex = -1;
-  let lastCaptionVideoId = null;
-  function resetCaptionOrder() { lastShownCueIndex = -1; }
-  function handleCaptionEvent(d) {
-    if (!d || d.cueIndex == null || !d.tr) {
-      captionBox.style.display = 'none';
-      captionTr.textContent = '';
-      captionEn.textContent = '';
-      if (!d || d.videoId == null) { resetCaptionOrder(); lastCaptionVideoId = null; }
-      return;
-    }
-    // New video: forget prior cue index so low indexes aren't suppressed.
-    if (d.videoId !== lastCaptionVideoId) {
-      lastCaptionVideoId = d.videoId;
-      resetCaptionOrder();
-    }
-    if (d.cueIndex < lastShownCueIndex) return; // stale, ignore
-    lastShownCueIndex = d.cueIndex;
-    captionBox.style.display = 'block';
-    captionTr.textContent = d.tr;
-    captionEn.textContent = d.en || '';
-  }
-
-  // ---------- synced YouTube video ----------
-  const videoWrap = document.getElementById('video-wrap');
-  const unmuteBtn = document.getElementById('unmute-btn');
-  let ytPlayer = null;
-  let ytReady = false;
-  let ytApiLoading = false;
-  let currentVideoId = null;
-  let suppressStateOnce = false; // ignore the state change we caused ourselves
-
-  function loadYtApi(cb) {
-    if (window.YT && window.YT.Player) return cb();
-    if (ytApiLoading) { const i = setInterval(() => { if (window.YT && window.YT.Player) { clearInterval(i); cb(); } }, 100); return; }
-    ytApiLoading = true;
-    window.onYouTubeIframeAPIReady = () => cb();
-    const s = document.createElement('script');
-    s.src = 'https://www.youtube.com/iframe_api';
-    document.head.appendChild(s);
-  }
-
-  unmuteBtn.addEventListener('click', () => {
-    if (!ytPlayer) return;
-    try { ytPlayer.unMute(); ytPlayer.setVolume(80); } catch (_) {}
-    unmuteBtn.style.display = 'none';
-  });
-
-  // Apply server-reported state to the local player.
-  let lastAppliedPositionSec = -1;
-  function applyVideoState(d) {
-    if (!ytPlayer || !ytReady) return;
-    // Detect backward seek (teacher rewound). Without this, our cue-order
-    // guard above would permanently suppress every caption until playback
-    // catches back up to where we were.
-    if (typeof d.positionSec === 'number') {
-      if (lastAppliedPositionSec >= 0 && d.positionSec < lastAppliedPositionSec - 1.5) {
-        resetCaptionOrder();
+    if (Array.isArray(data.messages)) {
+      for (const msg of data.messages) {
+        handleIncoming(msg);
+        lastTimestamp = Math.max(lastTimestamp, msg.ts || msg.id || 0);
       }
-      lastAppliedPositionSec = d.positionSec;
     }
-    // Extrapolate from updatedAt (when playback last changed) so late joiners
-    // land at the right spot, not where playback was when this message was sent.
-    const ref = d.updatedAt || d.serverTime || Date.now();
-    const drift = d.state === 'playing'
-      ? d.positionSec + Math.max(0, (Date.now() - ref) / 1000)
-      : d.positionSec;
+    if (Array.isArray(data.replies)) for (const rp of data.replies) showReply(rp);
+    if (st.videoV !== lastState.videoV) refreshVideo();
+    if (st.docV !== lastState.docV) refreshDoc();
+    lastState = { epoch: st.epoch || 0, videoV: st.videoV, docV: st.docV, replyV: st.replyV || 0 };
+  } catch (_) { setStatus('err'); /* network blip — keep trying */ }
+  pollBusy = false;
+}
+
+function setStatus(state) {
+  const dot = $('status-dot');
+  dot.className = 'status-dot' + (state === 'live' ? ' live' : state === 'err' ? ' err' : '');
+}
+
+function onClassEnded() {
+  if (ended) return;
+  ended = true;
+  stopPolling();
+  setStatus('err');
+  // Keep the study screen usable — final notes still work against the
+  // server's 10-minute snapshot of the just-ended class.
+  const banner = document.createElement('div');
+  banner.className = 'utter latest';
+  banner.innerHTML = '<div class="tr"></div>';
+  banner.querySelector('.tr').textContent = t('stale_ended') + ' — ' + t('notes_final');
+  banner.style.cursor = 'pointer';
+  banner.addEventListener('click', () => { $('screen-study').classList.remove('hidden'); lucide.createIcons(); });
+  feed.insertBefore(banner, feed.firstChild);
+  try { speechSynthesis.cancel(); } catch (_) {}
+}
+
+// ---------- teacher replies ----------
+const seenReplies = new Set();
+function showReply(rp) {
+  if (rp == null || rp.id == null || seenReplies.has(rp.id)) return;
+  seenReplies.add(rp.id);
+  const inbox = $('reply-inbox');
+  inbox.classList.remove('hidden'); inbox.classList.add('flex');
+  const el = document.createElement('div');
+  el.className = 'utter';
+  el.style.borderLeft = '5px solid var(--teal)';
+  el.innerHTML = '<div class="en"></div><div class="tr" style="font-size:16px;color:var(--ink);"></div>';
+  el.querySelector('.en').textContent = t('teacher_label') + ' · ' + new Date(rp.ts || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  el.querySelector('.tr').textContent = rp.tr || rp.en || '';
+  inbox.appendChild(el);
+  while (inbox.children.length > 5) inbox.removeChild(inbox.firstChild);
+  if (ttsOn && rp.tr) speak(rp.tr);
+}
+
+// ---------- confused / got it ----------
+let confusedCooldown = 0;
+$('btn-confused').addEventListener('click', async () => {
+  if (!currentLang || Date.now() < confusedCooldown) return;
+  confusedCooldown = Date.now() + 8000;
+  flashThumb($('btn-confused'));
+  try {
+    await fetch('/api/confused', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ c: roomCode, lang: currentLang, sessionId }) });
+  } catch (_) {}
+});
+let gotCooldown = 0;
+$('btn-got').addEventListener('click', async () => {
+  if (!currentLang || Date.now() < gotCooldown) return;
+  gotCooldown = Date.now() + 3000;
+  flashThumb($('btn-got'));
+  try {
+    await fetch('/api/understood', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ c: roomCode, lang: currentLang, sessionId }) });
+  } catch (_) {}
+});
+function flashThumb(btn) {
+  btn.classList.add('sent');
+  const label = btn.querySelector('span[data-i18n]');
+  const orig = label.textContent;
+  label.textContent = '✓ ' + t('btn_sent');
+  setTimeout(() => { btn.classList.remove('sent'); label.textContent = orig; }, 2500);
+}
+
+// ---------- shared document ----------
+let docState = null;
+let docEnShown = false;
+async function refreshDoc() {
+  try {
+    const r = await fetch('/api/document');
+    const d = await r.json();
+    if (!d || !d.docId) {
+      docState = null;
+      $('doc-wrap').classList.add('hidden');
+      return;
+    }
+    $('doc-wrap').classList.remove('hidden');
+    $('doc-name').textContent = d.name || '';
+    $('doc-pos').textContent = t('doc_page', { n: (d.currentPage | 0) + 1, total: d.pageCount || 1 });
+    const changed = !docState || docState.docId !== d.docId || docState.currentPage !== d.currentPage;
+    docState = d;
+    if (!changed) return;
+    const img = $('doc-img');
+    img.classList.add('hidden');
+    if (d.hasImage) {
+      img.onload = () => img.classList.remove('hidden');
+      img.onerror = () => img.classList.add('hidden');
+      img.src = '/api/docimage?d=' + encodeURIComponent(d.docId) + '&p=' + (d.currentPage | 0);
+    }
+    const en = d.pageEn || '';
+    $('doc-en').textContent = en;
+    $('doc-toggle-en').classList.toggle('hidden', !en);
+    if (!en) { $('doc-tr').textContent = ''; return; }
+    if (currentLang === 'English') { $('doc-tr').textContent = en; return; }
+    $('doc-tr').textContent = '…';
     try {
-      const cur = ytPlayer.getCurrentTime() || 0;
-      // Only correct drift when it's substantial. The old 1.5s threshold
-      // caused students to constantly jump when their player lagged a hair
-      // behind the teacher's — felt like a fight. 2s tolerates network
-      // jitter while still keeping the room within a single sentence.
-      if (Math.abs(cur - drift) > 2) {
-        suppressStateOnce = true;
-        ytPlayer.seekTo(drift, true);
+      const tr = await fetch('/api/translate', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: en, lang: currentLang, c: roomCode }) });
+      const td = await tr.json();
+      // Only render if the doc/page didn't change while we waited.
+      if (docState && docState.docId === d.docId && docState.currentPage === d.currentPage) {
+        $('doc-tr').textContent = td.tr || en;
       }
-      if (d.state === 'playing') ytPlayer.playVideo();
-      else ytPlayer.pauseVideo();
-    } catch (_) {}
-  }
+    } catch (_) { $('doc-tr').textContent = en; }
+  } catch (_) {}
+}
+$('doc-toggle-en').addEventListener('click', () => {
+  docEnShown = !docEnShown;
+  $('doc-en').classList.toggle('hidden', !docEnShown);
+  $('doc-toggle-en').textContent = docEnShown ? t('doc_hide_en') : t('doc_show_en');
+});
 
-  function handleVideoEvent(d) {
+// ---------- shared video ----------
+let ytPlayer = null, ytReady = false, ytApiLoading = false;
+let currentVideoId = null;
+let videoCues = [];
+let cueTimer = null;
+let lastCueIdx = -1;
+const cueTrCache = new Map();
+
+function loadYtApi(cb) {
+  if (window.YT && window.YT.Player) return cb();
+  if (ytApiLoading) { const i = setInterval(() => { if (window.YT && window.YT.Player) { clearInterval(i); cb(); } }, 100); return; }
+  ytApiLoading = true;
+  window.onYouTubeIframeAPIReady = () => cb();
+  const s = document.createElement('script');
+  s.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(s);
+}
+$('unmute-btn').addEventListener('click', () => {
+  if (!ytPlayer) return;
+  try { ytPlayer.unMute(); ytPlayer.setVolume(80); } catch (_) {}
+  $('unmute-btn').classList.add('hidden');
+});
+async function refreshVideo() {
+  try {
+    const r = await fetch('/api/video?cues=1');
+    const d = await r.json();
     if (!d || !d.videoId) {
-      // Clear / no video
-      currentVideoId = null;
-      videoWrap.style.display = 'none';
-      unmuteBtn.style.display = 'none';
-      captionBox.style.display = 'none';
-      captionHint.style.display = 'none';
-      resetCaptionOrder();
-      lastCaptionVideoId = null;
-      lastAppliedPositionSec = -1;
-      if (ytPlayer) { try { ytPlayer.stopVideo(); } catch (_) {} }
+      currentVideoId = null; videoCues = [];
+      $('video-wrap').classList.add('hidden');
+      $('caption-overlay').classList.add('hidden');
+      stopCueTicker();
+      if (ytPlayer) try { ytPlayer.stopVideo(); } catch (_) {}
       return;
     }
-    // New video swap: clear caption state so the first cues aren't suppressed.
-    if (d.videoId !== currentVideoId) {
-      resetCaptionOrder();
-      lastAppliedPositionSec = -1;
-    }
-    videoWrap.style.display = 'block';
-    captionHint.style.display = d.hasCaptions === false ? 'block' : 'none';
+    $('video-wrap').classList.remove('hidden');
+    if (Array.isArray(d.cues)) videoCues = d.cues;
+    if (d.videoId !== currentVideoId) { lastCueIdx = -1; cueTrCache.clear(); }
     loadYtApi(() => {
       if (!ytPlayer) {
         ytPlayer = new YT.Player('yt-player', {
-          videoId: d.videoId,
-          width: '100%',
-          height: '100%',
+          videoId: d.videoId, width: '100%', height: '100%',
           playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 0, disablekb: 1, mute: 1 },
-          events: {
-            onReady: () => {
-              ytReady = true;
-              currentVideoId = d.videoId;
-              try { ytPlayer.mute(); } catch (_) {}
-              unmuteBtn.style.display = 'inline-block';
-              applyVideoState(d);
-            }
-          }
+          events: { onReady: () => {
+            ytReady = true; currentVideoId = d.videoId;
+            try { ytPlayer.mute(); } catch (_) {}
+            $('unmute-btn').classList.remove('hidden');
+            applyVideoState(d);
+            startCueTicker();
+          } },
         });
       } else if (d.videoId !== currentVideoId) {
         currentVideoId = d.videoId;
-        suppressStateOnce = true;
         try { ytPlayer.loadVideoById(d.videoId); ytPlayer.mute(); } catch (_) {}
-        unmuteBtn.style.display = 'inline-block';
-        // give it a moment to load before applying state
+        $('unmute-btn').classList.remove('hidden');
         setTimeout(() => applyVideoState(d), 800);
-      } else {
-        applyVideoState(d);
-      }
+        startCueTicker();
+      } else applyVideoState(d);
     });
+  } catch (_) {}
+}
+function applyVideoState(d) {
+  if (!ytPlayer || !ytReady) return;
+  const ref = d.updatedAt || d.serverTime || Date.now();
+  const target = d.state === 'playing' ? d.positionSec + Math.max(0, (Date.now() - ref) / 1000) : d.positionSec;
+  try {
+    const cur = ytPlayer.getCurrentTime() || 0;
+    if (Math.abs(cur - target) > 2) ytPlayer.seekTo(target, true);
+    if (d.state === 'playing') ytPlayer.playVideo(); else ytPlayer.pauseVideo();
+  } catch (_) {}
+}
+function startCueTicker() {
+  stopCueTicker();
+  cueTimer = setInterval(tickCue, 500);
+}
+function stopCueTicker() { if (cueTimer) { clearInterval(cueTimer); cueTimer = null; } }
+async function tickCue() {
+  if (!videoCues.length || !ytPlayer || !ytReady) return;
+  let pos = 0;
+  try { pos = ytPlayer.getCurrentTime() || 0; } catch (_) { return; }
+  let idx = -1;
+  for (let i = 0; i < videoCues.length; i++) {
+    const c = videoCues[i];
+    if (pos >= c.start && pos < c.start + c.dur) { idx = i; break; }
   }
-
-  // Reconnect when the tab becomes visible again (mobile browsers may drop SSE)
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && currentLang && (!es || es.readyState === 2)) {
-      connect(currentLang);
+  const overlay = $('caption-overlay');
+  if (idx < 0) { overlay.classList.add('hidden'); lastCueIdx = -1; return; }
+  if (idx === lastCueIdx) return;
+  lastCueIdx = idx;
+  const en = videoCues[idx].text;
+  overlay.classList.remove('hidden');
+  if (currentLang === 'English') { overlay.textContent = en; return; }
+  if (cueTrCache.has(idx)) { overlay.textContent = cueTrCache.get(idx); return; }
+  overlay.textContent = en; // show English until the translation lands
+  try {
+    const r = await fetch('/api/translate', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: en, lang: currentLang, c: roomCode }) });
+    const d = await r.json();
+    if (d && d.tr) {
+      cueTrCache.set(idx, d.tr);
+      if (lastCueIdx === idx) overlay.textContent = d.tr;
     }
-  });
-</script>
-<!-- ESL learning tools: tap-to-define modal + phrasebook drawer + supporting CSS+JS. -->
-<style>
-  /* Tappable English words inside the transcript */
-  .utter .en .word {
-    cursor: pointer;
-    padding: 0 1px;
-    border-radius: 3px;
-    transition: background 0.12s;
-  }
-  .utter .en .word:hover,
-  .utter .en .word:active {
-    background: rgba(217, 83, 79, 0.18);
-  }
-  .utter .en .word.saved {
-    background: #fff4d6;
-    box-shadow: inset 0 -2px 0 #f5c542;
-  }
-  /* Definition modal */
-  .esl-overlay {
-    position: fixed; inset: 0;
-    background: rgba(20, 20, 25, 0.55);
-    z-index: 200;
-    display: none;
-    align-items: center; justify-content: center;
-    padding: 16px;
-  }
-  .esl-overlay.show { display: flex; }
-  .esl-modal {
-    background: var(--surface, #fff);
-    color: var(--text, #1a1a1a);
-    border-radius: 14px;
-    max-width: 480px; width: 100%;
-    max-height: 90vh; overflow: auto;
-    padding: 18px 18px 14px;
-    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
-    border: 1px solid var(--border, #e0e0e0);
-  }
-  .esl-modal h3 { margin: 0 0 4px; font-size: 22px; }
-  .esl-modal .tr-word { font-size: 24px; color: #b1361e; font-weight: 700; margin: 2px 0 12px; }
-  .esl-modal .label {
-    font-family: 'DM Mono', monospace; font-size: 11px;
-    color: var(--muted, #777); text-transform: uppercase;
-    letter-spacing: .04em; margin: 10px 0 2px;
-  }
-  .esl-modal .body { font-size: 15px; line-height: 1.5; }
-  .esl-modal .ex { font-style: italic; color: var(--muted, #777); }
-  .esl-modal .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0 0; }
-  .esl-modal button { width: auto; padding: 8px 12px; font-size: 13px; }
-  .esl-modal .close-x {
-    position: absolute; top: 12px; right: 14px;
-    background: transparent; border: none; font-size: 22px;
-    cursor: pointer; color: var(--muted, #777); padding: 4px 8px;
-  }
-  .esl-modal-wrap { position: relative; }
-  /* Phrasebook drawer */
-  .pb-drawer {
-    position: fixed; top: 0; right: 0; bottom: 0;
-    width: min(360px, 100vw);
-    background: var(--surface, #fff);
-    border-left: 1px solid var(--border, #e0e0e0);
-    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.18);
-    z-index: 190;
-    transform: translateX(100%);
-    transition: transform 0.22s ease;
-    display: flex; flex-direction: column;
-  }
-  .pb-drawer.show { transform: translateX(0); }
-  .pb-head {
-    padding: 14px 16px; border-bottom: 1px solid var(--border, #e0e0e0);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .pb-head h3 { margin: 0; font-size: 18px; }
-  .pb-list { flex: 1; overflow: auto; padding: 8px 12px; }
-  .pb-empty { padding: 24px; text-align: center; color: var(--muted, #777); font-style: italic; }
-  .pb-item {
-    padding: 10px 12px; margin-bottom: 8px;
-    background: var(--bg, #fafafa); border: 1px solid var(--border, #e0e0e0);
-    border-radius: 10px;
-  }
-  .pb-item .pb-tr { font-size: 15px; color: var(--text, #1a1a1a); }
-  .pb-item .pb-en { font-size: 12px; color: var(--muted, #777); margin-top: 4px; font-style: italic; }
-  .pb-item .pb-actions { display: flex; gap: 6px; margin-top: 6px; }
-  .pb-item .pb-actions button { width: auto; padding: 5px 10px; font-size: 12px; }
-  .pb-toast {
-    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-    background: rgba(20, 20, 25, 0.92); color: #fff;
-    padding: 10px 16px; border-radius: 20px; font-size: 13px;
-    z-index: 220; pointer-events: none; opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .pb-toast.show { opacity: 1; }
-</style>
-<div id="esl-overlay" class="esl-overlay" role="dialog" aria-modal="true">
-  <div class="esl-modal-wrap">
-    <div class="esl-modal" id="esl-modal">
-      <button class="close-x" id="esl-close" aria-label="Close">×</button>
-      <h3 id="esl-word"></h3>
-      <div class="tr-word" id="esl-tr"></div>
-      <div class="label">Meaning</div>
-      <div class="body" id="esl-def-tr"></div>
-      <div class="body" id="esl-def-en" style="color:var(--muted); font-size:13px; margin-top:4px;"></div>
-      <div class="label">Example</div>
-      <div class="body ex" id="esl-ex-tr"></div>
-      <div class="body ex" id="esl-ex-en" style="color:var(--muted); font-size:13px;"></div>
-      <div class="row">
-        <button id="esl-listen-en" class="btn" type="button" title="Hear in English">🔊 English</button>
-        <button id="esl-listen-tr" class="btn" type="button" title="Hear in your language">🔊 My language</button>
-        <button id="esl-save" class="btn btn-primary" type="button" title="Save to your phrasebook">★ Save</button>
-      </div>
-    </div>
-  </div>
-</div>
-<aside id="pb-drawer" class="pb-drawer" aria-hidden="true">
-  <div class="pb-head">
-    <h3>📖 My phrasebook</h3>
-    <div style="display:flex; gap:6px;">
-      <button id="pb-sync" class="btn" type="button" style="width:auto; padding:6px 10px;" title="Sync your phrasebook between devices using a code you choose">☁ Sync</button>
-      <button id="pb-close" class="btn" type="button" style="width:auto; padding:6px 10px;">Close</button>
-    </div>
-  </div>
-  <div class="pb-list" id="pb-list"></div>
-</aside>
-<div id="pb-toast" class="pb-toast">Saved to phrasebook</div>
-<script>
-  // -------- Long-press helper --------
-  function attachLongPress(el, handler) {
-    let timer = null;
-    let moved = false;
-    let startX = 0, startY = 0;
-    const TRIGGER_MS = 600;
-    const start = (x, y) => {
-      moved = false; startX = x; startY = y;
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        if (!moved) { handler(); }
-      }, TRIGGER_MS);
-    };
-    const move = (x, y) => {
-      if (Math.abs(x - startX) > 8 || Math.abs(y - startY) > 8) {
-        moved = true; clearTimeout(timer);
-      }
-    };
-    const cancel = () => { clearTimeout(timer); };
-    el.addEventListener('touchstart', e => {
-      const t = e.touches[0]; if (!t) return;
-      start(t.clientX, t.clientY);
-    }, { passive: true });
-    el.addEventListener('touchmove', e => {
-      const t = e.touches[0]; if (!t) return;
-      move(t.clientX, t.clientY);
-    }, { passive: true });
-    el.addEventListener('touchend', cancel);
-    el.addEventListener('touchcancel', cancel);
-    el.addEventListener('mousedown', e => start(e.clientX, e.clientY));
-    el.addEventListener('mousemove', e => move(e.clientX, e.clientY));
-    el.addEventListener('mouseup', cancel);
-    el.addEventListener('mouseleave', cancel);
-  }
+  } catch (_) {}
+}
 
-  // -------- Phrasebook (localStorage) --------
-  // Keyed per language so a Spanish session doesn't pollute a French one.
-  function pbKey() { return 'pb_' + (currentLang || lastLang || 'unk'); }
-  function pbLoad() {
-    try { return JSON.parse(localStorage.getItem(pbKey()) || '[]'); }
-    catch (_) { return []; }
+// ---------- notes ----------
+let notesText = '';
+let notesCooldown = 0;
+$('notes-btn').addEventListener('click', async () => {
+  if (!currentLang || Date.now() < notesCooldown) return;
+  notesCooldown = Date.now() + 20000;
+  $('notes-btn').disabled = true;
+  $('notes-status').textContent = t('notes_loading');
+  try {
+    const r = await fetch('/api/notes', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ c: roomCode, lang: currentLang }) });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.empty) {
+      $('notes-out').classList.remove('hidden');
+      $('notes-out').textContent = t('notes_empty');
+      $('notes-status').textContent = '';
+    } else if (r.ok && d.notes) {
+      notesText = d.notes;
+      $('notes-out').classList.remove('hidden');
+      $('notes-out').textContent = notesText;
+      $('notes-copy').classList.remove('hidden');
+      if (navigator.share) $('notes-share').classList.remove('hidden');
+      $('notes-listen').classList.remove('hidden');
+      $('notes-btn').textContent = t('notes_regen');
+      $('notes-status').textContent = '';
+      if (d.coverage && d.coverage.count) {
+        $('notes-coverage').classList.remove('hidden');
+        $('notes-coverage').textContent = t('notes_coverage', { count: d.coverage.count, min: d.coverage.durationMin });
+      }
+    } else $('notes-status').textContent = d.error || t('notes_failed');
+  } catch (_) { $('notes-status').textContent = t('notes_failed'); }
+  setTimeout(() => { $('notes-btn').disabled = false; }, 2000);
+});
+$('notes-copy').addEventListener('click', async () => {
+  if (!notesText) return;
+  try { await navigator.clipboard.writeText(notesText); $('notes-status').textContent = t('notes_copied'); }
+  catch (_) { $('notes-status').textContent = t('msg_failed'); }
+  setTimeout(() => { $('notes-status').textContent = ''; }, 3000);
+});
+$('notes-share').addEventListener('click', async () => {
+  if (!notesText || !navigator.share) return;
+  try { await navigator.share({ title: 'Class notes', text: notesText }); } catch (_) {}
+});
+let notesSpeaking = false;
+$('notes-listen').addEventListener('click', () => {
+  if (notesSpeaking) { try { speechSynthesis.cancel(); } catch (_) {} notesSpeaking = false; $('notes-listen').textContent = t('notes_listen'); return; }
+  if (!notesText || !window.speechSynthesis) return;
+  const chunks = notesText.match(/[^.!?。！？\n]+[.!?。！？]?/g) || [notesText];
+  notesSpeaking = true;
+  $('notes-listen').textContent = t('notes_stop');
+  let i = 0;
+  const v = pickVoice(currentLang);
+  const next = () => {
+    if (!notesSpeaking || i >= chunks.length) { notesSpeaking = false; $('notes-listen').textContent = t('notes_listen'); return; }
+    const u = new SpeechSynthesisUtterance(chunks[i++].trim());
+    if (v) { u.voice = v; u.lang = v.lang; }
+    else if (VOICE_FOR_LANG[currentLang]) u.lang = VOICE_FOR_LANG[currentLang];
+    u.rate = ttsRate; u.onend = next; u.onerror = () => { notesSpeaking = false; $('notes-listen').textContent = t('notes_listen'); };
+    speechSynthesis.speak(u);
+  };
+  try { speechSynthesis.cancel(); } catch (_) {}
+  next();
+});
+
+// ---------- study sheet ----------
+$('sheet-btn').addEventListener('click', () => {
+  if (!currentLang) return;
+  window.open('/api/studysheet?lang=' + encodeURIComponent(currentLang) + '&c=' + encodeURIComponent(roomCode), '_blank', 'noopener');
+});
+
+// ---------- message the teacher ----------
+let msgCooldown = 0;
+$('msg-send').addEventListener('click', async () => {
+  if (!currentLang || Date.now() < msgCooldown) return;
+  const text = ($('msg-text').value || '').trim();
+  if (!text) return;
+  msgCooldown = Date.now() + 5000;
+  $('msg-send').disabled = true;
+  $('msg-status').textContent = t('msg_sending');
+  try {
+    const r = await fetch('/api/studentmsg', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ c: roomCode, lang: currentLang, text, nickname: ($('nick-input').value || '').trim(), sessionId }) });
+    if (r.ok) { $('msg-text').value = ''; $('msg-status').textContent = '✓ ' + t('msg_sent'); }
+    else { const d = await r.json().catch(() => ({})); $('msg-status').textContent = d.error || t('msg_failed'); }
+  } catch (_) { $('msg-status').textContent = t('msg_failed'); }
+  setTimeout(() => { $('msg-send').disabled = false; $('msg-status').textContent = ''; }, 4000);
+});
+$('nick-input').value = localStorage.getItem('nick') || '';
+$('nick-input').addEventListener('input', () => localStorage.setItem('nick', $('nick-input').value.trim().slice(0, 40)));
+
+// ---------- phrasebook ----------
+function pbKey() { return 'pb_' + (currentLang || 'unk'); }
+function pbLoad() { try { return JSON.parse(localStorage.getItem(pbKey()) || '[]'); } catch (_) { return []; } }
+function pbSave(arr) { try { localStorage.setItem(pbKey(), JSON.stringify(arr.slice(0, 200))); } catch (_) {} schedulePbSync(); }
+function pbAdd(entry) {
+  const arr = pbLoad();
+  const i = arr.findIndex(x => x.en === entry.en && x.tr === entry.tr);
+  if (i >= 0) arr.splice(i, 1);
+  arr.unshift({ ...entry, ts: Date.now() });
+  pbSave(arr);
+}
+function renderPhrasebook() {
+  const list = $('pb-list');
+  const arr = pbLoad();
+  list.innerHTML = '';
+  if (!arr.length) {
+    const e = document.createElement('div');
+    e.className = 'text-sm italic'; e.style.color = 'var(--ink2)';
+    e.textContent = t('pb_empty');
+    list.appendChild(e);
+    return;
   }
-  function pbSave(arr) {
-    try { localStorage.setItem(pbKey(), JSON.stringify(arr.slice(0, 200))); } catch (_) {}
-    schedulePbSync();
-  }
-  // -------- Cross-device sync (optional) --------
-  // Student picks a short code (e.g. "amina-fr"); we mirror their
-  // phrasebook to the server under that key so they can open class on a
-  // phone and still see what they saved on the laptop.
-  function pbSyncCode() { return localStorage.getItem('pb_sync_code') || ''; }
-  function setPbSyncCode(code) {
-    if (code) localStorage.setItem('pb_sync_code', code);
-    else localStorage.removeItem('pb_sync_code');
-  }
-  let pbSyncTimer = null;
-  function schedulePbSync() {
-    const code = pbSyncCode();
-    if (!code) return;
-    clearTimeout(pbSyncTimer);
-    // Debounce — students add bursts of words while they read.
-    pbSyncTimer = setTimeout(() => pushPhrasebook(code), 1200);
-  }
-  async function pushPhrasebook(code) {
+  arr.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'utter';
+    row.innerHTML = '<div class="tr" style="font-size:16px;color:var(--ink);"></div><div class="en" style="text-transform:none;font-size:12px;"></div>' +
+      '<div class="mt-1 flex gap-2"><button class="chipbtn pb-speak">🔊</button><button class="chipbtn pb-del">✕</button></div>';
+    row.querySelector('.tr').textContent = item.tr || '';
+    row.querySelector('.en').textContent = item.en || '';
+    row.querySelector('.pb-speak').addEventListener('click', () => speak(item.tr || item.en));
+    row.querySelector('.pb-del').addEventListener('click', () => { const a = pbLoad(); a.splice(i, 1); pbSave(a); renderPhrasebook(); });
+    list.appendChild(row);
+  });
+}
+// cross-device sync (Cloudflare KV via /api/phrasebook/{code})
+function pbSyncCode() { return localStorage.getItem('pb_sync_code') || ''; }
+let pbSyncTimer = null;
+function schedulePbSync() {
+  const code = pbSyncCode();
+  if (!code) return;
+  clearTimeout(pbSyncTimer);
+  pbSyncTimer = setTimeout(async () => {
     try {
-      await fetch('/phrasebook/' + encodeURIComponent(code), {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: pbLoad() })
+      await fetch('/api/phrasebook/' + encodeURIComponent(code), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: pbLoad() }),
       });
-    } catch (_) {/* offline — try again next change */}
-  }
-  let pbSyncing = false;
-  async function pullAndMergePhrasebook(code) {
-    if (pbSyncing) return;
-    pbSyncing = true;
-    try {
-      const r = await fetch('/phrasebook/' + encodeURIComponent(code));
-      if (!r.ok) {
-        const data = await r.json().catch(() => ({}));
-        throw new Error(data.error || ('HTTP ' + r.status));
-      }
-      const data = await r.json();
-      const remote = Array.isArray(data.items) ? data.items : [];
-      const local = pbLoad();
-      // Union by (en, tr), newest-ts wins so deletes on either side aren't
-      // resurrected forever — practical merge for two-device users.
-      const map = new Map();
-      for (const it of [...remote, ...local]) {
-        const k = (it.en || '') + '|' + (it.tr || '');
-        const prev = map.get(k);
-        if (!prev || (it.ts || 0) > (prev.ts || 0)) map.set(k, it);
-      }
-      const merged = Array.from(map.values()).sort((a, b) => (b.ts || 0) - (a.ts || 0));
-      try { localStorage.setItem(pbKey(), JSON.stringify(merged.slice(0, 200))); } catch (_) {}
-      // Push the merged list back so the other device gets our adds.
-      pushPhrasebook(code);
-      renderPhrasebook();
-    } catch (e) {
-      alert('Could not sync: ' + (e.message || e));
-    } finally {
-      pbSyncing = false;
-    }
-  }
-  document.getElementById('pb-sync').addEventListener('click', async () => {
-    const current = pbSyncCode();
-    const code = window.prompt(
-      current
-        ? 'Sync code (currently "' + current + '"). Leave blank to stop syncing.'
-        : 'Pick a short sync code (letters, numbers, dashes — 3 to 32 chars). Use the same code on your other devices.',
-      current
-    );
-    if (code === null) return; // cancelled
-    const trimmed = String(code).trim();
-    if (!trimmed) { setPbSyncCode(''); alert('Sync turned off.'); return; }
-    if (!/^[A-Za-z0-9_-]{3,32}$/.test(trimmed)) {
-      alert('That code has invalid characters. Use letters, numbers, dashes, underscores (3–32 chars).');
-      return;
-    }
-    setPbSyncCode(trimmed);
-    await pullAndMergePhrasebook(trimmed);
-    flashToast('Synced ☁');
-  });
-  // If a sync code is already set from a previous visit, pull once on load
-  // so the student sees adds made on another device. Best-effort.
-  if (pbSyncCode()) {
-    setTimeout(() => pullAndMergePhrasebook(pbSyncCode()), 600);
-  }
-  function pbAdd(entry) {
-    const arr = pbLoad();
-    // Dedup by en+tr; bump to top if exists
-    const i = arr.findIndex(x => x.en === entry.en && x.tr === entry.tr);
-    if (i >= 0) arr.splice(i, 1);
-    arr.unshift({ ...entry, ts: Date.now() });
-    pbSave(arr);
-  }
-  function pbRemove(idx) {
-    const arr = pbLoad();
-    arr.splice(idx, 1);
-    pbSave(arr);
-    renderPhrasebook();
-  }
-  function savePhraseFromNode(node) {
-    if (!node) return;
-    const en = node.querySelector('.en')?.textContent || '';
-    const tr = node.querySelector('.tr')?.textContent || '';
-    if (!en && !tr) return;
-    pbAdd({ en: en.trim(), tr: tr.trim(), kind: 'phrase' });
-    flashToast('Saved to phrasebook ★');
-  }
-  function flashToast(msg) {
-    const el = document.getElementById('pb-toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(flashToast._t);
-    flashToast._t = setTimeout(() => el.classList.remove('show'), 1600);
-  }
-
-  const pbDrawer = document.getElementById('pb-drawer');
-  const pbList = document.getElementById('pb-list');
-  function openPhrasebook() {
-    renderPhrasebook();
-    pbDrawer.classList.add('show');
-    pbDrawer.setAttribute('aria-hidden', 'false');
-  }
-  function closePhrasebook() {
-    pbDrawer.classList.remove('show');
-    pbDrawer.setAttribute('aria-hidden', 'true');
-  }
-  function renderPhrasebook() {
-    const arr = pbLoad();
-    pbList.innerHTML = '';
-    if (!arr.length) {
-      const e = document.createElement('div');
-      e.className = 'pb-empty';
-      e.textContent = 'Long-press any line in the transcript, or tap a word + Save, to add it here.';
-      pbList.appendChild(e);
-      return;
-    }
-    arr.forEach((item, i) => {
-      const row = document.createElement('div');
-      row.className = 'pb-item';
-      const tr = document.createElement('div'); tr.className = 'pb-tr'; tr.textContent = item.tr || '';
-      const en = document.createElement('div'); en.className = 'pb-en'; en.textContent = item.en || '';
-      const actions = document.createElement('div'); actions.className = 'pb-actions';
-      const speakBtn = document.createElement('button');
-      speakBtn.className = 'btn'; speakBtn.textContent = '🔊';
-      speakBtn.addEventListener('click', () => speak(item.tr || item.en));
-      const delBtn = document.createElement('button');
-      delBtn.className = 'btn'; delBtn.textContent = '🗑';
-      delBtn.addEventListener('click', () => pbRemove(i));
-      actions.appendChild(speakBtn); actions.appendChild(delBtn);
-      row.appendChild(tr); row.appendChild(en); row.appendChild(actions);
-      pbList.appendChild(row);
-    });
-  }
-  document.getElementById('btn-phrasebook').addEventListener('click', openPhrasebook);
-  document.getElementById('pb-close').addEventListener('click', closePhrasebook);
-
-  // -------- Tap-to-define --------
-  const eslOverlay = document.getElementById('esl-overlay');
-  const eslWord = document.getElementById('esl-word');
-  const eslTr = document.getElementById('esl-tr');
-  const eslDefTr = document.getElementById('esl-def-tr');
-  const eslDefEn = document.getElementById('esl-def-en');
-  const eslExTr = document.getElementById('esl-ex-tr');
-  const eslExEn = document.getElementById('esl-ex-en');
-  const eslListenEn = document.getElementById('esl-listen-en');
-  const eslListenTr = document.getElementById('esl-listen-tr');
-  const eslSave = document.getElementById('esl-save');
-  let currentDefine = null;
-
-  function speakAs(text, langName) {
-    if (!text || !window.speechSynthesis) return;
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      const voices = window.speechSynthesis.getVoices();
-      const want = (VOICE_FOR_LANG[langName] || '').toLowerCase();
-      const v = voices.find(x => x.lang && x.lang.toLowerCase() === want)
-            || voices.find(x => x.lang && x.lang.toLowerCase().split('-')[0] === want.split('-')[0]);
-      if (v) { u.voice = v; u.lang = v.lang; }
-      else if (VOICE_FOR_LANG[langName]) u.lang = VOICE_FOR_LANG[langName];
-      u.rate = ttsRate; u.pitch = 1;
-      window.speechSynthesis.speak(u);
     } catch (_) {}
-  }
-  // Focus management — remember who was focused before the modal opened
-  // so we can restore it on close (keyboard-only users).
-  let eslPrevFocus = null;
-  function openDefineModal(word) {
-    if (!currentLang) return;
-    eslPrevFocus = document.activeElement;
-    eslWord.textContent = word;
-    eslTr.textContent = '…';
-    eslDefTr.textContent = 'Looking up…';
-    eslDefEn.textContent = '';
-    eslExTr.textContent = '';
-    eslExEn.textContent = '';
-    eslOverlay.classList.add('show');
-    // Push focus into the modal so screen-reader / keyboard users land there.
-    setTimeout(() => { document.getElementById('esl-close').focus(); }, 0);
-    fetch('/define', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ word, lang: currentLang, room: roomCode })
-    }).then(r => r.json()).then(d => {
-      if (d.error) {
-        eslDefTr.textContent = d.error;
-        currentDefine = null;
-        return;
-      }
+  }, 1200);
+}
+async function pullPhrasebook(code) {
+  try {
+    const r = await fetch('/api/phrasebook/' + encodeURIComponent(code));
+    if (!r.ok) return;
+    const data = await r.json();
+    const remote = Array.isArray(data.items) ? data.items : [];
+    const local = pbLoad();
+    const map = new Map();
+    for (const it of [...remote, ...local]) {
+      const k = (it.en || '') + '|' + (it.tr || '');
+      const prev = map.get(k);
+      if (!prev || (it.ts || 0) > (prev.ts || 0)) map.set(k, it);
+    }
+    const merged = [...map.values()].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    try { localStorage.setItem(pbKey(), JSON.stringify(merged.slice(0, 200))); } catch (_) {}
+    schedulePbSync();
+    renderPhrasebook();
+  } catch (_) {}
+}
+$('pb-sync').addEventListener('click', async () => {
+  const current = pbSyncCode();
+  const code = window.prompt(current
+    ? 'Sync code (currently "' + current + '"). Leave blank to stop syncing.'
+    : 'Pick a short sync code (letters, numbers, dashes — 3 to 32 chars). Use the same code on your other devices.', current);
+  if (code === null) return;
+  const trimmed = String(code).trim();
+  if (!trimmed) { localStorage.removeItem('pb_sync_code'); showToast('Sync off'); return; }
+  if (!/^[A-Za-z0-9_-]{3,32}$/.test(trimmed)) { showToast('Invalid code'); return; }
+  localStorage.setItem('pb_sync_code', trimmed);
+  await pullPhrasebook(trimmed);
+  showToast('Synced ✓');
+});
+if (pbSyncCode()) setTimeout(() => pullPhrasebook(pbSyncCode()), 800);
+
+function showToast(msg) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => { el.style.opacity = '0'; }, 1600);
+}
+
+// ---------- tap-to-define ----------
+let currentDefine = null;
+feed.addEventListener('click', (e) => {
+  const w = e.target.closest('.word');
+  if (!w) return;
+  const word = (w.textContent || '').trim();
+  if (word) openDefine(word);
+});
+function openDefine(word) {
+  if (!currentLang || currentLang === 'English') return;
+  currentDefine = null;
+  $('define-word').textContent = word;
+  $('define-tr').textContent = '…';
+  $('define-def-tr').textContent = '…';
+  $('define-def-en').textContent = '';
+  $('define-ex-tr').textContent = '';
+  $('define-ex-en').textContent = '';
+  const ov = $('define-overlay');
+  ov.classList.remove('hidden'); ov.classList.add('flex');
+  fetch('/api/define', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ word, lang: currentLang, room: roomCode }) })
+    .then(r => r.json()).then(d => {
+      if (d.error) { $('define-def-tr').textContent = d.error; return; }
       currentDefine = d;
-      eslTr.textContent = d.tr || '';
-      eslDefTr.textContent = d.defTr || '';
-      eslDefEn.textContent = d.defEn ? '(' + d.defEn + ')' : '';
-      eslExTr.textContent = d.exTr ? '“' + d.exTr + '”' : '';
-      eslExEn.textContent = d.exEn ? '(' + d.exEn + ')' : '';
-    }).catch(() => {
-      eslDefTr.textContent = 'Could not look that up.';
-    });
-  }
-  function closeDefineModal() {
-    eslOverlay.classList.remove('show');
-    currentDefine = null;
-    // Restore focus to whatever launched the modal (usually the tapped
-    // word) so the user's place in the page isn't lost.
-    if (eslPrevFocus && typeof eslPrevFocus.focus === 'function') {
-      try { eslPrevFocus.focus(); } catch (_) {}
-    }
-    eslPrevFocus = null;
-  }
-  // Trap tab + escape inside the modal while it's open.
-  document.addEventListener('keydown', (e) => {
-    if (!eslOverlay.classList.contains('show')) return;
-    if (e.key === 'Escape') { e.preventDefault(); closeDefineModal(); return; }
-    if (e.key !== 'Tab') return;
-    const focusables = eslOverlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    if (!focusables.length) return;
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault(); last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault(); first.focus();
-    }
-  });
-  document.getElementById('esl-close').addEventListener('click', closeDefineModal);
-  eslOverlay.addEventListener('click', (e) => {
-    if (e.target === eslOverlay) closeDefineModal();
-  });
-  eslListenEn.addEventListener('click', () => {
-    speakAs(currentDefine?.word || eslWord.textContent, 'English');
-  });
-  eslListenTr.addEventListener('click', () => {
-    speak(currentDefine?.tr || eslTr.textContent);
-  });
-  eslSave.addEventListener('click', () => {
-    if (!currentDefine) return;
-    pbAdd({
-      en: currentDefine.word,
-      tr: currentDefine.tr,
-      defEn: currentDefine.defEn,
-      defTr: currentDefine.defTr,
-      kind: 'word'
-    });
-    flashToast('Saved “' + currentDefine.word + '” to phrasebook ★');
-  });
+      $('define-tr').textContent = d.tr || '';
+      $('define-def-tr').textContent = d.defTr || '';
+      $('define-def-en').textContent = d.defEn ? '(' + d.defEn + ')' : '';
+      $('define-ex-tr').textContent = d.exTr ? '“' + d.exTr + '”' : '';
+      $('define-ex-en').textContent = d.exEn ? '(' + d.exEn + ')' : '';
+    }).catch(() => { $('define-def-tr').textContent = t('msg_failed'); });
+}
+function closeDefine() { const ov = $('define-overlay'); ov.classList.add('hidden'); ov.classList.remove('flex'); currentDefine = null; }
+$('define-close').addEventListener('click', closeDefine);
+$('define-overlay').addEventListener('click', (e) => { if (e.target === $('define-overlay')) closeDefine(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDefine(); });
+$('define-listen-en').addEventListener('click', () => speakBrowser(currentDefine?.word || $('define-word').textContent, 'English'));
+$('define-listen-tr').addEventListener('click', () => speak(currentDefine?.tr || $('define-tr').textContent));
+$('define-save').addEventListener('click', () => {
+  if (!currentDefine) return;
+  pbAdd({ en: currentDefine.word, tr: currentDefine.tr, kind: 'word' });
+  showToast('Saved ★');
+});
 
-  // Delegate word clicks from the feed so we don't have to re-bind on every render.
-  feed.addEventListener('click', (e) => {
-    const w = e.target.closest('.word');
-    if (!w || !feed.contains(w)) return;
-    const word = (w.textContent || '').trim();
-    if (!word) return;
-    openDefineModal(word);
-  });
+// ---------- lifecycle ----------
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && currentLang && !ended && !pollTimer) startPolling();
+  if (document.hidden) stopPolling();
+});
 
-  // -------- Study sheet button --------
-  const studyBtn = document.getElementById('study-sheet-btn');
-  if (studyBtn) {
-    studyBtn.addEventListener('click', () => {
-      const lang = currentLang || lastLang;
-      if (!lang) return;
-      const room = roomCode || '';
-      const url = '/studysheet?lang=' + encodeURIComponent(lang) + '&c=' + encodeURIComponent(room);
-      window.open(url, '_blank', 'noopener');
-    });
-  }
+lucide.createIcons();
 </script>
 </body>
 </html>

@@ -36,9 +36,6 @@
     }
     button { font-family: inherit; font-weight: 600; cursor: pointer; border: none; }
 
-    /* Tiny brand strip at the top of every screen so the kids view feels
-       like part of the same ClassLingo app the teacher sees, even though
-       the rest of this page is intentionally toy-coloured. */
     .kid-brand {
       display: flex; align-items: baseline; gap: 10px;
       padding: 14px 20px 0;
@@ -50,7 +47,6 @@
       color: var(--ink);
     }
     .kid-brand .logo .pink { color: var(--red); }
-    .kid-brand .logo .cyan { color: var(--green); }
     .kid-brand .sub {
       font-family: 'DM Mono', monospace;
       font-size: 11px; font-weight: 500;
@@ -67,13 +63,11 @@
       text-align: center; cursor: pointer;
     }
     .gate-emoji { font-size: 140px; animation: bounce 1.6s infinite; filter: drop-shadow(0 6px 0 rgba(0,0,0,0.12)); }
-    /* The welcome image replaces the waving-hand emoji on the tap-to-start
-       gate. Same bounce/shadow as before but sized as an actual picture. */
     img.gate-emoji {
       width: min(70vw, 460px);
       height: min(50vh, 460px);
       object-fit: contain;
-      font-size: 0; /* hide alt text if image fails */
+      font-size: 0;
     }
     .gate h1 {
       font-family: 'Atkinson Hyperlegible', 'Fredoka', system-ui, sans-serif;
@@ -83,7 +77,6 @@
       letter-spacing: 1px;
     }
     .gate p { font-size: 24px; font-weight: 600; color: #fff; opacity: 0.95; }
-    /* Cute floating buddies on the gate so it feels like a toy, not a wall */
     .gate-buddy {
       position: absolute; font-size: 56px;
       filter: drop-shadow(0 4px 0 rgba(0,0,0,0.1));
@@ -124,9 +117,7 @@
       color: var(--muted);
     }
 
-    /* ---- Tile grid (flags / animals / letters) ----
-       Sized so 17 languages or 26 letters fit on a 375x667 phone screen
-       without scrolling. Tiles shrink, columns increase. */
+    /* ---- Tile grid ---- */
     .grid {
       display: grid; gap: 8px;
       grid-template-columns: repeat(5, 1fr);
@@ -155,9 +146,7 @@
       box-shadow: 0 5px 0 rgba(0,0,0,0.12), 0 0 0 3px var(--pink) inset;
       transform: scale(1.04);
     }
-    .tile .big {
-      font-size: 26px; line-height: 1;
-    }
+    .tile .big { font-size: 26px; line-height: 1; }
     .tile .label {
       font-size: 10px; font-weight: 600;
       color: var(--ink); text-align: center;
@@ -175,8 +164,7 @@
       .tile .label { font-size: 12px; }
     }
 
-    /* Letter grid: chunky block letters kids can actually see.
-       26 letters in 7×4 grid fits without scrolling on small phones. */
+    /* Letter grid */
     .letter-grid {
       display: grid; gap: 6px;
       grid-template-columns: repeat(7, 1fr);
@@ -212,7 +200,7 @@
       box-shadow: 0 8px 0 rgba(0,0,0,0.18), 0 0 0 4px var(--yellow);
     }
 
-    /* ---- Big bottom action button (Next / Confirm) ---- */
+    /* ---- Big bottom action button ---- */
     .next-btn {
       margin-top: 28px;
       width: 100%; max-width: 520px;
@@ -231,9 +219,6 @@
     }
     .next-btn .arrow { display: inline-block; margin-left: 8px; }
 
-    /* "Go back" arrow on every setup step so kids who want to change their
-       mind (e.g. "actually I want the unicorn") don't have to refresh the
-       whole page. Sits above the step title, big enough for small fingers. */
     .step-back {
       align-self: flex-start;
       display: inline-flex; align-items: center; gap: 6px;
@@ -275,8 +260,6 @@
       object-fit: cover;
       display: block;
     }
-    /* Avatar-picker tile — image fills the square so the character is the
-       whole hit target instead of a tiny glyph in the middle. */
     .tile.tile-avatar { padding: 6px; background: #fff; }
     .tile.tile-avatar .big { width: 100%; height: 100%; display: block; }
     .tile.tile-avatar .av-img {
@@ -299,8 +282,6 @@
       gap: 20px; padding: 8px 4px;
       min-height: 0;
     }
-    /* The "listener" is the teacher avatar — a friendly head with a
-       speech bubble. The pulse ring shows when audio is actively playing. */
     .teacher-row {
       display: flex; align-items: flex-start; gap: 14px;
       width: 100%; max-width: 760px;
@@ -315,8 +296,6 @@
       box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.5);
       position: relative;
     }
-    /* When the listener bubble contains the teacher PNG (Dudu/Bubu world),
-       fill the circle with the picture rather than an emoji glyph. */
     .listener img {
       width: 100%; height: 100%;
       border-radius: 50%;
@@ -340,7 +319,6 @@
     }
     .listener-status.live { color: var(--pink); }
 
-    /* Speech bubble — teacher emoji on the left points into this card. */
     .bubble {
       flex: 1 1 auto; min-width: 0;
       position: relative;
@@ -374,7 +352,6 @@
     .lesson-text.empty {
       font-size: 18px; color: var(--muted); font-style: italic;
     }
-    /* Cute floaters around the lesson stage */
     .floater {
       position: absolute; font-size: 36px; opacity: 0.85;
       filter: drop-shadow(0 3px 0 rgba(0,0,0,0.08));
@@ -410,9 +387,6 @@
     .action-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.15); }
     .action-btn .emoji { font-size: 44px; line-height: 1; }
     @media (max-width: 380px) { .action-btn .emoji { font-size: 36px; } }
-    /* When the .emoji span holds an <img> (the Dudu & Bubu action icons)
-       instead of an emoji glyph, size the picture to roughly match the old
-       emoji footprint so the button rhythm doesn't shift. */
     .action-btn .emoji img {
       width: 100%;
       max-width: 180px;
@@ -436,11 +410,7 @@
       100% { transform: scale(1); }
     }
 
-    /* ---- Kid-friendly media cards (video + document) ----
-       These appear inside the lesson view ABOVE the listener stage, so the
-       teacher's shared YouTube clip or current document page is the first
-       thing the kid sees while the audio plays underneath. Both panels
-       self-hide via display:none until the teacher shares something. */
+    /* ---- Kid-friendly media cards ---- */
     .kid-media {
       width: 100%;
       max-width: 720px;
@@ -457,8 +427,6 @@
       box-shadow: 0 6px 0 rgba(0,0,0,0.12);
     }
     .kid-video #yt-player { position: absolute; inset: 0; }
-    /* Sits ABOVE the video as a chunky banner so it never covers the
-       translated caption track at the bottom. Disappears on tap. */
     .kid-unmute {
       display: none;
       margin: 0 auto 10px;
@@ -469,9 +437,6 @@
       border: none; cursor: pointer;
     }
     .kid-unmute.show { display: inline-flex; align-items: center; gap: 8px; }
-    /* Caption overlay sits ON the video (translated YouTube captions) so
-       reading-capable kids can follow along without losing the picture.
-       Semi-opaque dark band, white text — like Netflix subtitles. */
     .kid-caption {
       position: absolute;
       left: 8px; right: 8px; bottom: 8px;
@@ -545,17 +510,11 @@
     .kid-doc-read:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
     .kid-doc-read.speaking { background: var(--pink); }
 
-    /* When media is shown, the listener bubble shrinks so the page still
-       fits on a phone without scrolling past the lesson text. */
     .lesson.has-media .listener { width: 110px; height: 110px; font-size: 60px; }
     .lesson.has-media .lesson-text { font-size: 22px; }
     .lesson.has-media .lesson-stage { padding: 0; gap: 12px; }
 
-    /* On wider screens, put the teacher's video/doc side-by-side with the
-       translated speech bubble so kids don't have to scroll between them. */
     @media (min-width: 720px) {
-      /* !important needed because #lesson is shown with inline style.display
-         = 'flex' (set in JS), which would otherwise win over this rule. */
       .lesson.has-media {
         display: grid !important;
         grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
@@ -572,8 +531,6 @@
       .lesson.has-media .actions       { grid-area: actions; }
     }
 
-    /* "Change avatar" button in the lesson top bar — same playful pill as
-       the back buttons in onboarding. Lives next to the language flag. */
     .change-avatar {
       background: #fff; color: var(--ink);
       border: 2px solid var(--border, #e8e2d6);
@@ -601,7 +558,6 @@
     .ended h2 { font-size: 32px; color: var(--ink); }
     .ended p { font-size: 18px; color: var(--muted); max-width: 320px; }
 
-    /* Spoken-name big ghost text that briefly appears when a flag is tapped */
     .spoken-toast {
       position: fixed; left: 50%; top: 50%;
       transform: translate(-50%, -50%) scale(0.7);
@@ -622,8 +578,6 @@
 </head>
 <body>
 
-<!-- Brand strip — same wordmark + cyan/magenta accent as /teach and /student,
-     so a parent / teacher glancing at the kid's screen recognizes the app. -->
 <div class="kid-brand" id="brand-strip">
   <span class="logo">Class<span class="pink">Lingo</span></span>
   <span class="sub">Kids view</span>
@@ -677,9 +631,7 @@
       <span class="lang-flag" id="me-flag">🌍</span>
     </div>
   </div>
-  <!-- Synced YouTube video the teacher loaded. Hidden until /stream emits a
-       'video' event with a videoId. Mirrors /student's player but with a
-       chunky kid-friendly unmute pill instead of a separate button row. -->
+
   <div class="kid-media" id="kid-video-wrap" style="display:none;">
     <button class="kid-unmute" id="kid-unmute" type="button">🔊 Tap for sound</button>
     <div class="kid-video">
@@ -688,18 +640,12 @@
     </div>
   </div>
 
-  <!-- Current page of the teacher's shared document, translated. The page
-       can be read aloud with the big speaker button. Teacher controls which
-       page is showing — kids just listen along. -->
   <div class="kid-media" id="kid-doc-wrap" style="display:none;">
     <div class="kid-doc">
       <div class="kid-doc-head">
         <span class="kid-doc-title">📄 <span id="kid-doc-name">Page</span></span>
         <span class="kid-doc-page" id="kid-doc-page">1 / 1</span>
       </div>
-      <!-- Picture of the actual page so kids can see what their teacher is
-           looking at, not just read the translation. Hidden when the doc has
-           no rendered page (DOCX/TXT). Tap to enlarge. -->
       <div class="kid-doc-img-wrap" id="kid-doc-img-wrap" style="display:none;">
         <img id="kid-doc-img" alt="Page picture" />
       </div>
@@ -715,9 +661,6 @@
     <span class="floater f2">🌈</span>
     <span class="floater f3">✨</span>
     <span class="floater f4">🎈</span>
-    <!-- Teacher head + speech bubble. Translated text from /stream's
-         'utter' / 'teacher-reply' SSE events lands inside the bubble; the
-         head pulses while TTS audio is playing. -->
     <div class="teacher-row">
       <div class="listener" id="listener"><img src="/avatars/teacher.png" alt="" /></div>
       <div style="flex:1 1 auto; min-width:0;">
@@ -751,8 +694,9 @@
 
 <script>
   // ------------------------ Config ------------------------
-  // Native-script labels + flags + browser-TTS BCP47 codes. Order matches
-  // the adult /student page's <select> for consistency.
+  // Cloudflare Pages edition: SSE (/stream) replaced by polling /api/poll
+  // every 2 seconds. Everything else — the gate, the three-step onboarding,
+  // Dudu & Bubu avatars, the three big buttons — works exactly like before.
   const LANGS = [
     { name: 'English',            flag: '🇺🇸', native: 'English',     code: 'en' },
     { name: 'Spanish',            flag: '🇪🇸', native: 'Español',     code: 'es' },
@@ -772,10 +716,6 @@
     { name: 'Dari',               flag: '🇦🇫', native: 'دری',         code: 'fa' },
     { name: 'Amharic',            flag: '🇪🇹', native: 'አማርኛ',       code: 'am' },
   ];
-  // "Dudu & Bubu" sticker pack — same character, different costumes. Each
-  // entry is a path under /public/avatars/ that the picker tiles and the
-  // lesson-top "me" pill both render as <img>. Storing the path (string)
-  // keeps the existing `avatar` state model unchanged.
   const AVATARS = [
     '/avatars/01-mummy.png',
     '/avatars/02-spider.png',
@@ -790,9 +730,6 @@
     '/avatars/11-snacks.png',
     '/avatars/12-skeleton.png'
   ];
-  // Render an avatar (path string) into a container. Falls back to a neutral
-  // emoji if the image fails (e.g. file missing). Used by both the picker
-  // tiles and the lesson-top "me" pill.
   function renderAvatarInto(el, src) {
     if (!el) return;
     el.innerHTML = '';
@@ -812,19 +749,14 @@
     sessionId = 'k' + Math.random().toString(36).slice(2) + Date.now().toString(36);
     sessionStorage.setItem('kid-sid', sessionId);
   }
-  let lang = null;       // language NAME (e.g. "Spanish")
+  let lang = null;
   let langCfg = null;
   let avatar = null;
   let initial = null;
   let lastUtterTr = '';
-  let lastUtterEn = '';
   let voicesReady = false;
-  let es = null;
 
   // ------------------------ Audio unlock + TTS ------------------------
-  // Most browsers block speechSynthesis.speak() until the page has a
-  // user-gesture event. The gate overlay collects that gesture and primes
-  // the engine with a silent utterance so subsequent calls actually play.
   function unlockAudio() {
     try {
       const u = new SpeechSynthesisUtterance(' ');
@@ -863,8 +795,6 @@
     return !!v;
   }
 
-  // Voices populate async on Chrome; wait briefly so the picker can mark
-  // unsupported languages accurately.
   if (window.speechSynthesis) {
     try {
       window.speechSynthesis.onvoiceschanged = () => { voicesReady = true; renderLangGrid(); };
@@ -879,8 +809,6 @@
     document.getElementById('step-lang').style.display = 'flex';
     document.getElementById('step-lang').style.flexDirection = 'column';
     renderLangGrid();
-    // Voices sometimes only populate after the first speak() attempt; give
-    // them a moment, then refresh badges.
     setTimeout(() => { voicesReady = voicesAvailable(); renderLangGrid(); }, 350);
   });
 
@@ -888,7 +816,7 @@
   const langGrid = document.getElementById('lang-grid');
   const langNext = document.getElementById('lang-next');
   const toast = document.getElementById('toast');
-  let pendingLang = null; // tapped once, awaiting confirm
+  let pendingLang = null;
   function showToast(text) {
     toast.textContent = text;
     toast.classList.add('show');
@@ -913,7 +841,6 @@
   }
   function onLangTap(L, tile) {
     if (pendingLang && pendingLang.name === L.name) {
-      // Already pending — second tap confirms (same as Next button).
       goToAvatar();
       return;
     }
@@ -921,7 +848,6 @@
     document.querySelectorAll('#lang-grid .tile').forEach(t => t.classList.remove('selected'));
     tile.classList.add('selected');
     langNext.disabled = false;
-    // Speak the language name in that language, and show it big on screen.
     showToast(L.native);
     speak(L.native, L.code);
   }
@@ -956,9 +882,6 @@
       avatarGrid.appendChild(tile);
     }
   }
-  // Set when the kid taps "change avatar" mid-lesson — avatarNext then
-  // returns them straight to the lesson instead of running through the
-  // initial / letter steps again.
   let avatarReturnToLesson = false;
   avatarNext.addEventListener('click', () => {
     if (!avatar) return;
@@ -1002,8 +925,6 @@
     enterLesson();
   });
 
-  // Back buttons let a kid jump back a step without losing the choices
-  // they've already made (lang / avatar / initial are kept in module state).
   function showStep(id) {
     ['step-lang','step-avatar','step-initial'].forEach(s => {
       document.getElementById(s).style.display = (s === id) ? 'flex' : 'none';
@@ -1012,8 +933,6 @@
     el.style.flexDirection = 'column';
   }
   document.getElementById('avatar-back').addEventListener('click', () => {
-    // If the kid opened the picker from inside the lesson, "Back" should
-    // dump them back to the lesson, NOT back to language selection.
     if (avatarReturnToLesson) {
       avatarReturnToLesson = false;
       document.getElementById('step-avatar').style.display = 'none';
@@ -1054,68 +973,88 @@
     meInitial.textContent = initial;
     meFlag.textContent = langCfg.flag;
     if (!roomCode) {
-      showEnded('No class link');
+      showEnded();
       return;
     }
-    // Verify class link is current before opening the SSE stream.
-    fetch('/class/current').then(r => r.json()).then(d => {
+    fetch('/api/session').then(r => r.json()).then(d => {
       if (!d || d.code !== roomCode) { showEnded(); return; }
-      connectStream();
-    }).catch(() => connectStream());
+      startPolling();
+    }).catch(() => startPolling());
   }
 
-  function connectStream() {
-    if (es) { try { es.close(); } catch (_) {} }
-    es = new EventSource(
-      '/stream?lang=' + encodeURIComponent(lang) +
-      '&c=' + encodeURIComponent(roomCode) +
-      '&sid=' + encodeURIComponent(sessionId)
-    );
-    es.addEventListener('room-ended', () => showEnded());
-    es.addEventListener('class-ending', () => {
-      listenerStatus.textContent = 'Class is ending…';
-    });
-    es.addEventListener('utter', (ev) => {
-      try { handleUtter(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.addEventListener('teacher-reply', (ev) => {
-      try { handleUtter(JSON.parse(ev.data)); } catch (_) {}
-    });
-    // Translation failed for this utterance — show the kid that something
-    // happened instead of silently stalling. Mirrors /student's behavior.
-    es.addEventListener('tr-error', (ev) => {
-      try {
-        const d = JSON.parse(ev.data);
-        lessonText.classList.remove('empty');
-        lessonText.textContent = '⚠ ' + (d.en || 'Translation hiccup — wait for the next sentence.');
-        setListening(false);
-      } catch (_) {}
-    });
-    es.addEventListener('history-cleared', () => {
-      lastUtterTr = ''; lastUtterEn = '';
-      lessonText.classList.add('empty');
-      lessonText.textContent = 'Listening for your teacher ✨';
-    });
-    es.addEventListener('video', (ev) => {
-      try { handleVideoEvent(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.addEventListener('video-caption', (ev) => {
-      try { handleCaptionEvent(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.addEventListener('doc', (ev) => {
-      try { handleDocEvent(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.addEventListener('doc-text', (ev) => {
-      try { handleDocTextEvent(JSON.parse(ev.data)); } catch (_) {}
-    });
-    es.onerror = () => { listenerStatus.textContent = 'Reconnecting…'; };
+  // ------------------------ Polling (replaces SSE) ------------------------
+  let pollTimer = null;
+  let lastTimestamp = 0; // server backfills; we only display/speak the newest
+  let lastState = { epoch: 0, videoV: -1, docV: -1, replyV: 0 };
+  let lastHeartbeat = 0;
+  let isEnded = false;
+  let pollBusy = false;
+
+  function startPolling() {
+    stopPolling();
+    isEnded = false;
+    pollOnce();
+    pollTimer = setInterval(pollOnce, 2000);
+  }
+  function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+
+  async function pollOnce() {
+    if (!lang || isEnded || pollBusy) return;
+    pollBusy = true;
+    const hb = Date.now() - lastHeartbeat > 25000 ? '&hb=1' : '';
+    if (hb) lastHeartbeat = Date.now();
+    try {
+      const res = await fetch('/api/poll?since=' + lastTimestamp +
+        '&lang=' + encodeURIComponent(lang) +
+        '&c=' + encodeURIComponent(roomCode) +
+        '&sid=' + encodeURIComponent(sessionId) +
+        '&rv=' + lastState.replyV + hb);
+      if (!res.ok) { listenerStatus.textContent = 'Reconnecting…'; pollBusy = false; return; }
+      const data = await res.json();
+      if (data.ended || data.active === false) { showEnded(); pollBusy = false; return; }
+      const st = data.state || {};
+      if (lastState.epoch && st.epoch !== lastState.epoch) {
+        lastUtterTr = '';
+        lessonText.classList.add('empty');
+        lessonText.textContent = 'Listening for your teacher ✨';
+        lastTimestamp = 0;
+      }
+      if (Array.isArray(data.messages) && data.messages.length) {
+        const msg = data.messages[data.messages.length - 1]; // kids only see the latest
+        for (const mm of data.messages) lastTimestamp = Math.max(lastTimestamp, mm.ts || mm.id || 0);
+        handleUtter(msg);
+      }
+      if (Array.isArray(data.replies)) {
+        for (const rp of data.replies) handleUtter({ tr: rp.tr, en: rp.en, err: false });
+      }
+      if (st.videoV !== lastState.videoV) refreshVideo();
+      if (st.docV !== lastState.docV) refreshDoc();
+      lastState = { epoch: st.epoch || 0, videoV: st.videoV, docV: st.docV, replyV: st.replyV || 0 };
+    } catch (_) { listenerStatus.textContent = 'Reconnecting…'; }
+    pollBusy = false;
+  }
+
+  function handleUtter(d) {
+    if (!d || !d.tr) return;
+    if (d.err) {
+      lessonText.classList.remove('empty');
+      lessonText.textContent = '⚠ ' + (d.en || 'Translation hiccup — wait for the next sentence.');
+      setListening(false);
+      return;
+    }
+    lastUtterTr = d.tr;
+    lessonText.classList.remove('empty');
+    lessonText.textContent = d.tr;
+    helpBtn.classList.remove('active');
+    helpBtn.querySelector('span:last-child').textContent = 'Help';
+    const spoke = speak(d.tr, langCfg.code);
+    if (!spoke) {
+      setListening(true);
+      setTimeout(() => setListening(false), 1800);
+    }
   }
 
   // ------------------------ Shared document (kid view) ------------------------
-  // Teacher uploads a PDF/DOCX/image; server emits 'doc' (metadata, page
-  // number) followed by 'doc-text' (translated text for that page). We just
-  // mirror it as a single big card with a "Read page" button. The teacher
-  // controls which page is showing — kids have no navigation.
   const lessonEl = document.getElementById('lesson');
   const docWrap = document.getElementById('kid-doc-wrap');
   const docNameEl = document.getElementById('kid-doc-name');
@@ -1124,8 +1063,6 @@
   const docImgWrap = document.getElementById('kid-doc-img-wrap');
   const docImg = document.getElementById('kid-doc-img');
   const docReadBtn = document.getElementById('kid-doc-read');
-  // The image stays hidden until it actually loads (404 / DOCX / TXT have no
-  // page picture, so we mustn't show an empty black box).
   docImg.addEventListener('load',  () => { docImgWrap.style.display = 'block'; });
   docImg.addEventListener('error', () => { docImgWrap.style.display = 'none'; });
   docImg.addEventListener('click', () => {
@@ -1140,58 +1077,64 @@
     lessonEl.classList.toggle('has-media', showing);
   }
 
-  function handleDocEvent(d) {
-    if (!d || !d.docId) {
-      kidDocId = null; kidDocPage = null; kidDocTr = '';
-      docWrap.style.display = 'none';
-      // Teacher cleared the doc mid-read — stop any in-progress page TTS so
-      // the kid doesn't hear lingering speech after the card disappears.
-      try { window.speechSynthesis.cancel(); } catch (_) {}
-      docReadBtn.classList.remove('speaking');
+  async function refreshDoc() {
+    try {
+      const r = await fetch('/api/document');
+      const d = await r.json();
+      if (!d || !d.docId) {
+        kidDocId = null; kidDocPage = null; kidDocTr = '';
+        docWrap.style.display = 'none';
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+        docReadBtn.classList.remove('speaking');
+        refreshHasMedia();
+        return;
+      }
+      docWrap.style.display = 'block';
+      docNameEl.textContent = d.name || 'Page';
+      docPageEl.textContent = ((d.currentPage|0) + 1) + ' / ' + (d.pageCount || 1);
+      const changed = (d.docId !== kidDocId || d.currentPage !== kidDocPage);
       refreshHasMedia();
-      return;
-    }
-    docWrap.style.display = 'block';
-    docNameEl.textContent = d.name || 'Page';
-    docPageEl.textContent = ((d.currentPage|0) + 1) + ' / ' + (d.pageCount || 1);
-    const changed = (d.docId !== kidDocId || d.currentPage !== kidDocPage);
-    if (changed) {
+      if (!changed) return;
       kidDocId = d.docId;
       kidDocPage = d.currentPage;
       kidDocTr = '';
       docTextEl.classList.add('empty');
       docTextEl.textContent = 'Loading…';
       docTextEl.scrollTop = 0;
-      // Stop any in-progress page read when the teacher flips pages.
       try { window.speechSynthesis.cancel(); } catch (_) {}
       docReadBtn.classList.remove('speaking');
-      // Swap the page picture. Server returns 404 for formats without page
-      // images (DOCX / TXT), and our error handler hides the wrap in that
-      // case. The img stays hidden until the load event confirms it loaded.
       docImgWrap.style.display = 'none';
-      docImg.src = '/document/preview/' + encodeURIComponent(d.docId) + '/' + (d.currentPage|0);
-    }
-    refreshHasMedia();
-  }
-
-  function handleDocTextEvent(d) {
-    if (!d || !d.docId) {
-      docWrap.style.display = 'none';
-      try { window.speechSynthesis.cancel(); } catch (_) {}
-      docReadBtn.classList.remove('speaking');
-      refreshHasMedia();
-      return;
-    }
-    if (d.docId !== kidDocId || d.page !== kidDocPage) return;
-    const tr = (d.tr || '').trim();
-    kidDocTr = tr;
-    if (tr) {
-      docTextEl.classList.remove('empty');
-      docTextEl.textContent = tr;
-    } else {
-      docTextEl.classList.add('empty');
-      docTextEl.textContent = '(no words on this page)';
-    }
+      if (d.hasImage) {
+        docImg.src = '/api/docimage?d=' + encodeURIComponent(d.docId) + '&p=' + (d.currentPage|0);
+      }
+      const en = (d.pageEn || '').trim();
+      if (!en) {
+        docTextEl.classList.add('empty');
+        docTextEl.textContent = '(no words on this page)';
+        return;
+      }
+      if (lang === 'English') {
+        kidDocTr = en;
+        docTextEl.classList.remove('empty');
+        docTextEl.textContent = en;
+        return;
+      }
+      try {
+        const tr = await fetch('/api/translate', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: en, lang, c: roomCode })
+        });
+        const td = await tr.json();
+        if (kidDocId !== d.docId || kidDocPage !== d.currentPage) return; // page moved on
+        kidDocTr = (td && td.tr) || en;
+        docTextEl.classList.remove('empty');
+        docTextEl.textContent = kidDocTr;
+      } catch (_) {
+        kidDocTr = en;
+        docTextEl.classList.remove('empty');
+        docTextEl.textContent = en;
+      }
+    } catch (_) {}
   }
 
   let docReadCooldown = 0;
@@ -1205,9 +1148,6 @@
   });
 
   // ------------------------ Synced YouTube video (kid view) ------------------------
-  // Same sync model as /student: server is the source of truth for which
-  // video is loaded and whether it's playing/paused/seeked. We mute on load
-  // so autoplay works, then show a big unmute pill the kid can tap.
   const videoWrap = document.getElementById('kid-video-wrap');
   const captionBox = document.getElementById('kid-caption');
   const unmuteBtn = document.getElementById('kid-unmute');
@@ -1215,7 +1155,10 @@
   let ytReady = false;
   let ytApiLoading = false;
   let currentVideoId = null;
-  let suppressStateOnce = false;
+  let videoCues = [];
+  let cueTimer = null;
+  let lastCueIdx = -1;
+  const cueTrCache = new Map();
 
   function loadYtApi(cb) {
     if (window.YT && window.YT.Player) return cb();
@@ -1238,130 +1181,110 @@
     unmuteBtn.classList.remove('show');
   });
 
-  // Mirror the adult student page's caption-order guard: server no longer
-  // drops late translations, so we have to ignore stale ones here too.
-  // Track per-video and reset on backward seek so rewind isn't silenced.
-  let lastShownCueIndex = -1;
-  let lastCaptionVideoId = null;
-  let lastAppliedPositionSec = -1;
-  function resetCaptionOrder() { lastShownCueIndex = -1; }
-
   function applyVideoState(d) {
     if (!ytPlayer || !ytReady) return;
-    if (typeof d.positionSec === 'number') {
-      if (lastAppliedPositionSec >= 0 && d.positionSec < lastAppliedPositionSec - 1.5) {
-        resetCaptionOrder();
-      }
-      lastAppliedPositionSec = d.positionSec;
-    }
     const ref = d.updatedAt || d.serverTime || Date.now();
     const drift = d.state === 'playing'
       ? d.positionSec + Math.max(0, (Date.now() - ref) / 1000)
       : d.positionSec;
     try {
       const cur = ytPlayer.getCurrentTime() || 0;
-      if (Math.abs(cur - drift) > 1.5) {
-        suppressStateOnce = true;
-        ytPlayer.seekTo(drift, true);
-      }
+      if (Math.abs(cur - drift) > 1.5) ytPlayer.seekTo(drift, true);
       if (d.state === 'playing') ytPlayer.playVideo();
       else ytPlayer.pauseVideo();
     } catch (_) {}
   }
 
-  function handleVideoEvent(d) {
-    if (!d || !d.videoId) {
-      currentVideoId = null;
-      videoWrap.style.display = 'none';
-      captionBox.style.display = 'none';
-      captionBox.textContent = '';
-      unmuteBtn.classList.remove('show');
-      resetCaptionOrder();
-      lastCaptionVideoId = null;
-      lastAppliedPositionSec = -1;
-      if (ytPlayer) { try { ytPlayer.stopVideo(); } catch (_) {} }
-      refreshHasMedia();
-      return;
-    }
-    if (d.videoId !== currentVideoId) {
-      resetCaptionOrder();
-      lastAppliedPositionSec = -1;
-    }
-    videoWrap.style.display = 'block';
-    refreshHasMedia();
-    loadYtApi(() => {
-      if (!ytPlayer) {
-        ytPlayer = new YT.Player('yt-player', {
-          videoId: d.videoId,
-          width: '100%',
-          height: '100%',
-          playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 0, disablekb: 1, mute: 1 },
-          events: {
-            onReady: () => {
-              ytReady = true;
-              currentVideoId = d.videoId;
-              try { ytPlayer.mute(); } catch (_) {}
-              unmuteBtn.classList.add('show');
-              applyVideoState(d);
-            }
-          }
-        });
-      } else if (d.videoId !== currentVideoId) {
-        currentVideoId = d.videoId;
-        suppressStateOnce = true;
-        try { ytPlayer.loadVideoById(d.videoId); ytPlayer.mute(); } catch (_) {}
-        unmuteBtn.classList.add('show');
-        setTimeout(() => applyVideoState(d), 800);
-      } else {
-        applyVideoState(d);
+  async function refreshVideo() {
+    try {
+      const r = await fetch('/api/video?cues=1');
+      const d = await r.json();
+      if (!d || !d.videoId) {
+        currentVideoId = null;
+        videoCues = [];
+        videoWrap.style.display = 'none';
+        captionBox.style.display = 'none';
+        captionBox.textContent = '';
+        unmuteBtn.classList.remove('show');
+        stopCueTicker();
+        if (ytPlayer) { try { ytPlayer.stopVideo(); } catch (_) {} }
+        refreshHasMedia();
+        return;
       }
-    });
+      videoWrap.style.display = 'block';
+      refreshHasMedia();
+      if (Array.isArray(d.cues)) videoCues = d.cues;
+      if (d.videoId !== currentVideoId) { lastCueIdx = -1; cueTrCache.clear(); }
+      loadYtApi(() => {
+        if (!ytPlayer) {
+          ytPlayer = new YT.Player('yt-player', {
+            videoId: d.videoId,
+            width: '100%',
+            height: '100%',
+            playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 0, disablekb: 1, mute: 1 },
+            events: {
+              onReady: () => {
+                ytReady = true;
+                currentVideoId = d.videoId;
+                try { ytPlayer.mute(); } catch (_) {}
+                unmuteBtn.classList.add('show');
+                applyVideoState(d);
+                startCueTicker();
+              }
+            }
+          });
+        } else if (d.videoId !== currentVideoId) {
+          currentVideoId = d.videoId;
+          try { ytPlayer.loadVideoById(d.videoId); ytPlayer.mute(); } catch (_) {}
+          unmuteBtn.classList.add('show');
+          setTimeout(() => applyVideoState(d), 800);
+          startCueTicker();
+        } else {
+          applyVideoState(d);
+        }
+      });
+    } catch (_) {}
   }
 
-  function handleCaptionEvent(d) {
-    if (!d || d.cueIndex == null || !d.tr) {
-      captionBox.style.display = 'none';
-      captionBox.textContent = '';
-      if (!d || d.videoId == null) { resetCaptionOrder(); lastCaptionVideoId = null; }
-      return;
+  function startCueTicker() {
+    stopCueTicker();
+    cueTimer = setInterval(tickCue, 500);
+  }
+  function stopCueTicker() { if (cueTimer) { clearInterval(cueTimer); cueTimer = null; } }
+  async function tickCue() {
+    if (!videoCues.length || !ytPlayer || !ytReady) return;
+    let pos = 0;
+    try { pos = ytPlayer.getCurrentTime() || 0; } catch (_) { return; }
+    let idx = -1;
+    for (let i = 0; i < videoCues.length; i++) {
+      const c = videoCues[i];
+      if (pos >= c.start && pos < c.start + c.dur) { idx = i; break; }
     }
-    if (d.videoId !== lastCaptionVideoId) {
-      lastCaptionVideoId = d.videoId;
-      resetCaptionOrder();
-    }
-    if (d.cueIndex < lastShownCueIndex) return; // stale, ignore
-    lastShownCueIndex = d.cueIndex;
+    if (idx < 0) { captionBox.style.display = 'none'; lastCueIdx = -1; return; }
+    if (idx === lastCueIdx) return;
+    lastCueIdx = idx;
+    const en = videoCues[idx].text;
     captionBox.style.display = 'block';
-    captionBox.textContent = d.tr;
+    if (lang === 'English') { captionBox.textContent = en; return; }
+    if (cueTrCache.has(idx)) { captionBox.textContent = cueTrCache.get(idx); return; }
+    captionBox.textContent = en;
+    try {
+      const r = await fetch('/api/translate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: en, lang, c: roomCode })
+      });
+      const d = await r.json();
+      if (d && d.tr) {
+        cueTrCache.set(idx, d.tr);
+        if (lastCueIdx === idx) captionBox.textContent = d.tr;
+      }
+    } catch (_) {}
   }
 
-  function handleUtter(d) {
-    if (!d || !d.tr) return;
-    lastUtterTr = d.tr;
-    lastUtterEn = d.en || '';
-    lessonText.classList.remove('empty');
-    lessonText.textContent = d.tr;
-    // Reset help button when teacher speaks again (analogous to the adult
-    // page's clearConfused on /publish).
-    helpBtn.classList.remove('active');
-    helpBtn.querySelector('span:last-child').textContent = 'Help';
-    // Auto-play translation in the kid's language.
-    const spoke = speak(d.tr, langCfg.code);
-    if (!spoke) {
-      // Voice unavailable for this language — show the calm animation only.
-      // (Languages with poor TTS support: Somali, Dari, Amharic — flagged in
-      // the picker with a 🔇 badge as well.)
-      setListening(true);
-      setTimeout(() => setListening(false), 1800);
-    }
-  }
-
-  // Hide both media panels and stop YouTube playback. Called when the
-  // class ends so a kid who unmuted the video doesn't keep hearing it
-  // behind the "Class is done" overlay.
   function teardownMedia() {
     try { window.speechSynthesis.cancel(); } catch (_) {}
     if (ytPlayer) { try { ytPlayer.stopVideo(); } catch (_) {} }
+    stopCueTicker();
     currentVideoId = null;
     videoWrap.style.display = 'none';
     captionBox.style.display = 'none';
@@ -1376,7 +1299,8 @@
   }
 
   function showEnded() {
-    if (es) { try { es.close(); } catch (_) {} es = null; }
+    isEnded = true;
+    stopPolling();
     teardownMedia();
     ended.classList.add('show');
   }
@@ -1399,7 +1323,7 @@
     helpBtn.classList.add('active');
     helpBtn.querySelector('span:last-child').textContent = 'Sent ✓';
     try {
-      await fetch('/confused', {
+      await fetch('/api/confused', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1409,7 +1333,6 @@
       });
     } catch (_) {}
     setTimeout(() => {
-      // Leave it active until the next teacher utterance clears it visually.
       helpBtn.querySelector('span:last-child').textContent = 'Help';
     }, 4000);
   });
@@ -1420,9 +1343,9 @@
     gotCooldown = Date.now() + 2000;
     gotBtn.classList.add('flash');
     setTimeout(() => gotBtn.classList.remove('flash'), 600);
-    if (!lastUtterTr) return; // nothing yet
+    if (!lastUtterTr) return;
     try {
-      await fetch('/understood', {
+      await fetch('/api/understood', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1434,7 +1357,8 @@
 
   // Reconnect when the tab returns from background.
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && lang && (!es || es.readyState === 2)) connectStream();
+    if (document.hidden) { stopPolling(); return; }
+    if (lang && !isEnded && !pollTimer) startPolling();
   });
 </script>
 </body>
