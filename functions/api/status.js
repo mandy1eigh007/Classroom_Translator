@@ -6,7 +6,9 @@
 //   confused: {lang: n},              // "I'm lost" flags newer than last publish
 //   confusedKids: {lang: [{sid, avatar, initial, ts}]},
 //   understood: {utterId: [{sid, avatar, initial}]},
-//   messages: [...]                   // student->teacher messages, teacher auth only
+//   mode,                             // active vocabulary mode
+//   messages: [...],                  // student->teacher messages, teacher auth only
+//   roster: [{sid, name, lang, ts, seen}]  // classroom grid, teacher auth only
 // }
 import { json, getOrCreateSession, teacherPassword, providedPasscode } from './_lib.js';
 
@@ -16,8 +18,9 @@ export async function onRequest(context) {
   const s = await getOrCreateSession(env);
   const now = Date.now();
 
-  // Presence -> student counts by language.
+  // Presence -> student counts by language + roster for the classroom grid.
   const byLang = {};
+  const roster = [];
   let students = 0;
   const pres = await env.SESSION_KV.list({ prefix: 'presence:', limit: 1000 });
   for (const k of pres.keys) {
@@ -25,7 +28,15 @@ export async function onRequest(context) {
     if (!m.lang) continue;
     students++;
     byLang[m.lang] = (byLang[m.lang] || 0) + 1;
+    roster.push({
+      sid: k.name.slice('presence:'.length),
+      name: typeof m.name === 'string' ? m.name.slice(0, 40) : '',
+      lang: m.lang,
+      ts: Number(m.ts) || 0,
+      seen: Number(m.seen) || 0,
+    });
   }
+  roster.sort((a, b) => (a.name || 'zz').localeCompare(b.name || 'zz') || (a.sid < b.sid ? -1 : 1));
 
   // Confused — only flags newer than the teacher's last publish count
   // (publishing "answers" the raised hands, matching the old behavior).
@@ -66,11 +77,12 @@ export async function onRequest(context) {
     });
   }
 
-  const payload = { students, byLang, confused, confusedKids, understood, code: s.code };
+  const payload = { students, byLang, confused, confusedKids, understood, code: s.code, mode: s.mode || 'general' };
 
-  // Student message contents are teacher-only.
+  // Student identities and message contents are teacher-only.
   const expect = teacherPassword(env);
   if (expect && providedPasscode(request) === expect) {
+    payload.roster = roster;
     const msgs = [];
     const sm = await env.SESSION_KV.list({ prefix: 'smsg:', limit: 100 });
     const recent = sm.keys.slice(-50);

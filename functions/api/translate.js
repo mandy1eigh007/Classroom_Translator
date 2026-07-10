@@ -6,7 +6,7 @@
 //
 // Gated to the active room code so it can't be used as a free anonymous
 // translation API. Env vars: OPENAI_API_KEY (MYMEMORY_EMAIL optional).
-import { json, getOrCreateSession, LANG_CODES, cachedTranslate } from './_lib.js';
+import { json, getOrCreateSession, LANG_CODES, cachedTranslate, modeCtxFrom } from './_lib.js';
 
 const TEXT_MAX = 6000;
 
@@ -25,7 +25,7 @@ export async function onRequest(context) {
 
   if (lang === 'English') return json({ tr: text });
   try {
-    const tr = await cachedTranslate(env, text, lang, 45000);
+    const tr = await cachedTranslate(env, text, lang, 45000, modeCtxFrom(s));
     return json({ tr });
   } catch (e) {
     return json({ error: 'Translation failed', tr: text, err: true }, 200);

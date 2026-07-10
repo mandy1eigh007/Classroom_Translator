@@ -8,6 +8,11 @@
 //                       accepted for continuity with the old Replit deploy)
 //   MYMEMORY_EMAIL    - optional; contact email for the MyMemory fallback
 //
+// Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars in Cloudflare
+// Pages settings for the upcoming server-side Supabase Auth verification
+// (JWT check against auth.users). Client pages talk to Supabase directly
+// with the anon key for now; nothing here reads these vars yet.
+//
 // KV bindings:
 //   SESSION_KV     - live class state, messages, translation cache
 //   PHRASEBOOK_KV  - student phrasebook sync
@@ -164,18 +169,36 @@ export async function openaiChat(env, payload, timeoutMs = 20000) {
   return (data.choices?.[0]?.message?.content || '').trim();
 }
 
-export async function translateOpenAI(env, text, langName, timeoutMs = 15000) {
+// Mode context — set by the instructor's mode selector (teach.html ->
+// POST /api/session {action:"mode"}) and stored on the session doc. When a
+// trade/safety mode is active the term list is injected into the system
+// prompt so specialized vocabulary translates with correct terminology.
+export function modeCtxFrom(session) {
+  if (!session || !session.mode || session.mode === 'general') return null;
+  return {
+    mode: session.mode,
+    prompt: session.modePrompt || session.mode,
+    terms: Array.isArray(session.modeTerms) ? session.modeTerms : [],
+  };
+}
+
+export async function translateOpenAI(env, text, langName, timeoutMs = 15000, modeCtx = null) {
+  let system =
+    `Translate the user's English text into ${langName}. ` +
+    `Reply with ONLY the translated text — no quotes, no explanation, no language tags, no transliteration. ` +
+    `Preserve punctuation, capitalization style, numbers, and proper nouns. ` +
+    `If the input is already in ${langName} or untranslatable (e.g. a URL, a number alone), return it unchanged.`;
+  if (modeCtx) {
+    system =
+      `You are translating for a ${modeCtx.prompt} training class. ` +
+      `Use accurate trade terminology in ${langName}.` +
+      (modeCtx.terms.length ? ` Key terms: ${modeCtx.terms.join(', ')}.` : '') +
+      ' ' + system;
+  }
   const out = await openaiChat(env, {
     model: 'gpt-4o-mini',
     messages: [
-      {
-        role: 'system',
-        content:
-          `Translate the user's English text into ${langName}. ` +
-          `Reply with ONLY the translated text — no quotes, no explanation, no language tags, no transliteration. ` +
-          `Preserve punctuation, capitalization style, numbers, and proper nouns. ` +
-          `If the input is already in ${langName} or untranslatable (e.g. a URL, a number alone), return it unchanged.`,
-      },
+      { role: 'system', content: system },
       { role: 'user', content: text },
     ],
     max_tokens: 4000,
@@ -234,12 +257,12 @@ export async function translateMyMemory(env, text, langCode, timeoutMs = 15000) 
 }
 
 // OpenAI first, MyMemory fallback. English passes through.
-export async function translateAll(env, text, langName, timeoutMs = 15000) {
+export async function translateAll(env, text, langName, timeoutMs = 15000, modeCtx = null) {
   const code = LANG_CODES[langName];
   if (langName === 'English' || code === 'en') return text;
   if (!code) throw new Error('Unsupported language');
   if (env.OPENAI_API_KEY) {
-    try { return await translateOpenAI(env, text, langName, timeoutMs); }
+    try { return await translateOpenAI(env, text, langName, timeoutMs, modeCtx); }
     catch (_) { /* fall through */ }
   }
   return translateMyMemory(env, text, code, timeoutMs);
@@ -247,13 +270,16 @@ export async function translateAll(env, text, langName, timeoutMs = 15000) {
 
 // KV-cached translation keyed by content hash — shared by live utterances,
 // doc pages, and video captions so a sentence is only ever paid for once
-// per language regardless of how many students ask for it.
-export async function cachedTranslate(env, text, langName, timeoutMs = 15000) {
+// per language regardless of how many students ask for it. The active mode
+// is part of the cache key so OSHA-mode translations never leak into a
+// general class (and vice versa).
+export async function cachedTranslate(env, text, langName, timeoutMs = 15000, modeCtx = null) {
   if (langName === 'English') return text;
-  const key = `trh:${await sha1(text)}:${langName}`;
+  const modeSuffix = modeCtx && modeCtx.mode ? `:${modeCtx.mode}` : '';
+  const key = `trh:${await sha1(text)}:${langName}${modeSuffix}`;
   const hit = await env.SESSION_KV.get(key);
   if (hit != null) return hit;
-  const tr = await translateAll(env, text, langName, timeoutMs);
+  const tr = await translateAll(env, text, langName, timeoutMs, modeCtx);
   await env.SESSION_KV.put(key, tr, { expirationTtl: TR_TTL });
   return tr;
 }

@@ -1,7 +1,7 @@
 // /api/poll — the student's heartbeat. Replaces the Express SSE /stream.
 //
 // GET /api/poll?since={ts}&lang={langName}&c={roomCode}&sid={sessionId}
-//              &rv={lastSeenReplyV}&hb=1
+//              &rv={lastSeenReplyV}&hb=1&n={displayName}
 //
 // Response:
 //   {
@@ -21,7 +21,7 @@
 //    /api/document.
 //  - `hb=1` (sent by the client every ~25s) records presence for the
 //    teacher's student counter without a KV write on every poll.
-import { json, getOrCreateSession, LANG_CODES, cachedTranslate } from './_lib.js';
+import { json, getOrCreateSession, LANG_CODES, cachedTranslate, modeCtxFrom } from './_lib.js';
 
 const MAX_BATCH = 25;
 
@@ -35,6 +35,7 @@ export async function onRequest(context) {
   const sid = (url.searchParams.get('sid') || '').slice(0, 64);
   const rv = Number(url.searchParams.get('rv')) || 0;
   const hb = url.searchParams.get('hb') === '1';
+  const name = (url.searchParams.get('n') || '').slice(0, 40);
 
   if (!LANG_CODES[lang]) return json({ error: 'Unsupported language' }, 400);
 
@@ -43,10 +44,13 @@ export async function onRequest(context) {
     return json({ active: false, ended: true, messages: [] });
   }
 
-  // Presence heartbeat (throttled client-side to ~every 25s).
+  // Presence heartbeat (throttled client-side to ~every 25s). Carries the
+  // student's identity so the teacher's classroom grid can show who's here,
+  // plus their last-seen message ts ("since") for the grid's "last message
+  // received" line.
   if (hb && sid) {
     context.waitUntil(env.SESSION_KV.put('presence:' + sid, '1', {
-      metadata: { lang, ts: Date.now() },
+      metadata: { lang, ts: Date.now(), name, seen: since },
       expirationTtl: 60,
     }));
   }
@@ -71,12 +75,13 @@ export async function onRequest(context) {
       .filter(k => k.ts > since)
       .slice(-MAX_BATCH); // if the student is way behind, skip to the newest chunk
 
+    const modeCtx = modeCtxFrom(s);
     messages = await Promise.all(fresh.map(async (k) => {
       let en = typeof k.meta.en === 'string' ? k.meta.en : null;
       if (en == null) en = (await env.SESSION_KV.get(k.key)) || '';
       const out = { id: k.ts, ts: k.ts, en };
       try {
-        out.tr = lang === 'English' ? en : await cachedTranslate(env, en, lang, 12000);
+        out.tr = lang === 'English' ? en : await cachedTranslate(env, en, lang, 12000, modeCtx);
       } catch (e) {
         out.tr = en;
         out.err = true;

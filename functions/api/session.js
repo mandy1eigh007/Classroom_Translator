@@ -9,8 +9,15 @@
 //                               (replaces /class/new)
 //          { action: "clear" }  wipe transcript only, keep the room
 //                               (replaces /history/clear)
+//          { action: "mode", mode, promptLabel, terms[] }
+//                               set the vocabulary mode (General / OSHA /
+//                               Trades / Forklift / Flagging / Kindergarten).
+//                               Terms come from /public/vocab-presets.js and
+//                               are injected into translation prompts.
 //
 // Env vars used: TEACHER_PASSWORD, OPENAI_API_KEY (capability flags only).
+// Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars in Cloudflare
+// Pages settings (future server-side auth verification — not read yet).
 import {
   json, getOrCreateSession, putSession, checkTeacher, genRoomCode,
   readTranscript, SNAPSHOT_TTL,
@@ -24,6 +31,7 @@ export async function onRequest(context) {
     return json({
       code: s.code,
       active: true,
+      mode: s.mode || 'general',
       caps: {
         tts: !!env.OPENAI_API_KEY,
         whisper: !!env.OPENAI_API_KEY,
@@ -69,6 +77,10 @@ export async function onRequest(context) {
       docV: s.docV + 1,
       replyV: s.replyV + 1,
       startedAt: Date.now(),
+      // The vocabulary mode is a teacher preference — keep it across classes.
+      mode: s.mode || 'general',
+      modePrompt: s.modePrompt || '',
+      modeTerms: s.modeTerms || [],
     };
     await putSession(env, next);
     // Clear shared media state (old keys for msgs/translations expire on TTL).
@@ -86,6 +98,18 @@ export async function onRequest(context) {
     s.lastPublishTs = Date.now();
     await putSession(env, s);
     return json({ ok: true });
+  }
+
+  if (action === 'mode') {
+    const mode = String(body.mode || 'general').toLowerCase();
+    if (!/^[a-z0-9_-]{1,24}$/.test(mode)) return json({ error: 'Bad mode' }, 400);
+    s.mode = mode;
+    s.modePrompt = String(body.promptLabel || '').slice(0, 120);
+    s.modeTerms = Array.isArray(body.terms)
+      ? body.terms.slice(0, 60).map(t => String(t).slice(0, 80))
+      : [];
+    await putSession(env, s);
+    return json({ ok: true, mode: s.mode });
   }
 
   return json({ error: 'Unknown action' }, 400);

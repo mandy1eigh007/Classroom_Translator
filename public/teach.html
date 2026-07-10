@@ -10,6 +10,11 @@
   <!-- Client-side QR generation (the old server-side /qr.png is gone; this
        keeps the join QR working with zero server code and no third parties). -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <!-- Supabase (transcript archiving when the instructor is signed in) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/supabase-config.js"></script>
+  <!-- Trade/safety vocabulary presets for the Mode selector -->
+  <script src="/vocab-presets.js"></script>
 </head>
 <body class="teach-body">
 <div class="app">
@@ -59,6 +64,44 @@
       <span id="lost-pill" class="status-pill" style="display:none; border-color:var(--red); color:var(--red);">
         <span class="dot" style="background:var(--red);"></span><span id="lost-text"></span>
       </span>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px;">
+      <label for="mode-select" class="section-label" style="margin:0;">Mode</label>
+      <select id="mode-select" style="width:auto; min-width:210px;">
+        <option value="general">General</option>
+        <option value="osha">OSHA / Safety</option>
+        <option value="trades">Construction / Trades</option>
+        <option value="forklift">Forklift / BFET</option>
+        <option value="flagging">Flagging</option>
+        <option value="kindergarten">Kindergarten</option>
+      </select>
+      <span id="mode-status" class="hint" style="margin:0;"></span>
+    </div>
+    <div class="input-row" style="margin-top:12px;">
+      <input id="manual-text" type="text" maxlength="800" autocomplete="off"
+             placeholder="Type to the class — the mic pauses while you type" />
+      <button id="manual-send" class="btn btn-primary" type="button" style="width:auto;">Send</button>
+    </div>
+  </section>
+
+  <section class="card card--cyan" id="classroom-card">
+    <div class="card-head">
+      <h3 class="card-title">Classroom</h3>
+      <span id="class-lang-summary" style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted);"></span>
+    </div>
+    <div id="room-langs" style="display:none; gap:6px; flex-wrap:wrap; margin-bottom:10px;"></div>
+    <div id="class-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px;"></div>
+    <p id="class-grid-empty" class="hint" style="margin:4px 0 0;">Students appear here as they join. Click a student to send them a direct message.</p>
+    <div id="dm-panel" style="display:none; margin-top:12px; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
+      <p class="section-label" style="margin-bottom:6px;">Message to <span id="dm-target"></span></p>
+      <textarea id="dm-text" rows="2" maxlength="400"
+                placeholder="Type in English — they receive it in their language"
+                style="width:100%; resize:vertical; font-family:inherit; font-size:14px; padding:8px 10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); color:var(--text);"></textarea>
+      <div style="display:flex; gap:6px; align-items:center; margin-top:6px;">
+        <button id="dm-send" class="btn btn-primary" type="button" style="width:auto; padding:8px 14px; font-size:12px;">Send</button>
+        <button id="dm-cancel" class="btn" type="button" style="width:auto; padding:8px 12px; font-size:12px;">Cancel</button>
+        <span id="dm-status" class="hint" style="margin:0;"></span>
+      </div>
     </div>
   </section>
 
@@ -134,11 +177,18 @@
   <section class="card card--orange">
     <div class="card-head">
       <h3 class="card-title"><span class="ico" aria-hidden="true">📜</span> Recently sent</h3>
-      <button id="clear-history" class="btn" type="button"
-              style="width:auto; padding:6px 12px; font-size:11px; color:var(--muted);"
-              title="Wipe the lesson transcript from the server and from every student's screen">
-        Clear history
-      </button>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button id="export-transcript" class="btn" type="button"
+                style="width:auto; padding:6px 12px; font-size:11px;"
+                title="Download the full session transcript (English + all languages in the room) as a .txt file">
+          Export transcript
+        </button>
+        <button id="clear-history" class="btn" type="button"
+                style="width:auto; padding:6px 12px; font-size:11px; color:var(--muted);"
+                title="Wipe the lesson transcript from the server and from every student's screen">
+          Clear history
+        </button>
+      </div>
     </div>
     <div class="feed" id="recent-feed"></div>
   </section>
@@ -317,6 +367,7 @@
       const r = await fetch('/api/session');
       const d = await r.json();
       currentClassCode = d.code || '';
+      if (d.mode) applyModeFromServer(d.mode);
     } catch (_) { currentClassCode = ''; }
     studentUrlEl.textContent = currentShareUrl();
     if (kidsUrlEl) kidsUrlEl.textContent = currentKidsUrl();
@@ -505,6 +556,13 @@
       updateLost({}, {});
       resetMsgFeed();
       try {
+        transcriptLog.length = 0;
+        rosterMap.clear();
+        langsSeen.clear();
+        closeDm();
+        renderClassroom([], {});
+      } catch (_) {}
+      try {
         const vUrl = document.getElementById('video-url');
         const vErr = document.getElementById('video-err');
         const vClear = document.getElementById('video-clear');
@@ -676,6 +734,8 @@
     const clean = text.trim();
     if (!clean) return;
     const cls = currentClassCode;
+    const logEntry = { ts: Date.now(), en: clean, id: null };
+    transcriptLog.push(logEntry);
     publishQueue = publishQueue.then(async () => {
       try {
         const r = await fetch('/api/message', {
@@ -692,7 +752,8 @@
           return;
         }
         const data = await r.json().catch(() => ({}));
-        if (data && data.id && recent.length) {
+        if (data && data.id) {
+          logEntry.id = data.id;
           for (let i = 0; i < recent.length; i++) {
             if (recent[i].en === clean && !recent[i].id) {
               recent[i].id = data.id; break;
@@ -863,6 +924,8 @@
       const data = await r.json();
       updateAudience(data.students || 0);
       updateLost(data.confused || {}, data.confusedKids || {});
+      if (data.mode) applyModeFromServer(data.mode);
+      renderClassroom(Array.isArray(data.roster) ? data.roster : null, data.byLang || {});
       const u = data.understood || {};
       if (JSON.stringify(latestUnderstood) !== JSON.stringify(u)) {
         latestUnderstood = u;
@@ -950,6 +1013,368 @@
   }
   micToggle.addEventListener('click', () => {
     if (isPaused) resumeMic(); else pauseMic();
+  });
+
+  // ---------- manual text input (auto-pauses the mic while typing) ----------
+  // Typing while the mic listens means the mic hears keyboard noise and any
+  // read-aloud muttering — so focusing the box stops recognition, and blur
+  // or Enter resumes it if it was running before.
+  const manualInput = document.getElementById('manual-text');
+  const manualSend = document.getElementById('manual-send');
+  let micWasRunningBeforeTyping = false;
+  manualInput.addEventListener('focus', () => {
+    if (isRunning && !isPaused) {
+      micWasRunningBeforeTyping = true;
+      isRunning = false;
+      clearTimeout(restartTimer);
+      if (recognition) { try { recognition.stop(); } catch (_) {} }
+      setMic('off', 'Mic paused — typing');
+    }
+  });
+  manualInput.addEventListener('blur', () => {
+    if (micWasRunningBeforeTyping && !isPaused) {
+      micWasRunningBeforeTyping = false;
+      setMic('ok', 'Starting...');
+      start();
+    }
+  });
+  function sendManual() {
+    const text = manualInput.value.trim();
+    if (text) {
+      publish(text);
+      setLive(text, true);
+    }
+    manualInput.value = '';
+    manualInput.blur(); // blur handler resumes the mic if it was on
+  }
+  manualSend.addEventListener('click', sendManual);
+  manualInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); sendManual(); }
+  });
+
+  // ---------- vocabulary mode (General / OSHA / Trades / Forklift / Flagging / Kindergarten) ----------
+  const modeSelect = document.getElementById('mode-select');
+  const modeStatus = document.getElementById('mode-status');
+  let currentMode = 'general';
+  function applyModeFromServer(m) {
+    if (m && m !== currentMode && !applyModeFromServer._saving) {
+      currentMode = m;
+      modeSelect.value = m;
+    }
+  }
+  function modeTermNote(preset) {
+    return preset && preset.terms && preset.terms.length
+      ? preset.terms.length + ' key terms guide translations'
+      : 'Standard translation';
+  }
+  modeSelect.addEventListener('change', async () => {
+    const mode = modeSelect.value;
+    const preset = (window.VOCAB_PRESETS || {})[mode] || { prompt: mode, terms: [] };
+    applyModeFromServer._saving = true;
+    modeStatus.textContent = 'Saving mode…';
+    try {
+      const r = await fetch('/api/session', {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          action: 'mode',
+          mode,
+          promptLabel: preset.prompt || preset.label || mode,
+          terms: preset.terms || [],
+        })
+      });
+      if (r.status === 401) { dropAuth(); showGate(); return; }
+      const d = await r.json().catch(() => ({}));
+      if (d && d.ok) {
+        currentMode = mode;
+        modeStatus.textContent = modeTermNote(preset);
+      } else {
+        modeSelect.value = currentMode;
+        modeStatus.textContent = 'Could not set mode.';
+      }
+    } catch (_) {
+      modeSelect.value = currentMode;
+      modeStatus.textContent = 'Could not set mode.';
+    } finally {
+      applyModeFromServer._saving = false;
+      clearTimeout(modeStatus._t);
+      modeStatus._t = setTimeout(() => { modeStatus.textContent = ''; }, 5000);
+    }
+  });
+
+  // ---------- classroom grid ----------
+  const FLAG_FOR_LANG = {
+    'English': '🇺🇸', 'Spanish': '🇪🇸', 'Dari': '🇦🇫', 'Somali': '🇸🇴',
+    'Vietnamese': '🇻🇳', 'Amharic': '🇪🇹', 'Arabic': '🇸🇦',
+    'Simplified Chinese': '🇨🇳', 'Tagalog': '🇵🇭', 'Swahili': '🇰🇪',
+    'French': '🇫🇷', 'Portuguese': '🇧🇷', 'Korean': '🇰🇷', 'Hindi': '🇮🇳',
+    'Punjabi': '🇮🇳', 'Russian': '🇷🇺', 'Ukrainian': '🇺🇦',
+  };
+  const transcriptLog = [];        // every published utterance: {ts, en, id}
+  const rosterMap = new Map();     // sid -> {name, lang, ts, seen, lastPolled}
+  const langsSeen = new Set();     // every language that has been in the room
+  const classGrid = document.getElementById('class-grid');
+  const classGridEmpty = document.getElementById('class-grid-empty');
+  const classLangSummary = document.getElementById('class-lang-summary');
+  const roomLangsEl = document.getElementById('room-langs');
+  const ROSTER_LINGER_MS = 120000; // keep a vanished student visible (red) 2 min
+
+  function studentLabel(st, sid) {
+    return (st.name || '').trim() || ('Student ' + sid.slice(-4).toUpperCase());
+  }
+  function lastReceivedText(seen) {
+    // Newest published utterance the student has already polled past.
+    for (let i = transcriptLog.length - 1; i >= 0; i--) {
+      const m = transcriptLog[i];
+      if (m.id && m.id <= seen) return m.en;
+    }
+    return '';
+  }
+  function connState(st, now) {
+    if (st.gone) return 'red';
+    const age = now - (st.ts || 0);
+    return age < 40000 ? 'green' : age < 75000 ? 'yellow' : 'red';
+  }
+  function renderClassroom(roster, byLang) {
+    // Language breakdown summary (e.g. "5 Spanish • 2 Somali • 1 Amharic")
+    const parts = Object.entries(byLang || {}).sort((a, b) => b[1] - a[1]);
+    classLangSummary.textContent = parts.map(([l, n]) => n + ' ' + l).join(' • ');
+    for (const [l] of parts) langsSeen.add(l);
+    roomLangsEl.style.display = parts.length ? 'flex' : 'none';
+    roomLangsEl.innerHTML = '';
+    for (const [l, n] of parts) {
+      const chip = document.createElement('span');
+      chip.style.cssText = 'display:inline-flex; align-items:center; gap:5px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px 10px; font-size:12px;';
+      chip.textContent = (FLAG_FOR_LANG[l] || '') + ' ' + l + ' × ' + n;
+      roomLangsEl.appendChild(chip);
+    }
+
+    // roster is null when the poll wasn't teacher-authenticated
+    const now = Date.now();
+    if (Array.isArray(roster)) {
+      const present = new Set();
+      for (const r of roster) {
+        if (!r.sid) continue;
+        present.add(r.sid);
+        rosterMap.set(r.sid, {
+          name: r.name || '', lang: r.lang || '', ts: r.ts || 0,
+          seen: r.seen || 0, lastPolled: now, gone: false,
+        });
+      }
+      for (const [sid, st] of rosterMap) {
+        if (!present.has(sid)) {
+          st.gone = true;
+          if (now - st.lastPolled > ROSTER_LINGER_MS) rosterMap.delete(sid);
+        }
+      }
+    }
+
+    classGrid.innerHTML = '';
+    const entries = [...rosterMap.entries()];
+    classGridEmpty.style.display = entries.length ? 'none' : 'block';
+    const dotColor = { green: 'var(--teal)', yellow: 'var(--mustard)', red: 'var(--red)' };
+    for (const [sid, st] of entries) {
+      const tile = document.createElement('button');
+      tile.type = 'button';
+      tile.style.cssText = 'text-align:left; background:var(--surface); border:2px solid var(--border-strong, var(--border)); border-radius:var(--radius); padding:10px 12px; cursor:pointer; font-family:inherit; color:var(--text); min-height:44px;';
+      tile.title = 'Send a direct message to this student';
+      const state = connState(st, now);
+      const nameRow = document.createElement('div');
+      nameRow.style.cssText = 'display:flex; align-items:center; gap:6px; font-weight:600; font-size:14px;';
+      const dot = document.createElement('span');
+      dot.style.cssText = 'width:9px; height:9px; border-radius:50%; flex-shrink:0; background:' + dotColor[state] + ';';
+      const nameEl = document.createElement('span');
+      nameEl.style.cssText = 'overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
+      nameEl.textContent = studentLabel(st, sid);
+      nameRow.appendChild(dot); nameRow.appendChild(nameEl);
+      tile.appendChild(nameRow);
+      const langRow = document.createElement('div');
+      langRow.style.cssText = 'font-family:"DM Mono",monospace; font-size:11px; color:var(--muted); margin-top:3px;';
+      langRow.textContent = (FLAG_FOR_LANG[st.lang] || '') + ' ' + (st.lang || '');
+      tile.appendChild(langRow);
+      const lastMsg = lastReceivedText(st.seen);
+      if (lastMsg) {
+        const msgRow = document.createElement('div');
+        msgRow.style.cssText = 'font-size:11px; color:var(--muted); margin-top:5px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.4;';
+        msgRow.textContent = 'Last received: ' + (lastMsg.length > 70 ? lastMsg.slice(0, 70) + '…' : lastMsg);
+        tile.appendChild(msgRow);
+      }
+      tile.addEventListener('click', () => openDm(sid, st));
+      classGrid.appendChild(tile);
+    }
+  }
+
+  // ---------- direct message from a student tile ----------
+  const dmPanel = document.getElementById('dm-panel');
+  const dmTarget = document.getElementById('dm-target');
+  const dmText = document.getElementById('dm-text');
+  const dmSend = document.getElementById('dm-send');
+  const dmCancel = document.getElementById('dm-cancel');
+  const dmStatus = document.getElementById('dm-status');
+  let dmSid = '', dmLang = '';
+  function openDm(sid, st) {
+    dmSid = sid;
+    dmLang = st.lang || '';
+    dmTarget.textContent = studentLabel(st, sid) + ' (' + dmLang + ')';
+    dmStatus.textContent = '';
+    dmPanel.style.display = 'block';
+    dmText.focus();
+  }
+  function closeDm() {
+    dmPanel.style.display = 'none';
+    dmText.value = '';
+    dmSid = ''; dmLang = '';
+  }
+  dmCancel.addEventListener('click', closeDm);
+  dmSend.addEventListener('click', async () => {
+    const text = dmText.value.trim();
+    if (!text || !dmSid || !dmLang) return;
+    dmSend.disabled = true;
+    dmStatus.textContent = 'Sending…';
+    try {
+      const r = await fetch('/api/reply', {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ sid: dmSid, lang: dmLang, text })
+      });
+      if (r.status === 401) { dropAuth(); showGate(); return; }
+      if (r.ok) {
+        dmStatus.textContent = 'Sent — they see it within a few seconds.';
+        dmText.value = '';
+        setTimeout(closeDm, 1800);
+      } else {
+        const d = await r.json().catch(() => ({}));
+        dmStatus.textContent = d.error || 'Could not send.';
+      }
+    } catch (_) {
+      dmStatus.textContent = 'Could not send.';
+    } finally {
+      dmSend.disabled = false;
+    }
+  });
+
+  // ---------- transcript export ----------
+  // Supabase archive (optional): if the instructor is signed in to Supabase
+  // in this browser (e.g. via /admin), the export also writes the session +
+  // messages to class_sessions / session_messages. Guests just get the file.
+  let sbClient = null;
+  try {
+    if (window.supabase && window.CLASSLINGO_SUPABASE) {
+      sbClient = window.supabase.createClient(
+        window.CLASSLINGO_SUPABASE.url, window.CLASSLINGO_SUPABASE.anonKey);
+    }
+  } catch (_) { /* CDN blocked — export still works, archive is skipped */ }
+
+  const exportBtn = document.getElementById('export-transcript');
+  const MAX_EXPORT_TRANSLATE_CALLS = 300;
+  function fmtClock(ts) {
+    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  async function fetchExportTranslations(msgs, langs) {
+    // Translations are already KV-cached server-side (students received
+    // them live), so these calls are cheap re-reads, not new OpenAI spend.
+    const out = {};
+    for (const lang of langs) out[lang] = {};
+    for (const m of msgs) {
+      await Promise.all(langs.map(async (lang) => {
+        try {
+          const r = await fetch('/api/translate', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: m.en, lang, c: currentClassCode })
+          });
+          const d = await r.json().catch(() => ({}));
+          if (d && d.tr && !d.err) out[lang][m.en] = d.tr;
+        } catch (_) {}
+      }));
+    }
+    return out;
+  }
+  async function saveTranscriptToSupabase(msgs, translations, langs) {
+    if (!sbClient) return false;
+    try {
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (!session) return false;
+      const uid = session.user.id;
+      const { data: ins, error } = await sbClient.from('class_sessions').insert({
+        teacher_id: uid,
+        class_code: currentClassCode + '-' + Date.now().toString(36),
+        title: 'Class ' + new Date().toLocaleDateString(),
+        mode: currentMode,
+        status: 'ended',
+        languages: [...langsSeen],
+        started_at: new Date(msgs[0].ts).toISOString(),
+        ended_at: new Date().toISOString(),
+      }).select('id').single();
+      if (error || !ins) return false;
+      const rows = msgs.map(m => ({
+        session_id: ins.id,
+        speaker_id: uid,
+        original_text: m.en,
+        translations: Object.fromEntries(
+          langs.map(l => [l, (translations[l] || {})[m.en]]).filter(([, v]) => v)),
+        message_type: 'speech',
+        created_at: new Date(m.ts).toISOString(),
+      }));
+      for (let i = 0; i < rows.length; i += 100) {
+        const { error: e2 } = await sbClient.from('session_messages').insert(rows.slice(i, i + 100));
+        if (e2) return false;
+      }
+      return true;
+    } catch (_) { return false; }
+  }
+  exportBtn.addEventListener('click', async () => {
+    const msgs = transcriptLog.filter(m => m.en);
+    if (!msgs.length) {
+      exportBtn.textContent = 'Nothing to export yet';
+      setTimeout(() => { exportBtn.textContent = 'Export transcript'; }, 2500);
+      return;
+    }
+    exportBtn.disabled = true;
+    exportBtn.textContent = 'Preparing…';
+    try {
+      const langs = [...langsSeen].filter(l => l !== 'English');
+      let translations = {};
+      let translationsSkipped = false;
+      if (langs.length && msgs.length * langs.length <= MAX_EXPORT_TRANSLATE_CALLS) {
+        translations = await fetchExportTranslations(msgs, langs);
+      } else if (langs.length) {
+        translationsSkipped = true;
+      }
+      const lines = [];
+      lines.push('ClassLingo — session transcript');
+      lines.push('Date: ' + new Date().toLocaleString());
+      lines.push('Class code: ' + (currentClassCode || 'unknown'));
+      lines.push('Mode: ' + currentMode);
+      lines.push('Languages in room: ' + ([...langsSeen].join(', ') || 'English'));
+      if (translationsSkipped) lines.push('(Session too large to include translations — English only.)');
+      lines.push('');
+      for (const m of msgs) {
+        lines.push('[' + fmtClock(m.ts) + '] EN: ' + m.en);
+        for (const lang of langs) {
+          const tr = (translations[lang] || {})[m.en];
+          if (tr) lines.push('    ' + lang + ': ' + tr);
+        }
+        lines.push('');
+      }
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'classlingo-transcript-' + new Date().toISOString().slice(0, 10) +
+        '-' + (currentClassCode || 'class') + '.txt';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      const archived = await saveTranscriptToSupabase(msgs, translations, langs);
+      exportBtn.textContent = archived ? 'Exported + archived' : 'Exported';
+    } catch (_) {
+      exportBtn.textContent = 'Export failed';
+    } finally {
+      setTimeout(() => {
+        exportBtn.textContent = 'Export transcript';
+        exportBtn.disabled = false;
+      }, 3000);
+    }
   });
 
   // ---------- shared YouTube video ----------
