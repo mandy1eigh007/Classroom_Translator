@@ -237,6 +237,7 @@
         <button id="notes-listen" class="chipbtn hidden" data-i18n="notes_listen">Listen</button>
         <span id="notes-status" class="text-xs" style="color:var(--ink2);"></span>
       </div>
+      <div id="notes-topics" class="mt-3 hidden flex-wrap gap-2"></div>
       <div id="notes-coverage" class="label-mono mt-2 hidden"></div>
       <div id="notes-out" class="mt-3 hidden max-h-[55vh] overflow-auto whitespace-pre-wrap rounded-lg border-2 p-3 text-[15px] leading-relaxed" style="border-color:var(--ink); background:var(--paper);"></div>
     </section>
@@ -1103,14 +1104,18 @@ async function tickCue() {
 // ---------- notes ----------
 let notesText = '';
 let notesCooldown = 0;
-$('notes-btn').addEventListener('click', async () => {
-  if (!currentLang || Date.now() < notesCooldown) return;
-  notesCooldown = Date.now() + 20000;
+async function generateNotes(topic) {
+  $('notes-topics').classList.add('hidden');
+  $('notes-topics').classList.remove('flex');
+  $('notes-topics').innerHTML = '';
+  $('notes-btn').textContent = t('notes_btn');
   $('notes-btn').disabled = true;
   $('notes-status').textContent = t('notes_loading');
   try {
+    const payload = { c: roomCode, lang: currentLang };
+    if (topic && topic !== 'All topics') payload.topic = topic;
     const r = await fetch('/api/notes', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ c: roomCode, lang: currentLang }) });
+      body: JSON.stringify(payload) });
     const d = await r.json().catch(() => ({}));
     if (r.ok && d.empty) {
       $('notes-out').classList.remove('hidden');
@@ -1132,6 +1137,38 @@ $('notes-btn').addEventListener('click', async () => {
     } else $('notes-status').textContent = d.error || t('notes_failed');
   } catch (_) { $('notes-status').textContent = t('notes_failed'); }
   setTimeout(() => { $('notes-btn').disabled = false; }, 2000);
+}
+$('notes-btn').addEventListener('click', async () => {
+  if (!currentLang || Date.now() < notesCooldown) return;
+  notesCooldown = Date.now() + 20000;
+  $('notes-btn').disabled = true;
+  $('notes-status').textContent = t('notes_loading');
+  let topics = [];
+  try {
+    const r = await fetch('/api/notes', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'topics', c: roomCode, lang: currentLang }) });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && Array.isArray(d.topics)) topics = d.topics;
+  } catch (_) {}
+  if (!topics.length) { await generateNotes(''); return; }
+  const wrap = $('notes-topics');
+  wrap.innerHTML = '';
+  const label = document.createElement('p');
+  label.className = 'label-mono w-full';
+  label.textContent = 'Pick a topic:';
+  wrap.appendChild(label);
+  ['All topics'].concat(topics).forEach((tp, i) => {
+    const b = document.createElement('button');
+    b.className = 'chipbtn';
+    b.textContent = tp;
+    if (i === 0) { b.style.background = 'var(--teal)'; b.style.color = 'var(--paper)'; }
+    b.addEventListener('click', () => generateNotes(tp));
+    wrap.appendChild(b);
+  });
+  wrap.classList.remove('hidden');
+  wrap.classList.add('flex');
+  $('notes-btn').textContent = 'Pick a topic above';
+  $('notes-status').textContent = '';
 });
 $('notes-copy').addEventListener('click', async () => {
   if (!notesText) return;

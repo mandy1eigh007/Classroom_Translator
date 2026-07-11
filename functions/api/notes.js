@@ -22,7 +22,10 @@ export async function onRequest(context) {
   if (lang !== 'English' && !LANG_CODES[lang]) return json({ error: 'Unsupported language' }, 400);
   if (!env.OPENAI_API_KEY) return json({ error: 'Notes are not available right now.' }, 503);
 
-  if (!(await cooldownOk(env, 'notes', clientIp(request), 20))) {
+  // The topics scan uses its own cooldown key so picking a topic right after
+  // doesn't trip the notes cooldown.
+  const cdKey = body.action === 'topics' ? 'notestopics' : 'notes';
+  if (!(await cooldownOk(env, cdKey, clientIp(request), 20))) {
     return json({ error: 'Please wait a few seconds before generating again.' }, 429);
   }
 
@@ -40,6 +43,33 @@ export async function onRequest(context) {
     final = true;
   }
 
+  // Topic scan: return a list of topics covered, no notes generated yet.
+  // Doesn't count against the per-class notes cap.
+  if (body.action === 'topics') {
+    if (!transcript || transcript.length < 40) return json({ topics: [] });
+    const clipped = transcript.length > 60000 ? transcript.slice(-60000) : transcript;
+    try {
+      const raw = await openaiChat(env, {
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'Given this classroom transcript, identify 3-6 distinct topics or subjects covered. Return ONLY a valid JSON object: {"topics": ["Topic One", "Topic Two"]}. Short topic names, 2-5 words each, most important first. No other text.',
+          },
+          { role: 'user', content: clipped },
+        ],
+        max_tokens: 200,
+        temperature: 0.1,
+        response_format: { type: 'json_object' },
+      }, 15000);
+      let topics = [];
+      try { topics = JSON.parse(raw).topics || []; } catch (_) {}
+      return json({ topics });
+    } catch (_) {
+      return json({ topics: [] });
+    }
+  }
+
   if (!transcript || transcript.length < 40) return json({ notes: '', empty: true });
 
   // Per-class cap shared between live room and snapshot (keyed by the room
@@ -51,6 +81,8 @@ export async function onRequest(context) {
   }
   await env.SESSION_KV.put(capKey, String(used + 1), { expirationTtl: 60 * 60 * 12 });
 
+  const topic = String(body.topic || '');
+  const focused = topic && topic !== 'All topics';
   const clipped = transcript.length > 60000 ? transcript.slice(-60000) : transcript;
   try {
     const notes = await openaiChat(env, {
@@ -58,12 +90,17 @@ export async function onRequest(context) {
       messages: [
         {
           role: 'system',
-          content:
-            `You write study notes for a student in a pre-apprentice construction class. ` +
-            `Given a raw classroom transcript (what the instructor said, in English), produce clear, organized study notes IN ${lang} that the student can review later. ` +
-            `Structure: a brief title, then 3-7 sections with short headings and bullet points. ` +
-            `Capture: key topics, important vocabulary (give the English term in parentheses next to the translation so it matches what they'll hear/read on the job), safety reminders, any steps/procedures, and any homework or follow-up the instructor mentioned. ` +
-            `Skip filler and side conversation. Be concise — aim for 250-450 words. Output plain text with simple headings (no Markdown asterisks, just plain "Title:" style). Output ONLY in ${lang}, except for the English vocabulary terms in parentheses.`,
+          content: focused
+            ? `You write study notes for a student in a pre-apprentice construction class. ` +
+              `Given a raw classroom transcript, produce focused study notes IN ${lang} covering ONLY the topic: '${topic}'. Ignore unrelated content. ` +
+              `Structure: title, then 3-5 sections with short headings and bullet points. ` +
+              `Include key vocabulary (English term in parentheses), safety reminders, any steps or procedures. ` +
+              `Be concise — 150-300 words. Output ONLY in ${lang} except English terms in parentheses.`
+            : `You write study notes for a student in a pre-apprentice construction class. ` +
+              `Given a raw classroom transcript (what the instructor said, in English), produce clear, organized study notes IN ${lang} that the student can review later. ` +
+              `Structure: a brief title, then 3-7 sections with short headings and bullet points. ` +
+              `Capture: key topics, important vocabulary (give the English term in parentheses next to the translation so it matches what they'll hear/read on the job), safety reminders, any steps/procedures, and any homework or follow-up the instructor mentioned. ` +
+              `Skip filler and side conversation. Be concise — aim for 250-450 words. Output plain text with simple headings (no Markdown asterisks, just plain "Title:" style). Output ONLY in ${lang}, except for the English vocabulary terms in parentheses.`,
         },
         { role: 'user', content: clipped },
       ],
