@@ -353,7 +353,7 @@ const UI_STRINGS = {
   feed_placeholder: 'Translations appear here when your instructor speaks.',
   history_cleared: 'Lesson history cleared.',
   tab_study: 'Study', tab_back: 'Class', study_title: 'Study tools',
-  btn_hold: 'Hold', btn_catchup: 'Catch up', btn_read: 'Read aloud', btn_replay: 'Replay',
+  btn_hold: 'Hold', btn_catchup: 'Catch up', btn_read: 'Listen mode', btn_replay: 'Replay',
   btn_confused: 'Confused', btn_got: 'Got it', btn_sent: 'Sent', btn_unmute: 'Tap to enable sound',
   card_notes: 'Class notes', notes_hint: 'AI study notes from this class, in your language.',
   notes_btn: 'Generate notes', notes_regen: 'Regenerate', notes_loading: 'Generating…',
@@ -727,7 +727,10 @@ function renderUtter(id, en, tr, isError) {
     last = m.index + m[0].length;
   }
   if (last < text.length) enEl.appendChild(document.createTextNode(text.slice(last)));
-  node.querySelector('.tr').textContent = tr || '';
+  const trEl = node.querySelector('.tr');
+  trEl.textContent = tr || '';
+  trEl.style.cursor = tr && !isError ? 'pointer' : '';
+  trEl.onclick = tr && !isError ? () => speak(tr) : null;
   feed.scrollTop = 0;
 }
 

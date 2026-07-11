@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Dispatch — ClassLingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    /* Dispatch-specific only — all base tokens come from style.css */
+
+    .worker-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      background: var(--paper); border: 2px solid var(--ink);
+      border-radius: var(--radius); box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s;
+      user-select: none;
+    }
+    .worker-row:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+    .worker-row.selected { background: var(--mustard); box-shadow: 4px 4px 0 var(--ink); }
+    .worker-name { font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700; font-size: 15px; flex: 1; }
+    .worker-lang { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); }
+    .worker-resp { font-size: 11px; color: var(--teal); font-family: 'DM Mono', monospace; letter-spacing: 0.06em; }
+    .roster-dot  { width: 10px; height: 10px; border-radius: 50%; background: var(--ink-2); flex-shrink: 0; }
+    .roster-dot.live { background: var(--teal); }
+
+    /* Worker live view */
+    .dispatch-msg {
+      background: var(--paper); border: 3px solid var(--ink);
+      border-radius: 12px; padding: 30px 22px;
+      box-shadow: 6px 6px 0 var(--red); text-align: center;
+      min-height: 140px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px;
+    }
+    .dispatch-msg .msg-text {
+      font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700;
+      font-size: 30px; line-height: 1.3; color: var(--ink);
+    }
+    .dispatch-msg .msg-en {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2);
+    }
+
+    /* Response buttons (big thumb targets) */
+    .resp-row { display: flex; gap: 10px; margin-top: 18px; }
+    .resp-btn {
+      flex: 1; min-height: 80px;
+      border: 3px solid var(--ink); border-radius: 12px;
+      font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700;
+      font-size: 16px; letter-spacing: 0.04em; text-transform: uppercase;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 4px 4px 0 var(--ink);
+      transition: transform 0.08s, box-shadow 0.08s, filter 0.1s;
+      user-select: none; cursor: pointer; background: var(--paper);
+    }
+    .resp-btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--ink); }
+    .resp-btn.sent   { filter: saturate(0.35) brightness(1.1); }
+    .resp-got        { background: var(--teal);    color: var(--paper); }
+    .resp-otw        { background: var(--mustard); color: var(--ink);   }
+    .resp-help       { background: var(--red);     color: var(--paper); }
+
+    /* Dispatcher: quick command grid */
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quick-btn {
+      padding: 12px 10px; border: 2px solid var(--ink); border-radius: var(--radius);
+      background: var(--paper); box-shadow: var(--shadow-sm);
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      letter-spacing: 0.06em; text-transform: uppercase; text-align: center;
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s;
+      user-select: none;
+    }
+    .quick-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+
+    /* Mic button */
+    .mic-btn {
+      width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+      border: 3px solid var(--ink); background: var(--paper);
+      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 3px 3px 0 var(--ink); cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s;
+      user-select: none;
+    }
+    .mic-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+    .mic-btn.recording { background: var(--red); color: var(--paper); animation: pulse 1s infinite; }
+
+    textarea {
+      resize: none; width: 100%; min-height: 80px;
+      background: var(--paper); border: 2px solid var(--ink);
+      border-radius: var(--radius); color: var(--ink);
+      font-family: 'Inter', system-ui, sans-serif; font-size: 15px;
+      line-height: 1.5; padding: 12px 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    textarea:focus { outline: none; box-shadow: 3px 3px 0 var(--red); }
+
+    /* Response feed items */
+    .resp-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; background: var(--paper);
+      border: 2px solid var(--ink); border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Screen switching */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .roster-empty {
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--ink-2); text-align: center; padding: 18px;
+    }
+
+    .err-msg {
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      color: var(--red); margin-bottom: 12px; display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <span class="logo">ClassLingo</span>
+    <span class="logo-sub">Dispatch</span>
+  </header>
+
+  <!-- ============ SETUP ============ -->
+  <div id="screen-setup" class="screen active">
+    <div class="card card--lime">
+      <div class="card-title">Connect</div>
+
+      <p class="section-label">Dispatch code</p>
+      <div class="input-row" style="margin-bottom:16px;">
+        <input type="text" id="setup-code" placeholder="e.g. SITE01" maxlength="12"
+               style="text-transform:uppercase; letter-spacing:0.12em; font-family:'DM Mono',monospace;" />
+        <button class="btn" id="gen-code" style="width:auto; padding:11px 14px;">Generate</button>
+      </div>
+
+      <p class="section-label">Your role</p>
+      <div class="row" style="gap:10px; margin-bottom:18px;">
+        <button class="btn" id="role-dispatcher" data-role="dispatcher">Dispatcher</button>
+        <button class="btn" id="role-worker" data-role="worker">Field worker</button>
+      </div>
+
+      <div id="worker-fields" style="display:none;">
+        <p class="section-label">Your name</p>
+        <input type="text" id="setup-name" placeholder="Juan" maxlength="40" style="margin-bottom:14px;" />
+        <p class="section-label">Your language</p>
+        <select id="setup-lang" style="margin-bottom:14px;">
+          <option value="">Pick your language</option>
+          <option value="Spanish">Spanish</option>
+          <option value="Dari">Dari</option>
+          <option value="Somali">Somali</option>
+          <option value="Vietnamese">Vietnamese</option>
+          <option value="Amharic">Amharic</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Simplified Chinese">Simplified Chinese</option>
+          <option value="Tagalog">Tagalog</option>
+          <option value="Swahili">Swahili</option>
+          <option value="French">French</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Korean">Korean</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Punjabi">Punjabi</option>
+          <option value="Russian">Russian</option>
+          <option value="Ukrainian">Ukrainian</option>
+          <option value="English">English</option>
+        </select>
+      </div>
+
+      <div id="dispatcher-fields" style="display:none;">
+        <p class="section-label">Instructor passcode</p>
+        <input type="password" id="setup-passcode" placeholder="Teacher passcode"
+               autocomplete="current-password" style="margin-bottom:14px;" />
+      </div>
+
+      <div id="setup-err" class="err-msg"></div>
+      <button class="btn btn-primary" id="setup-go" disabled>Connect</button>
+    </div>
+
+    <p class="hint">Share worker link: <span id="setup-link" style="color:var(--red); word-break:break-all;"></span></p>
+  </div>
+
+  <!-- ============ DISPATCHER ============ -->
+  <div id="screen-dispatcher" class="screen">
+    <div class="card card--cyan">
+      <div class="card-head">
+        <div class="card-title">Team</div>
+        <div class="toolbar">
+          <span class="status-pill" id="dp-code-pill"></span>
+          <button class="btn" id="dp-copy-link" style="width:auto; padding:8px 12px; font-size:12px; letter-spacing:0.06em; font-family:'DM Mono',monospace; text-transform:uppercase;">Copy link</button>
+        </div>
+      </div>
+      <div id="dp-roster" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+
+    <div class="card card--magenta">
+      <div class="card-title">Send</div>
+      <p class="section-label" style="margin-bottom:10px;">
+        To: <span id="dp-target-label" style="font-family:'Atkinson Hyperlegible',sans-serif; font-weight:700; color:var(--ink); font-size:13px; text-transform:none; letter-spacing:0;">All workers</span>
+      </p>
+
+      <div style="display:flex; gap:8px; align-items:flex-end; margin-bottom:14px;">
+        <textarea id="dp-text" placeholder="Type a message or tap MIC..."></textarea>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="mic-btn" id="dp-mic">MIC</button>
+          <button class="btn btn-primary" id="dp-send"
+                  style="width:52px; height:52px; padding:0; display:flex; align-items:center; justify-content:center; font-size:12px; letter-spacing:0.06em;">Send</button>
+        </div>
+      </div>
+
+      <p class="section-label">Quick commands</p>
+      <div class="quick-grid">
+        <button class="quick-btn" data-msg="Head to the site">Head to site</button>
+        <button class="quick-btn" data-msg="Stop and wait for instructions">Stop and wait</button>
+        <button class="quick-btn" data-msg="Call me when you can">Call me</button>
+        <button class="quick-btn" data-msg="Return to base">Return to base</button>
+        <button class="quick-btn" data-msg="Safety hazard ahead, proceed with caution">Hazard ahead</button>
+        <button class="quick-btn" data-msg="Please confirm you received this message">Confirm receipt</button>
+      </div>
+    </div>
+
+    <div class="card card--lime" id="dp-responses-card" style="display:none;">
+      <div class="card-title">Responses</div>
+      <div id="dp-responses" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+
+    <button class="btn" id="dp-back" style="margin-top:4px; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; text-align:center;">Leave dispatch</button>
+  </div>
+
+  <!-- ============ WORKER ============ -->
+  <div id="screen-worker" class="screen">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; padding-bottom:12px; border-bottom:2px solid var(--ink);">
+      <div class="roster-dot" id="wk-dot"></div>
+      <span style="font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-2);" id="wk-status-label">Connecting...</span>
+      <span style="flex:1;"></span>
+      <span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--ink-2);" id="wk-identity"></span>
+    </div>
+
+    <div class="dispatch-msg" id="wk-msg-box">
+      <div class="msg-text" id="wk-msg-text" style="color:var(--ink-2); font-style:italic; font-size:18px; font-weight:400;">Waiting for dispatch...</div>
+      <div class="msg-en" id="wk-msg-en"></div>
+    </div>
+
+    <button class="btn" id="wk-replay"
+            style="margin-top:10px; text-align:center; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">
+      Replay last message
+    </button>
+
+    <div class="resp-row">
+      <button class="resp-btn resp-got"  id="resp-got"  data-response="Got it">Got it</button>
+      <button class="resp-btn resp-otw"  id="resp-otw"  data-response="On my way">On my way</button>
+      <button class="resp-btn resp-help" id="resp-help" data-response="Need help">Need help</button>
+    </div>
+
+    <p class="hint" style="margin-top:16px; text-align:center;">Messages speak automatically. Keep screen unlocked or use earbuds.</p>
+
+    <button class="btn" id="wk-back" style="margin-top:16px; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; text-align:center;">Leave dispatch</button>
+  </div>
+
+</div><!-- .app -->
+
+<script>
+// ClassLingo Dispatch — uses /api/dispatch/* Pages Functions
+
+const $ = id => document.getElementById(id);
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(d => d.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+function genCode() {
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 6; i++) s += c[Math.floor(Math.random() * c.length)];
+  return s;
+}
+
+function getWorkerId() {
+  let id = localStorage.getItem('dispatch:workerId');
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem('dispatch:workerId', id); }
+  return id;
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function timeSince(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return `${s}s ago`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  return `${Math.floor(m / 60)}h ago`;
+}
+
+// ---- URL params ----
+const params    = new URLSearchParams(location.search);
+const paramCode = (params.get('code') || '').trim().toUpperCase();
+const paramRole = params.get('role') || '';
+const paramName = params.get('name') || '';
+const paramLang = params.get('lang') || '';
+
+if (paramCode) $('setup-code').value = paramCode;
+if (paramName) $('setup-name').value = paramName;
+if (paramLang) {
+  const opt = [...$('setup-lang').options].find(o => o.value === paramLang);
+  if (opt) $('setup-lang').value = paramLang;
+}
+
+function updateLinkPreview() {
+  const code = $('setup-code').value.trim().toUpperCase();
+  $('setup-link').textContent = code
+    ? `${location.origin}/dispatch?role=worker&code=${code}`
+    : '';
+}
+
+$('gen-code').addEventListener('click', () => {
+  $('setup-code').value = genCode();
+  updateLinkPreview();
+  validateSetup();
+});
+
+$('setup-code').addEventListener('input', () => {
+  $('setup-code').value = $('setup-code').value.toUpperCase();
+  updateLinkPreview();
+  validateSetup();
+});
+
+['setup-name', 'setup-lang', 'setup-passcode'].forEach(id => {
+  const el = $(id); if (el) el.addEventListener('input', validateSetup);
+});
+
+let selectedRole = '';
+
+document.querySelectorAll('[data-role]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedRole = btn.dataset.role;
+    document.querySelectorAll('[data-role]').forEach(b => b.classList.remove('btn-primary'));
+    btn.classList.add('btn-primary');
+    $('worker-fields').style.display     = selectedRole === 'worker'     ? 'block' : 'none';
+    $('dispatcher-fields').style.display = selectedRole === 'dispatcher' ? 'block' : 'none';
+    validateSetup();
+  });
+});
+
+function validateSetup() {
+  const code = $('setup-code').value.trim();
+  let ok = code.length >= 3 && !!selectedRole;
+  if (selectedRole === 'worker')     ok = ok && !!$('setup-name').value.trim() && !!$('setup-lang').value;
+  if (selectedRole === 'dispatcher') ok = ok && !!$('setup-passcode').value.trim();
+  $('setup-go').disabled = !ok;
+}
+
+$('setup-go').addEventListener('click', () => {
+  const code = $('setup-code').value.trim().toUpperCase();
+  if (selectedRole === 'dispatcher') startDispatcher(code);
+  else startWorker(code);
+});
+
+// Auto-trigger role from URL
+if (paramRole === 'dispatcher') {
+  document.querySelector('[data-role="dispatcher"]').click();
+} else if (paramRole === 'worker') {
+  document.querySelector('[data-role="worker"]').click();
+}
+updateLinkPreview();
+
+// ============ TTS ============
+let lastSpoken = '';
+function speak(text) {
+  if (!text || text === lastSpoken) return;
+  lastSpoken = text;
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+}
+
+// ============ DISPATCHER ============
+let dpCode = '', dpPasscode = '', dpTarget = 'all', dpSince = 0;
+const dpWorkers = new Map(); // workerId -> {name, lang, ts, lastResp?}
+let dpRosterTimer, dpRespTimer;
+
+function startDispatcher(code) {
+  dpCode = code; dpPasscode = $('setup-passcode').value.trim();
+  $('dp-code-pill').textContent = code;
+  showScreen('screen-dispatcher');
+  selectTarget('all');
+  pollRoster();
+  dpRosterTimer = setInterval(pollRoster, 6000);
+  dpRespTimer   = setInterval(pollResponses, 3000);
+}
+
+$('dp-copy-link').addEventListener('click', () => {
+  const link = `${location.origin}/dispatch?role=worker&code=${dpCode}`;
+  navigator.clipboard.writeText(link).then(() => {
+    $('dp-copy-link').textContent = 'Copied!';
+    setTimeout(() => { $('dp-copy-link').textContent = 'Copy link'; }, 2000);
+  });
+});
+
+$('dp-back').addEventListener('click', () => {
+  clearInterval(dpRosterTimer); clearInterval(dpRespTimer);
+  showScreen('screen-setup');
+});
+
+function selectTarget(id) {
+  dpTarget = id;
+  $('dp-target-label').textContent = id === 'all' ? 'All workers' : (dpWorkers.get(id)?.name || id);
+  document.querySelectorAll('.worker-row').forEach(r => {
+    r.classList.toggle('selected', r.dataset.id === id);
+  });
+}
+
+async function pollRoster() {
+  try {
+    const r = await fetch(`/api/dispatch/roster?code=${dpCode}`);
+    const d = await r.json();
+    if (!Array.isArray(d.workers)) return;
+    const seen = new Set();
+    for (const w of d.workers) {
+      dpWorkers.set(w.workerId, { ...(dpWorkers.get(w.workerId) || {}), ...w });
+      seen.add(w.workerId);
+    }
+    for (const id of dpWorkers.keys()) { if (!seen.has(id)) dpWorkers.delete(id); }
+    renderRoster();
+  } catch (_) {}
+}
+
+function renderRoster() {
+  const el = $('dp-roster');
+  el.innerHTML = '';
+
+  // "All" row
+  const allRow = document.createElement('div');
+  allRow.className = 'worker-row' + (dpTarget === 'all' ? ' selected' : '');
+  allRow.dataset.id = 'all';
+  allRow.innerHTML = `
+    <div class="roster-dot live"></div>
+    <div class="worker-name">All workers</div>
+    <div class="worker-lang">${dpWorkers.size} connected</div>
+  `;
+  allRow.addEventListener('click', () => selectTarget('all'));
+  el.appendChild(allRow);
+
+  if (dpWorkers.size === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'roster-empty';
+    empty.textContent = 'No workers connected yet';
+    el.appendChild(empty);
+    return;
+  }
+
+  for (const [id, w] of dpWorkers) {
+    const row = document.createElement('div');
+    row.className = 'worker-row' + (dpTarget === id ? ' selected' : '');
+    row.dataset.id = id;
+    const respHtml = w.lastResp
+      ? `<div class="worker-resp">${escHtml(w.lastResp.response)} &middot; ${timeSince(w.lastResp.ts)}</div>`
+      : '';
+    row.innerHTML = `
+      <div class="roster-dot live"></div>
+      <div class="worker-name">${escHtml(w.name)}</div>
+      <div class="worker-lang">${escHtml(w.lang)}</div>
+      ${respHtml}
+    `;
+    row.addEventListener('click', () => selectTarget(id));
+    el.appendChild(row);
+  }
+}
+
+async function pollResponses() {
+  try {
+    const r = await fetch(`/api/dispatch/poll?code=${dpCode}&since=${dpSince}`);
+    const d = await r.json();
+    if (!Array.isArray(d.responses) || !d.responses.length) return;
+    for (const resp of d.responses) {
+      if (resp.ts > dpSince) dpSince = resp.ts;
+      const w = dpWorkers.get(resp.workerId);
+      if (w) w.lastResp = resp;
+      addResponseItem(resp);
+    }
+    renderRoster();
+  } catch (_) {}
+}
+
+function addResponseItem(resp) {
+  $('dp-responses-card').style.display = 'block';
+  const el  = $('dp-responses');
+  const div = document.createElement('div');
+  div.className = 'resp-item';
+  div.innerHTML = `
+    <div style="font-family:'Atkinson Hyperlegible',sans-serif; font-weight:700; flex:1;">${escHtml(resp.name)}</div>
+    <div style="font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--teal);">${escHtml(resp.response)}</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--ink-2);">${timeSince(resp.ts)}</div>
+  `;
+  el.insertBefore(div, el.firstChild);
+  while (el.children.length > 30) el.removeChild(el.lastChild);
+}
+
+async function sendDispatch(text) {
+  text = text.trim();
+  if (!text) return;
+  const btn = $('dp-send');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const r = await fetch('/api/dispatch/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: dpCode, text, target: dpTarget, passcode: dpPasscode }),
+    });
+    const d = await r.json();
+    if (d.ok) { $('dp-text').value = ''; }
+    else { console.error('Send failed:', d); }
+  } catch (e) { console.error('Send error:', e); }
+  btn.disabled = false; btn.textContent = 'Send';
+}
+
+$('dp-send').addEventListener('click', () => sendDispatch($('dp-text').value));
+$('dp-text').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendDispatch($('dp-text').value);
+});
+document.querySelectorAll('.quick-btn').forEach(btn => {
+  btn.addEventListener('click', () => sendDispatch(btn.dataset.msg));
+});
+
+// Mic
+let dpRec = null;
+$('dp-mic').addEventListener('click', () => {
+  if (dpRec) {
+    dpRec.stop(); dpRec = null;
+    $('dp-mic').classList.remove('recording'); $('dp-mic').textContent = 'MIC';
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Speech input not supported in this browser.'); return; }
+  dpRec = new SR();
+  dpRec.lang = 'en-US'; dpRec.interimResults = false;
+  dpRec.onresult = e => sendDispatch(e.results[0][0].transcript);
+  dpRec.onend = () => { dpRec = null; $('dp-mic').classList.remove('recording'); $('dp-mic').textContent = 'MIC'; };
+  dpRec.onerror = () => { dpRec = null; $('dp-mic').classList.remove('recording'); $('dp-mic').textContent = 'MIC'; };
+  dpRec.start();
+  $('dp-mic').classList.add('recording'); $('dp-mic').textContent = 'Stop';
+});
+
+// ============ WORKER ============
+let wkCode = '', wkId = '', wkName = '', wkLang = '';
+let wkLastTs = 0, wkLastMsg = null;
+let wkPollTimer, wkHeartbeatTimer;
+
+function startWorker(code) {
+  wkCode = code;
+  wkId   = getWorkerId();
+  wkName = $('setup-name').value.trim();
+  wkLang = $('setup-lang').value;
+  $('wk-identity').textContent = `${wkName} · ${wkLang}`;
+  showScreen('screen-worker');
+  registerWorker();
+  wkHeartbeatTimer = setInterval(registerWorker, 45_000);
+  wkPollTimer      = setInterval(workerPoll, 3_000);
+}
+
+async function registerWorker() {
+  try {
+    await fetch('/api/dispatch/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: wkCode, workerId: wkId, name: wkName, lang: wkLang }),
+    });
+    $('wk-dot').classList.add('live');
+    $('wk-status-label').textContent = 'Connected';
+  } catch (_) {
+    $('wk-dot').classList.remove('live');
+    $('wk-status-label').textContent = 'Reconnecting...';
+  }
+}
+
+async function workerPoll() {
+  try {
+    const r = await fetch(
+      `/api/dispatch/poll?code=${wkCode}&workerId=${encodeURIComponent(wkId)}&lang=${encodeURIComponent(wkLang)}&since=${wkLastTs}`
+    );
+    const d = await r.json();
+    if (!Array.isArray(d.messages) || !d.messages.length) return;
+    for (const msg of d.messages) {
+      if (msg.ts > wkLastTs) wkLastTs = msg.ts;
+      wkLastMsg = msg;
+      showWorkerMsg(msg);
+      speak(msg.tr || msg.en);
+    }
+  } catch (_) {}
+}
+
+function showWorkerMsg(msg) {
+  const textEl = $('wk-msg-text');
+  textEl.textContent = msg.tr || msg.en;
+  textEl.style.color = '';
+  textEl.style.fontStyle = '';
+  textEl.style.fontSize = '';
+  textEl.style.fontWeight = '';
+  $('wk-msg-en').textContent = (msg.tr && msg.tr !== msg.en) ? msg.en : '';
+}
+
+$('wk-replay').addEventListener('click', () => {
+  if (wkLastMsg) speak(wkLastMsg.tr || wkLastMsg.en);
+});
+
+async function sendWorkerResponse(response) {
+  try {
+    await fetch('/api/dispatch/respond', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: wkCode, workerId: wkId, name: wkName, response }),
+    });
+  } catch (_) {}
+  document.querySelectorAll('.resp-btn').forEach(b => b.classList.add('sent'));
+  setTimeout(() => document.querySelectorAll('.resp-btn').forEach(b => b.classList.remove('sent')), 1500);
+}
+
+['resp-got', 'resp-otw', 'resp-help'].forEach(id => {
+  $(id).addEventListener('click', () => sendWorkerResponse($(id).dataset.response));
+});
+
+$('wk-back').addEventListener('click', () => {
+  clearInterval(wkPollTimer); clearInterval(wkHeartbeatTimer);
+  showScreen('screen-setup');
+});
+</script>
+</body>
+</html>
