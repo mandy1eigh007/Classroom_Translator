@@ -167,6 +167,7 @@
     <span class="flex-1"></span>
     <button id="fs-down" class="chipbtn" aria-label="Smaller text">A−</button>
     <button id="fs-up" class="chipbtn" aria-label="Bigger text">A+</button>
+    <button id="btn-switch-lang" class="chipbtn" title="Change language">Lang</button>
     <button id="open-study" class="chipbtn"><i data-lucide="book-open" class="h-4 w-4" stroke-width="2.2"></i><span data-i18n="tab_study">Study</span></button>
   </div>
 
@@ -327,12 +328,24 @@ const LANGS = [
   { name: 'Hindi',              native: 'हिन्दी',        enName: 'Hindi' },
   { name: 'Punjabi',            native: 'ਪੰਜਾਬੀ',       enName: 'Punjabi' },
   { name: 'Russian',            native: 'Русский',     enName: 'Russian' },
-  { name: 'Ukrainian',          native: 'Українська',  enName: 'Ukrainian' },
+  { name: 'Ukrainian',          native: 'Українська',   enName: 'Ukrainian' },
+  { name: 'Haitian Creole',     native: 'Kreyòl ayisyen', enName: 'Haitian Creole' },
+  { name: 'Pashto',             native: 'پښتو',          enName: 'Pashto' },
+  { name: 'Burmese',            native: 'မြန်မာဘာသာ',     enName: 'Burmese' },
+  { name: 'Khmer',              native: 'ភាសាខ្មែរ',      enName: 'Khmer' },
+  { name: 'Hmong',              native: 'Hmoob',          enName: 'Hmong' },
+  { name: 'Tigrinya',           native: 'ትግርኛ',          enName: 'Tigrinya' },
+  { name: 'Karen (Sgaw)',       native: 'ကညီဘာသာ',       enName: 'Karen' },
+  { name: 'Nepali',             native: 'नेपाली',          enName: 'Nepali' },
+  { name: 'Malay',              native: 'Bahasa Melayu',  enName: 'Malay' },
+  { name: 'Turkish',            native: 'Türkçe',         enName: 'Turkish' },
 ];
 const VOICE_FOR_LANG = {
   'English':'en','Spanish':'es','Dari':'fa','Somali':'so','Vietnamese':'vi','Amharic':'am',
   'Arabic':'ar','Simplified Chinese':'zh-CN','Tagalog':'tl','Swahili':'sw','French':'fr',
   'Portuguese':'pt','Korean':'ko','Hindi':'hi','Punjabi':'pa','Russian':'ru','Ukrainian':'uk',
+  'Haitian Creole':'ht','Pashto':'ps','Burmese':'my','Khmer':'km','Hmong':'hmn',
+  'Tigrinya':'ti','Nepali':'ne','Malay':'ms','Turkish':'tr',
 };
 
 const $ = id => document.getElementById(id);
@@ -605,6 +618,40 @@ function enterClass(lang) {
 }
 $('open-study').addEventListener('click', () => { $('screen-study').classList.remove('hidden'); renderPhrasebook(); lucide.createIcons(); });
 $('close-study').addEventListener('click', () => $('screen-study').classList.add('hidden'));
+
+// Language switcher — swap language mid-session without leaving the live feed
+(function() {
+  const btn = $('btn-switch-lang');
+  const sel = document.createElement('select');
+  sel.style.cssText = 'position:fixed;z-index:999;top:48px;right:8px;min-width:180px;background:var(--paper);border:3px solid var(--ink);border-radius:10px;box-shadow:4px 4px 0 var(--ink);padding:8px 12px;font-family:\'DM Mono\',monospace;font-size:12px;letter-spacing:0.06em;';
+  sel.style.display = 'none';
+  document.body.appendChild(sel);
+
+  btn.addEventListener('click', () => {
+    sel.innerHTML = LANGS.filter(l => l.name !== 'English').map(l =>
+      `<option value="${l.name}"${l.name === currentLang ? ' selected' : ''}>${l.native} — ${l.enName}</option>`
+    ).join('');
+    sel.style.display = sel.style.display === 'none' ? 'block' : 'none';
+    if (sel.style.display === 'block') sel.focus();
+  });
+
+  sel.addEventListener('change', () => {
+    const newLang = sel.value;
+    sel.style.display = 'none';
+    if (!newLang || newLang === currentLang) return;
+    stopPolling();
+    currentLang = newLang;
+    localStorage.setItem('lang', newLang);
+    $('live-lang').textContent = newLang;
+    loadI18n(newLang);
+    startPolling();
+  });
+
+  document.addEventListener('click', e => {
+    if (e.target !== btn && e.target !== sel) sel.style.display = 'none';
+  });
+})();
+
 $('change-lang').addEventListener('click', () => {
   stopPolling();
   currentLang = null;

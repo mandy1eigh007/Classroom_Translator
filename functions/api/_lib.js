@@ -48,6 +48,16 @@ export const LANG_CODES = {
   'Punjabi': 'pa',
   'Russian': 'ru',
   'Ukrainian': 'uk',
+  'Haitian Creole': 'ht',
+  'Pashto': 'ps',
+  'Burmese': 'my',
+  'Khmer': 'km',
+  'Hmong': 'hmn',
+  'Tigrinya': 'ti',
+  'Karen (Sgaw)': 'ksw',
+  'Nepali': 'ne',
+  'Malay': 'ms',
+  'Turkish': 'tr',
 };
 
 export const MSG_TTL = 60 * 60 * 12;      // messages live 12h max
