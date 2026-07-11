@@ -387,6 +387,9 @@ function speak(text) {
 let dpCode = '', dpPasscode = '', dpTarget = 'all', dpSince = 0;
 const dpWorkers = new Map(); // workerId -> {name, lang, ts, lastResp?}
 let dpRosterTimer, dpRespTimer;
+let dpRespDelay = 3000;
+const DP_RESP_MIN = 3000;
+const DP_RESP_MAX = 8000;
 
 function startDispatcher(code) {
   dpCode = code; dpPasscode = $('setup-passcode').value.trim();
@@ -395,7 +398,8 @@ function startDispatcher(code) {
   selectTarget('all');
   pollRoster();
   dpRosterTimer = setInterval(pollRoster, 6000);
-  dpRespTimer   = setInterval(pollResponses, 3000);
+  dpRespDelay = DP_RESP_MIN;
+  dpRespTimer = setTimeout(pollResponses, dpRespDelay);
 }
 
 $('dp-copy-link').addEventListener('click', () => {
@@ -407,7 +411,7 @@ $('dp-copy-link').addEventListener('click', () => {
 });
 
 $('dp-back').addEventListener('click', () => {
-  clearInterval(dpRosterTimer); clearInterval(dpRespTimer);
+  clearInterval(dpRosterTimer); clearTimeout(dpRespTimer);
   showScreen('screen-setup');
 });
 
@@ -477,18 +481,23 @@ function renderRoster() {
 }
 
 async function pollResponses() {
+  let gotNew = false;
   try {
     const r = await fetch(`/api/dispatch/poll?code=${dpCode}&since=${dpSince}`);
     const d = await r.json();
-    if (!Array.isArray(d.responses) || !d.responses.length) return;
-    for (const resp of d.responses) {
-      if (resp.ts > dpSince) dpSince = resp.ts;
-      const w = dpWorkers.get(resp.workerId);
-      if (w) w.lastResp = resp;
-      addResponseItem(resp);
+    if (Array.isArray(d.responses) && d.responses.length) {
+      gotNew = true;
+      for (const resp of d.responses) {
+        if (resp.ts > dpSince) dpSince = resp.ts;
+        const w = dpWorkers.get(resp.workerId);
+        if (w) w.lastResp = resp;
+        addResponseItem(resp);
+      }
+      renderRoster();
     }
-    renderRoster();
   } catch (_) {}
+  dpRespDelay = gotNew ? DP_RESP_MIN : Math.min(dpRespDelay + 1000, DP_RESP_MAX);
+  dpRespTimer = setTimeout(pollResponses, dpRespDelay);
 }
 
 function addResponseItem(resp) {
@@ -554,6 +563,26 @@ $('dp-mic').addEventListener('click', () => {
 let wkCode = '', wkId = '', wkName = '', wkLang = '';
 let wkLastTs = 0, wkLastMsg = null;
 let wkPollTimer, wkHeartbeatTimer;
+let wkPollDelay = 3000;
+const WK_POLL_MIN = 3000;
+const WK_POLL_MAX = 8000;
+
+// Screen wake lock — keeps phone screen on while worker view is active
+let wkWakeLock = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wkWakeLock = await navigator.wakeLock.request('screen');
+    }
+  } catch (_) {}
+}
+
+// Wake locks are auto-released when the tab backgrounds — re-request on return
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && $('screen-worker').classList.contains('active')) {
+    requestWakeLock();
+  }
+});
 
 function startWorker(code) {
   wkCode = code;
@@ -562,9 +591,11 @@ function startWorker(code) {
   wkLang = $('setup-lang').value;
   $('wk-identity').textContent = `${wkName} · ${wkLang}`;
   showScreen('screen-worker');
+  requestWakeLock();
   registerWorker();
   wkHeartbeatTimer = setInterval(registerWorker, 45_000);
-  wkPollTimer      = setInterval(workerPoll, 3_000);
+  wkPollDelay = WK_POLL_MIN;
+  wkPollTimer = setTimeout(workerPoll, wkPollDelay);
 }
 
 async function registerWorker() {
@@ -583,19 +614,25 @@ async function registerWorker() {
 }
 
 async function workerPoll() {
+  let gotNew = false;
   try {
     const r = await fetch(
       `/api/dispatch/poll?code=${wkCode}&workerId=${encodeURIComponent(wkId)}&lang=${encodeURIComponent(wkLang)}&since=${wkLastTs}`
     );
     const d = await r.json();
-    if (!Array.isArray(d.messages) || !d.messages.length) return;
-    for (const msg of d.messages) {
-      if (msg.ts > wkLastTs) wkLastTs = msg.ts;
-      wkLastMsg = msg;
-      showWorkerMsg(msg);
-      speak(msg.tr || msg.en);
+    if (Array.isArray(d.messages) && d.messages.length) {
+      gotNew = true;
+      for (const msg of d.messages) {
+        if (msg.ts > wkLastTs) wkLastTs = msg.ts;
+        wkLastMsg = msg;
+        showWorkerMsg(msg);
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        speak(msg.tr || msg.en);
+      }
     }
   } catch (_) {}
+  wkPollDelay = gotNew ? WK_POLL_MIN : Math.min(wkPollDelay + 1000, WK_POLL_MAX);
+  wkPollTimer = setTimeout(workerPoll, wkPollDelay);
 }
 
 function showWorkerMsg(msg) {
@@ -629,7 +666,8 @@ async function sendWorkerResponse(response) {
 });
 
 $('wk-back').addEventListener('click', () => {
-  clearInterval(wkPollTimer); clearInterval(wkHeartbeatTimer);
+  clearTimeout(wkPollTimer); clearInterval(wkHeartbeatTimer);
+  if (wkWakeLock) { wkWakeLock.release().catch(() => {}); wkWakeLock = null; }
   showScreen('screen-setup');
 });
 </script>
