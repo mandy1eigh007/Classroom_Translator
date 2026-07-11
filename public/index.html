@@ -110,7 +110,7 @@
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-6">
       <a href="/" class="flex items-center gap-3">
         <div class="ico-tile" style="width:44px; height:44px;">
-          <i aria-hidden="true" data-lucide="hard-hat" class="h-5 w-5" stroke-width="2"></i>
+          <i aria-hidden="true" data-lucide="message-circle" class="h-5 w-5" stroke-width="2"></i>
         </div>
         <div class="leading-none">
           <div class="h-display" style="font-size: 22px;"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
@@ -130,13 +130,13 @@
     <section class="relative px-6 py-20 lg:px-10 lg:py-28">
       <div class="mx-auto max-w-7xl">
         <div class="max-w-3xl">
-          <div class="mb-7"><span class="chip"><span class="dot"></span>Live Classroom Translation</span></div>
+          <div class="mb-7"><span class="chip"><span class="dot"></span>28 languages &middot; No install &middot; Free</span></div>
           <h1 class="h-display ink" style="font-size: clamp(48px, 8vw, 96px);">
-            Build Smarter.<br/>
-            <span style="color: var(--red);">Work Together.</span>
+            You teach.<br/>
+            <span style="color: var(--red);">They understand.</span>
           </h1>
           <p class="mt-7 max-w-xl text-base leading-7 ink2 sm:text-lg" style="font-weight:500;">
-            You teach the class in English. Every student follows live in their own language — no accounts, no app to install, nothing stored after class.
+            Real-time classroom translation for any instructor, any language, any subject. You speak — every student follows live in their own language, on any phone, with no app to install and nothing stored after class.
           </p>
           <div class="mt-9 flex flex-wrap gap-4">
             <a href="/teach" class="retro-btn">
@@ -157,7 +157,7 @@
       <div class="mx-auto max-w-7xl">
         <div class="mb-10 flex items-end justify-between gap-6 flex-wrap">
           <h2 class="h-display ink" style="font-size: clamp(32px, 4.5vw, 48px);">What it does</h2>
-          <span class="label-mono ink2">Six things · Nothing extra</span>
+          <span class="label-mono ink2">Six things &middot; Nothing extra</span>
         </div>
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" id="features-grid"></div>
       </div>
@@ -203,7 +203,7 @@
             Open the link on your phone, pick your language, and read along live. Tap to hear it out loud, hold to pause, hit replay if you missed something, bump the font size up — whatever you need.
           </p>
           <div class="divider my-6"></div>
-          <ul class="grid grid-cols-1 gap-3 text-sm ink sm:grid-cols-2" style="font-weight:500;" id="student-list"></ul>
+          <ul class="grid grid-cols-1 gap-3 text-sm ink" style="font-weight:500;" id="student-list"></ul>
           <a href="/student" class="retro-btn mustard mt-8">
             Join as Student <i data-lucide="arrow-right" class="h-4 w-4" stroke-width="2.4"></i>
           </a>
@@ -220,8 +220,8 @@
             <i data-lucide="languages" class="h-6 w-6" stroke-width="2"></i>
           </div>
           <div>
-            <h2 class="h-display ink" style="font-size: 28px;">Ready when you are.</h2>
-            <p class="mt-2 ink2" style="font-weight:500;">Open the instructor view to start a session, or join as a student with a class link.</p>
+            <h2 class="h-display ink" style="font-size: 28px;">Any classroom. Any language.</h2>
+            <p class="mt-2 ink2" style="font-weight:500;">Free to use. No account required. Start a session in under a minute — your students just need the link.</p>
           </div>
         </div>
         <div class="flex flex-wrap gap-3">
@@ -239,16 +239,17 @@
 
   <script>
     const features = [
-      { icon: 'languages',    title: 'LIVE TRANSLATION',  copy: 'You speak English. Students follow in their own language in real time.',  tone: 'red' },
-      { icon: 'mic',          title: 'MIC PAUSE / RESUME', copy: 'Hit pause for a side conversation, resume when you\u2019re back on topic.', tone: 'mustard' },
-      { icon: 'file-text',    title: 'SHARE DOCS',         copy: 'Drop PDFs, DOCX, TXT, or photos. Each page is translated per language.',   tone: 'teal' },
-      { icon: 'scan-line',    title: 'OCR ON IMAGES',      copy: 'Snap a worksheet or handout photo \u2014 text is read and translated.',    tone: 'orange' },
-      { icon: 'play-circle',  title: 'SYNCED YOUTUBE',     copy: 'Play a class video; every student watches in sync on their phone.',       tone: 'red' },
-      { icon: 'shield-check', title: 'EPHEMERAL',          copy: 'No accounts, nothing stored after class. Privacy by default.',            tone: 'teal' },
+      { icon: 'languages',    title: 'LIVE TRANSLATION',  copy: 'You speak English. Students follow in their own language, zero delay \u2014 no lag, no manual steps.',  tone: 'red' },
+      { icon: 'globe',        title: '28 LANGUAGES',      copy: 'Spanish, Dari, Somali, Pashto, Hmong, Karen, Haitian Creole, and 21 more. Students can switch mid-class.', tone: 'mustard' },
+      { icon: 'file-text',    title: 'SHARE DOCS',        copy: 'Drop PDFs, DOCX, TXT, or photos. Each page translates per student language automatically.',   tone: 'teal' },
+      { icon: 'scan-line',    title: 'OCR ON IMAGES',     copy: 'Snap a worksheet or handout photo \u2014 text is extracted and translated on the spot.',    tone: 'orange' },
+      { icon: 'volume-2',     title: 'LISTEN MODE',       copy: 'Students tap any phrase to hear it spoken aloud. Earbuds work \u2014 good for field sites and commutes.', tone: 'red' },
+      { icon: 'shield-check', title: 'EPHEMERAL',         copy: 'No accounts, no logins, nothing stored after class. Safe for FERPA-sensitive environments.',  tone: 'teal' },
     ];
     const toneShadow = { red: 'var(--red)', mustard: 'var(--mustard)', teal: 'var(--teal)', orange: 'var(--orange)' };
     const studentFeatures = [
-      { icon: 'languages',  label: 'Pick your language' },
+      { icon: 'languages',  label: 'Pick your language (28 options)' },
+      { icon: 'refresh-cw', label: 'Switch language mid-class' },
       { icon: 'volume-2',   label: 'Tap to hear (TTS)' },
       { icon: 'pause',      label: 'Hold to pause incoming text' },
       { icon: 'rotate-ccw', label: 'Replay anything you missed' },
