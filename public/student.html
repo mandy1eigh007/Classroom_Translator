@@ -587,7 +587,7 @@ if (!roomCode) {
     if (!d || d.code !== roomCode) { showJoinStale(t('stale_expired')); return; }
     roomVerified = true;
     if (d.caps && d.caps.tts) $('btn-natural').classList.remove('hidden');
-    if (pendingLang) loadI18n(pendingLang);
+    if (pendingLang) enterClass(pendingLang);
   }).catch(() => {});
 }
 
