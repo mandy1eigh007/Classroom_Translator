@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Student — ClassLingo</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@0.460.0"></script>
+  <title>Learner — ClassLingo</title>
+  <link rel="stylesheet" href="/tailwind.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="/supabase-config.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -113,7 +112,7 @@
 <div id="screen-join" class="relative z-10 mx-auto flex min-h-[100dvh] max-w-lg flex-col px-5 pb-8 pt-6">
   <div class="mb-5 flex items-baseline gap-3">
     <span class="display text-3xl">Class<span style="color:var(--red)">Lingo</span></span>
-    <span class="label-mono">Student</span>
+    <span class="label-mono">Learner</span>
   </div>
   <!-- optional account (guest is the default path) -->
   <div id="auth-card" class="retro-card mb-4 p-4" style="box-shadow:4px 4px 0 var(--teal);">
@@ -152,7 +151,6 @@
   <div class="sticky bottom-0 mt-6 pt-2" style="background:linear-gradient(180deg, transparent, var(--cream) 30%);">
     <button id="join-btn" class="retro-btn w-full py-5 text-xl disabled:opacity-50" style="background:var(--red); color:var(--paper);" disabled>
       <span data-i18n="join_btn">Join class</span>
-      <i data-lucide="arrow-right" class="h-5 w-5" stroke-width="2.6"></i>
     </button>
   </div>
 </div>
@@ -168,7 +166,7 @@
     <button id="fs-down" class="chipbtn" aria-label="Smaller text">A−</button>
     <button id="fs-up" class="chipbtn" aria-label="Bigger text">A+</button>
     <button id="btn-switch-lang" class="chipbtn" title="Change language">Lang</button>
-    <button id="open-study" class="chipbtn"><i data-lucide="book-open" class="h-4 w-4" stroke-width="2.2"></i><span data-i18n="tab_study">Study</span></button>
+    <button id="open-study" class="chipbtn"><span data-i18n="tab_study">Study</span></button>
   </div>
 
   <!-- shared video (hidden until teacher loads one) -->
@@ -203,16 +201,16 @@
   <!-- bottom thumb zone -->
   <div class="sticky bottom-0 z-20 -mx-4 border-t-[3px] px-4 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2" style="border-color:var(--ink); background:var(--paper);">
     <div class="mb-2 flex justify-center gap-2">
-      <button id="btn-hold" class="chipbtn"><i data-lucide="pause" class="h-4 w-4" stroke-width="2.2"></i><span data-i18n="btn_hold">Hold</span><span id="hold-badge" class="hidden rounded px-1 font-bold" style="background:var(--mustard);"></span></button>
-      <button id="btn-tts" class="chipbtn"><i data-lucide="volume-2" class="h-4 w-4" stroke-width="2.2"></i><span data-i18n="btn_read">Read aloud</span></button>
-      <button id="btn-replay" class="chipbtn"><i data-lucide="rotate-ccw" class="h-4 w-4" stroke-width="2.2"></i><span data-i18n="btn_replay">Replay</span></button>
+      <button id="btn-hold" class="chipbtn"><span data-i18n="btn_hold">Hold</span><span id="hold-badge" class="hidden rounded px-1 font-bold" style="background:var(--mustard);"></span></button>
+      <button id="btn-tts" class="chipbtn"><span data-i18n="btn_read">Read aloud</span></button>
+      <button id="btn-replay" class="chipbtn"><span data-i18n="btn_replay">Replay</span></button>
     </div>
     <div class="flex gap-3">
       <button id="btn-confused" class="thumb-btn thumb-confused">
-        <i data-lucide="circle-help" class="h-6 w-6" stroke-width="2.4"></i><span data-i18n="btn_confused">Confused</span>
+        <span data-i18n="btn_confused">Confused</span>
       </button>
       <button id="btn-got" class="thumb-btn thumb-got">
-        <i data-lucide="check" class="h-6 w-6" stroke-width="2.8"></i><span data-i18n="btn_got">Got it</span>
+        <span data-i18n="btn_got">Got it</span>
       </button>
     </div>
   </div>
@@ -222,7 +220,7 @@
 <div id="screen-study" class="fixed inset-0 z-40 hidden overflow-y-auto" style="background:var(--cream);">
   <div class="mx-auto max-w-2xl px-4 pb-16 pt-4">
     <div class="mb-4 flex items-center gap-3 border-b-2 pb-3" style="border-color:var(--ink);">
-      <button id="close-study" class="chipbtn"><i data-lucide="arrow-left" class="h-4 w-4" stroke-width="2.4"></i><span data-i18n="tab_back">Class</span></button>
+      <button id="close-study" class="chipbtn"><span data-i18n="tab_back">Class</span></button>
       <span class="display text-xl" data-i18n="study_title">Study tools</span>
     </div>
 
@@ -287,7 +285,7 @@
 <!-- Define modal -->
 <div id="define-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(42,26,15,0.55);">
   <div class="retro-card relative w-full max-w-md p-5">
-    <button id="define-close" class="chipbtn absolute right-3 top-3" aria-label="Close">✕</button>
+    <button id="define-close" class="chipbtn absolute right-3 top-3" aria-label="Close">Close</button>
     <h3 id="define-word" class="display text-2xl"></h3>
     <div id="define-tr" class="display mb-3 mt-1 text-2xl" style="color:var(--red);"></div>
     <div class="label-mono" data-i18n="def_meaning">Meaning</div>
@@ -297,8 +295,8 @@
     <div id="define-ex-tr" class="text-[15px] italic leading-relaxed"></div>
     <div id="define-ex-en" class="mt-1 text-sm italic" style="color:var(--ink2);"></div>
     <div class="mt-4 flex flex-wrap gap-2">
-      <button id="define-listen-en" class="chipbtn">EN 🔊</button>
-      <button id="define-listen-tr" class="chipbtn" data-i18n="def_mylang">My language 🔊</button>
+      <button id="define-listen-en" class="chipbtn">Listen EN</button>
+      <button id="define-listen-tr" class="chipbtn" data-i18n="def_mylang">Listen in my language</button>
       <button id="define-save" class="retro-btn px-4 py-2 text-sm" style="background:var(--mustard);" data-i18n="def_save">Save</button>
     </div>
   </div>
@@ -384,7 +382,7 @@ const UI_STRINGS = {
   msg_sending: 'Sending…', msg_sent: 'Sent to teacher', msg_failed: 'Could not send.',
   card_voice: 'Voice settings', btn_slow: 'Slow voice', btn_natural: 'Natural voice',
   btn_change_lang: 'Change language',
-  def_meaning: 'Meaning', def_example: 'Example', def_mylang: 'My language 🔊', def_save: 'Save',
+  def_meaning: 'Meaning', def_example: 'Example', def_mylang: 'Listen in my language', def_save: 'Save',
   teacher_label: 'TEACHER',
   doc_show_en: 'Show English', doc_hide_en: 'Hide English', doc_page: 'Page {n} / {total}',
   auth_title: 'Your account',
@@ -615,9 +613,8 @@ function enterClass(lang) {
   loadI18n(lang);
   startPolling();
   if (authUser) pullPhrasebookSupabase();
-  lucide.createIcons();
 }
-$('open-study').addEventListener('click', () => { $('screen-study').classList.remove('hidden'); renderPhrasebook(); lucide.createIcons(); });
+$('open-study').addEventListener('click', () => { $('screen-study').classList.remove('hidden'); renderPhrasebook(); });
 $('close-study').addEventListener('click', () => $('screen-study').classList.add('hidden'));
 
 // Language switcher — swap language mid-session without leaving the live feed
@@ -760,7 +757,7 @@ function renderUtter(id, en, tr, isError) {
     }
   } else node.classList.toggle('err', !!isError);
   feed.querySelectorAll('.utter.latest').forEach(n => n.classList.remove('latest'));
-  if (feed.firstChild) feed.firstChild.classList.add('latest');
+  if (feed.firstElementChild) feed.firstElementChild.classList.add('latest');
   // English words become tap targets for define
   const enEl = node.querySelector('.en');
   enEl.innerHTML = '';
@@ -796,7 +793,7 @@ $('btn-hold').addEventListener('click', () => {
   if (isHeld) {
     isHeld = false;
     const drained = heldQueue.splice(0);
-    for (const u of drained) renderUtter(u.id, u.en, u.err ? '⚠ ' + (u.tr || '') : u.tr, !!u.err);
+    for (const u of drained) renderUtter(u.id, u.en, u.err ? 'Warning: ' + (u.tr || '') : u.tr, !!u.err);
     if (ttsOn && drained.length) {
       const lastU = drained[drained.length - 1];
       latestUtter = { en: lastU.en, tr: lastU.tr };
@@ -811,7 +808,7 @@ $('btn-hold').addEventListener('click', () => {
 
 function handleIncoming(msg) {
   if (isHeld) { heldQueue.push(msg); updateHoldUI(); return; }
-  renderUtter(msg.id, msg.en, msg.err ? '⚠ ' + (msg.tr || 'translation failed') : msg.tr, !!msg.err);
+  renderUtter(msg.id, msg.en, msg.err ? 'Warning: ' + (msg.tr || 'translation failed') : msg.tr, !!msg.err);
   if (!msg.err) {
     latestUtter = { en: msg.en, tr: msg.tr };
     if (ttsOn && msg.tr) speak(msg.tr);
@@ -897,7 +894,7 @@ function onClassEnded() {
   banner.innerHTML = '<div class="tr"></div>';
   banner.querySelector('.tr').textContent = t('stale_ended') + ' — ' + t('notes_final');
   banner.style.cursor = 'pointer';
-  banner.addEventListener('click', () => { $('screen-study').classList.remove('hidden'); lucide.createIcons(); });
+  banner.addEventListener('click', () => { $('screen-study').classList.remove('hidden'); });
   feed.insertBefore(banner, feed.firstChild);
   try { speechSynthesis.cancel(); } catch (_) {}
 }
@@ -945,7 +942,7 @@ function flashThumb(btn) {
   btn.classList.add('sent');
   const label = btn.querySelector('span[data-i18n]');
   const orig = label.textContent;
-  label.textContent = '✓ ' + t('btn_sent');
+  label.textContent = t('btn_sent');
   setTimeout(() => { btn.classList.remove('sent'); label.textContent = orig; }, 2500);
 }
 
@@ -1219,7 +1216,7 @@ $('msg-send').addEventListener('click', async () => {
   try {
     const r = await fetch('/api/studentmsg', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ c: roomCode, lang: currentLang, text, nickname: ($('nick-input').value || '').trim(), sessionId }) });
-    if (r.ok) { $('msg-text').value = ''; $('msg-status').textContent = '✓ ' + t('msg_sent'); }
+    if (r.ok) { $('msg-text').value = ''; $('msg-status').textContent = t('msg_sent'); }
     else { const d = await r.json().catch(() => ({})); $('msg-status').textContent = d.error || t('msg_failed'); }
   } catch (_) { $('msg-status').textContent = t('msg_failed'); }
   setTimeout(() => { $('msg-send').disabled = false; $('msg-status').textContent = ''; }, 4000);
@@ -1309,7 +1306,7 @@ function renderPhrasebook() {
     const row = document.createElement('div');
     row.className = 'utter';
     row.innerHTML = '<div class="tr" style="font-size:16px;color:var(--ink);"></div><div class="en" style="text-transform:none;font-size:12px;"></div>' +
-      '<div class="mt-1 flex gap-2"><button class="chipbtn pb-speak">🔊</button><button class="chipbtn pb-del">✕</button></div>';
+      '<div class="mt-1 flex gap-2"><button class="chipbtn pb-speak">Speak</button><button class="chipbtn pb-del">Delete</button></div>';
     row.querySelector('.tr').textContent = item.tr || '';
     row.querySelector('.en').textContent = item.en || '';
     row.querySelector('.pb-speak').addEventListener('click', () => speak(item.tr || item.en));
@@ -1373,7 +1370,7 @@ $('pb-sync').addEventListener('click', async () => {
   if (!/^[A-Za-z0-9_-]{3,32}$/.test(trimmed)) { showToast('Invalid code'); return; }
   localStorage.setItem('pb_sync_code', trimmed);
   await pullPhrasebook(trimmed);
-  showToast('Synced ✓');
+  showToast('Synced');
 });
 if (pbSyncCode()) setTimeout(() => pullPhrasebook(pbSyncCode()), 800);
 
@@ -1434,7 +1431,6 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) stopPolling();
 });
 
-lucide.createIcons();
 </script>
 </body>
 </html>

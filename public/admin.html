@@ -150,7 +150,7 @@
       <div class="brand">Class<span>Lingo</span></div>
       <div class="brand-sub">Admin console</div>
       <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
-      <button class="nav-btn" data-tab="teachers">Teachers</button>
+      <button class="nav-btn" data-tab="teachers">Instructors</button>
       <button class="nav-btn" data-tab="sessions">Sessions</button>
       <button class="nav-btn" data-tab="orgs">Organizations</button>
       <button class="nav-btn" data-tab="settings">Settings</button>
@@ -169,7 +169,7 @@
           <div class="stat"><div class="num" id="st-today">–</div><div class="lbl">Sessions today</div></div>
           <div class="stat"><div class="num" id="st-week">–</div><div class="lbl">Sessions this week</div></div>
           <div class="stat"><div class="num" id="st-month">–</div><div class="lbl">Sessions this month</div></div>
-          <div class="stat"><div class="num" id="st-students">–</div><div class="lbl">Students served</div></div>
+          <div class="stat"><div class="num" id="st-students">–</div><div class="lbl">Learners served</div></div>
           <div class="stat"><div class="num" id="st-active">–</div><div class="lbl">Active sessions now</div></div>
         </div>
         <div class="panel">
@@ -184,30 +184,30 @@
           usage). Live KV-only classes that were never saved do not appear here.</p>
       </div>
 
-      <!-- ===== Teachers ===== -->
+      <!-- ===== Instructors ===== -->
       <div class="tab-page" id="tab-teachers">
-        <h2 class="page-title">Teachers</h2>
+        <h2 class="page-title">Instructors</h2>
         <p class="page-sub">Create and manage instructor accounts.</p>
         <div class="panel">
-          <h3>New teacher</h3>
+          <h3>New instructor</h3>
           <div class="row">
             <div><label>Name</label><input id="nt-name" type="text" placeholder="Full name" /></div>
-            <div><label>Email</label><input id="nt-email" type="email" placeholder="teacher@school.org" /></div>
+            <div><label>Email</label><input id="nt-email" type="email" placeholder="instructor@program.org" /></div>
             <div><label>Temporary password</label><input id="nt-pass" type="text" placeholder="Min 8 characters" /></div>
             <div><label>Organization</label><select id="nt-org"><option value="">No organization</option></select></div>
             <div style="flex:0;"><button id="nt-create" class="btn btn-primary">Create</button></div>
           </div>
           <div id="nt-status" class="err"></div>
-          <p class="hint">The teacher signs in with this email and password, then changes the password with "Reset password".
-            If your Supabase project requires email confirmation, the teacher must confirm before their profile activates.</p>
+          <p class="hint">The instructor signs in with this email and password, then changes the password with "Reset password".
+            If your Supabase project requires email confirmation, the instructor must confirm before their profile activates.</p>
         </div>
         <div class="panel">
-          <h3>All teachers</h3>
+          <h3>All instructors</h3>
           <table>
             <thead><tr><th>Name</th><th>Email</th><th>Organization</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="teacher-rows"></tbody>
           </table>
-          <div id="teachers-empty" class="empty" style="display:none;">No teacher accounts yet.</div>
+          <div id="teachers-empty" class="empty" style="display:none;">No instructor accounts yet.</div>
         </div>
       </div>
 
@@ -217,7 +217,7 @@
         <p class="page-sub">Every saved class session — click a row to read the transcript.</p>
         <div class="panel">
           <div class="row">
-            <div><label>Teacher</label><select id="sf-teacher"><option value="">All teachers</option></select></div>
+            <div><label>Instructor</label><select id="sf-teacher"><option value="">All instructors</option></select></div>
             <div><label>Mode</label><select id="sf-mode">
               <option value="">All modes</option>
               <option value="general">General</option>
@@ -225,7 +225,6 @@
               <option value="trades">Construction / Trades</option>
               <option value="forklift">Forklift / BFET</option>
               <option value="flagging">Flagging</option>
-              <option value="kindergarten">Kindergarten</option>
             </select></div>
             <div><label>Date</label><input id="sf-date" type="date" /></div>
             <div style="flex:0;"><button id="sf-apply" class="btn">Filter</button></div>
@@ -234,7 +233,7 @@
         </div>
         <div class="panel">
           <table>
-            <thead><tr><th>Started</th><th>Title</th><th>Teacher</th><th>Mode</th><th>Languages</th><th>Status</th></tr></thead>
+            <thead><tr><th>Started</th><th>Title</th><th>Instructor</th><th>Mode</th><th>Languages</th><th>Status</th></tr></thead>
             <tbody id="session-rows"></tbody>
           </table>
           <div id="sessions-empty" class="empty" style="display:none;">No sessions found.</div>
@@ -244,7 +243,7 @@
       <!-- ===== Organizations ===== -->
       <div class="tab-page" id="tab-orgs">
         <h2 class="page-title">Organizations</h2>
-        <p class="page-sub">Schools, companies, and programs using ClassLingo.</p>
+        <p class="page-sub">Workforce programs, training providers, and field teams using ClassLingo.</p>
         <div class="panel">
           <h3>New organization</h3>
           <div class="row">
@@ -257,11 +256,11 @@
         <div class="panel">
           <h3>All organizations</h3>
           <table>
-            <thead><tr><th>Name</th><th>Slug</th><th>Plan</th><th>Teachers</th><th>Created</th></tr></thead>
+            <thead><tr><th>Name</th><th>Slug</th><th>Plan</th><th>Instructors</th><th>Created</th></tr></thead>
             <tbody id="org-rows"></tbody>
           </table>
           <div id="orgs-empty" class="empty" style="display:none;">No organizations yet.</div>
-          <p class="hint">Assign teachers to an organization from the Teachers tab (Organization column).</p>
+          <p class="hint">Assign instructors to an organization from the Instructors tab (Organization column).</p>
         </div>
       </div>
 
@@ -297,7 +296,7 @@
         <p class="page-sub">Plan per organization. Billing integration is a future step — this sets the plan flag each org runs under.</p>
         <div class="panel">
           <table>
-            <thead><tr><th>Organization</th><th>Plan</th><th>Monthly session limit</th><th>Student limit / session</th><th></th></tr></thead>
+            <thead><tr><th>Organization</th><th>Plan</th><th>Monthly session limit</th><th>Learner limit / session</th><th></th></tr></thead>
             <tbody id="sub-rows"></tbody>
           </table>
           <div id="sub-empty" class="empty" style="display:none;">Create an organization first.</div>
@@ -305,7 +304,7 @@
         <div class="panel">
           <h3>Plans (reference)</h3>
           <table>
-            <thead><tr><th>Plan</th><th>Sessions / month</th><th>Students / session</th><th>Modes</th><th>Transcripts</th></tr></thead>
+            <thead><tr><th>Plan</th><th>Sessions / month</th><th>Learners / session</th><th>Modes</th><th>Transcripts</th></tr></thead>
             <tbody>
               <tr><td>Free</td><td>10</td><td>15</td><td>General only</td><td>7-day history</td></tr>
               <tr><td>Pro</td><td>Unlimited</td><td>40</td><td>All trade modes</td><td>Full history + export</td></tr>
@@ -343,14 +342,14 @@
 
   const $ = (id) => document.getElementById(id);
   const LANG_NAMES = ['English','Spanish','Dari','Somali','Vietnamese','Amharic','Arabic','Simplified Chinese',
-    'Tagalog','Swahili','French','Portuguese','Korean','Hindi','Punjabi','Russian','Ukrainian'];
+    'Tagalog','Swahili','French','Portuguese','Korean','Hindi','Punjabi','Russian','Ukrainian',
+    'Haitian Creole','Pashto','Burmese','Khmer','Hmong','Tigrinya','Karen (Sgaw)','Nepali','Malay','Turkish'];
   const MODES = [
     { id: 'general', label: 'General' },
     { id: 'osha', label: 'OSHA / Safety' },
     { id: 'trades', label: 'Construction / Trades' },
     { id: 'forklift', label: 'Forklift / BFET' },
     { id: 'flagging', label: 'Flagging' },
-    { id: 'kindergarten', label: 'Kindergarten' },
   ];
   const MODE_LABEL = Object.fromEntries(MODES.map(m => [m.id, m.label]));
 
@@ -545,7 +544,7 @@
     // filter dropdown on sessions tab
     const sf = $('sf-teacher');
     const cur = sf.value;
-    sf.innerHTML = '<option value="">All teachers</option>' +
+    sf.innerHTML = '<option value="">All instructors</option>' +
       teachersCache.map(t => '<option value="' + t.id + '">' + esc(t.display_name || t.email || t.id) + '</option>').join('');
     sf.value = cur;
     renderOrgRows();
@@ -598,12 +597,12 @@
         await sbCreate.auth.signOut();
         status.textContent = '';
       } else {
-        status.textContent = 'Account created — the teacher must confirm their email, then their profile is created on first sign-in.';
+        status.textContent = 'Account created — the instructor must confirm their email, then their profile is created on first sign-in.';
       }
       $('nt-name').value = ''; $('nt-email').value = ''; $('nt-pass').value = '';
       await loadTeachers();
     } catch (err) {
-      status.textContent = err.message || 'Could not create the teacher.';
+      status.textContent = err.message || 'Could not create the instructor.';
     } finally {
       $('nt-create').disabled = false;
     }
@@ -645,7 +644,7 @@
   });
   async function openTranscript(s, teacherName) {
     $('tx-title').textContent = s.title || 'Untitled session';
-    $('tx-meta').textContent = (teacherName || 'Unknown teacher') + ' — ' + fmtDate(s.started_at) +
+    $('tx-meta').textContent = (teacherName || 'Unknown instructor') + ' — ' + fmtDate(s.started_at) +
       ' — code ' + (s.class_code || '') + ' — ' + (MODE_LABEL[s.mode] || s.mode || '');
     $('tx-body').innerHTML = '<div class="empty">Loading transcript…</div>';
     $('tx-overlay').style.display = 'flex';

@@ -32,13 +32,13 @@
     / documents won't upload, try a different browser (Microsoft Edge or
     Firefox usually work) before assuming the app is broken.
     <button id="browser-tip-close" type="button" aria-label="Dismiss"
-            style="float:right; background:transparent; border:none; color:#5a4a14; font-size:18px; line-height:1; cursor:pointer; padding:0 4px; margin-left:8px;">×</button>
+            style="float:right; background:transparent; border:none; color:#5a4a14; font-size:12px; line-height:1; cursor:pointer; padding:2px 4px; margin-left:8px;">Close</button>
   </div>
 
   <div id="auth-gate" style="display:none; margin-bottom:18px;">
     <p class="section-label">Instructor passcode</p>
     <input id="passcode-input" type="password" autocomplete="current-password"
-           placeholder="Enter teacher passcode"
+           placeholder="Enter instructor passcode"
            style="width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-family:'DM Mono',monospace; font-size:14px; padding:12px 14px; margin-bottom:10px;" />
     <button id="passcode-submit" class="btn btn-primary">Unlock instructor</button>
     <p id="passcode-err" style="display:none; color:var(--red); font-size:12px; margin-top:8px;">
@@ -51,16 +51,16 @@
 
   <section class="card card--cyan">
     <div class="card-head">
-      <h3 class="card-title"><span class="ico" aria-hidden="true">🎙</span> Session</h3>
+      <h3 class="card-title">Session</h3>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button id="new-class" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Disconnect current students and start a new class with a fresh link">+ New class</button>
-        <button id="end-class" class="btn" type="button" style="width:auto; padding:10px 14px; border-color:var(--red); color:var(--red);" title="Disconnect every student and lock the instructor view">⏹ End class</button>
+        <button id="new-class" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Disconnect current learners and start a new class with a fresh link">+ New class</button>
+        <button id="end-class" class="btn" type="button" style="width:auto; padding:10px 14px; border-color:var(--red); color:var(--red);" title="Disconnect every learner and lock the instructor view">End class</button>
         <button id="mic-toggle" class="btn btn-primary" type="button" style="width:auto; padding:10px 18px;">Pause mic</button>
       </div>
     </div>
     <div class="toolbar">
       <span id="mic-status" class="status-pill"><span class="dot"></span><span id="mic-text">Starting...</span></span>
-      <span id="audience" class="status-pill"><span class="dot"></span><span id="audience-text">0 students</span></span>
+      <span id="audience" class="status-pill"><span class="dot"></span><span id="audience-text">0 learners</span></span>
       <span id="lost-pill" class="status-pill" style="display:none; border-color:var(--red); color:var(--red);">
         <span class="dot" style="background:var(--red);"></span><span id="lost-text"></span>
       </span>
@@ -73,13 +73,12 @@
         <option value="trades">Construction / Trades</option>
         <option value="forklift">Forklift / BFET</option>
         <option value="flagging">Flagging</option>
-        <option value="kindergarten">Kindergarten</option>
       </select>
       <span id="mode-status" class="hint" style="margin:0;"></span>
     </div>
     <div class="input-row" style="margin-top:12px;">
       <input id="manual-text" type="text" maxlength="800" autocomplete="off"
-             placeholder="Type to the class — the mic pauses while you type" />
+             placeholder="Type to the group — the mic pauses while you type" />
       <button id="manual-send" class="btn btn-primary" type="button" style="width:auto;">Send</button>
     </div>
   </section>
@@ -91,7 +90,7 @@
     </div>
     <div id="room-langs" style="display:none; gap:6px; flex-wrap:wrap; margin-bottom:10px;"></div>
     <div id="class-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px;"></div>
-    <p id="class-grid-empty" class="hint" style="margin:4px 0 0;">Students appear here as they join. Click a student to send them a direct message.</p>
+    <p id="class-grid-empty" class="hint" style="margin:4px 0 0;">Learners appear here as they join. Click a learner to send them a direct message.</p>
     <div id="dm-panel" style="display:none; margin-top:12px; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
       <p class="section-label" style="margin-bottom:6px;">Message to <span id="dm-target"></span></p>
       <textarea id="dm-text" rows="2" maxlength="400"
@@ -108,7 +107,7 @@
   <div class="grid-media">
 
     <section class="card card--magenta">
-      <h3 class="card-title"><span class="ico" aria-hidden="true">▶</span> Share a video</h3>
+      <h3 class="card-title">Share a video</h3>
       <div class="input-row" style="margin-bottom:10px;">
         <input id="video-url" type="text" placeholder="Paste a YouTube link…" />
         <button id="video-load" class="btn btn-primary" type="button">Load</button>
@@ -121,13 +120,13 @@
           <div id="yt-player" style="position:absolute; inset:0;"></div>
         </div>
         <p class="hint" style="margin-top:8px;">
-          Play / pause / seek — every student's video follows along (they sync within a couple of seconds).
+          Play / pause / seek — every learner's video follows along (they sync within a couple of seconds).
         </p>
       </div>
     </section>
 
     <section class="card card--lime">
-      <h3 class="card-title"><span class="ico" aria-hidden="true">📄</span> Share a document</h3>
+      <h3 class="card-title">Share a document</h3>
       <div class="input-row" style="margin-bottom:8px;">
         <input id="doc-file" type="file" accept=".txt,.png,.jpg,.jpeg,.webp,.gif,text/plain,image/*"
                style="font-size:12px;" />
@@ -139,11 +138,11 @@
       <div id="doc-nav" style="display:none; padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <span id="doc-name" style="font-family:'DM Mono',monospace; font-size:13px; flex:1; min-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
-          <button id="doc-prev" class="btn" type="button" style="width:auto; padding:8px 12px;">‹ Prev</button>
+          <button id="doc-prev" class="btn" type="button" style="width:auto; padding:8px 12px;">Previous</button>
           <span id="doc-pos" style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); min-width:78px; text-align:center;"></span>
-          <button id="doc-next" class="btn" type="button" style="width:auto; padding:8px 12px;">Next ›</button>
+          <button id="doc-next" class="btn" type="button" style="width:auto; padding:8px 12px;">Next</button>
         </div>
-        <p class="hint" style="margin:8px 0 0;">Students see the page + translated text. You see both below.</p>
+        <p class="hint" style="margin:8px 0 0;">Learners see the page + translated text. You see both below.</p>
         <div id="doc-page-img-wrap" style="display:none; margin-top:10px;">
           <img id="doc-page-img" alt="Document page preview" style="display:block; max-width:100%; max-height:34vh; margin:0 auto; background:#fff; border:1px solid var(--border); border-radius:var(--radius); cursor:zoom-in;" />
         </div>
@@ -152,7 +151,7 @@
     </section>
 
     <section class="card card--violet">
-      <h3 class="card-title"><span class="ico" aria-hidden="true">📡</span> Live transcript (English)</h3>
+      <h3 class="card-title">Live transcript (English)</h3>
       <div class="panel" style="flex:1; min-height:140px; margin:0;">
         <p class="panel-text" id="live-text">Waiting for mic permission...</p>
       </div>
@@ -162,21 +161,21 @@
 
   <section class="card card--cyan">
     <div class="card-head">
-      <h3 class="card-title"><span class="ico" aria-hidden="true">✉</span> Student messages</h3>
+      <h3 class="card-title">Learner messages</h3>
       <button id="msg-clear" class="btn" type="button"
               style="width:auto; padding:6px 12px; font-size:11px; color:var(--muted);"
-              title="Clear the list on your screen (does not affect students)">
+              title="Clear the list on your screen (does not affect learners)">
         Clear
       </button>
     </div>
     <div class="feed" id="msg-feed">
-      <div class="utter"><div class="tr" style="color:var(--muted); font-style:italic;">Messages from students will appear here.</div></div>
+      <div class="utter"><div class="tr" style="color:var(--muted); font-style:italic;">Messages from learners will appear here.</div></div>
     </div>
   </section>
 
   <section class="card card--orange">
     <div class="card-head">
-      <h3 class="card-title"><span class="ico" aria-hidden="true">📜</span> Recently sent</h3>
+      <h3 class="card-title">Recently sent</h3>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <button id="export-transcript" class="btn" type="button"
                 style="width:auto; padding:6px 12px; font-size:11px;"
@@ -185,7 +184,7 @@
         </button>
         <button id="clear-history" class="btn" type="button"
                 style="width:auto; padding:6px 12px; font-size:11px; color:var(--muted);"
-                title="Wipe the lesson transcript from the server and from every student's screen">
+                title="Wipe the lesson transcript from the server and from every learner's screen">
           Clear history
         </button>
       </div>
@@ -195,14 +194,14 @@
 
   <section class="card card--violet">
     <div class="card-head">
-      <h3 class="card-title"><span class="ico" aria-hidden="true">📝</span> Preview class notes</h3>
+      <h3 class="card-title">Preview class notes</h3>
       <button id="notes-preview-btn" class="btn btn-primary" type="button"
               style="width:auto; padding:8px 14px;">
         Generate preview
       </button>
     </div>
     <p class="hint" style="margin:0 0 8px;">
-      See what AI study notes students get for this class (in English, for QA).
+      See what AI study notes learners get for this class (in English, for QA).
       Counts against the per-class notes limit.
     </p>
     <div id="notes-preview-status" style="font-size:12px; color:var(--muted); min-height:1em;"></div>
@@ -211,33 +210,33 @@
   </section>
 
   <section class="card card--magenta" id="share-card">
-    <h3 class="card-title"><span class="ico" aria-hidden="true">🔗</span> Share with students</h3>
+    <h3 class="card-title">Share with learners</h3>
     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px;">
       <code id="student-url" style="flex:1; min-width:180px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">/student</code>
-      <button id="share-copy" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Copy the link">📋 Copy</button>
+      <button id="share-copy" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Copy the link">Copy</button>
     </div>
     <div id="share-buttons" style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button id="share-native" class="btn btn-primary" type="button" style="width:auto; padding:10px 16px; display:none;" title="Open your phone's share sheet">📤 Share…</button>
-      <button id="share-sms" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send by text message">💬 Text</button>
-      <button id="share-whatsapp" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send via WhatsApp">🟢 WhatsApp</button>
-      <button id="share-email" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send by email">✉ Email</button>
-      <button id="share-qr" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Show a QR code students can scan">▦ QR</button>
+      <button id="share-native" class="btn btn-primary" type="button" style="width:auto; padding:10px 16px; display:none;" title="Open your phone's share sheet">Share</button>
+      <button id="share-sms" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send by text message">Text</button>
+      <button id="share-whatsapp" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send via WhatsApp">WhatsApp</button>
+      <button id="share-email" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Send by email">Email</button>
+      <button id="share-qr" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Show a QR code learners can scan">QR</button>
     </div>
-    <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
-      <p class="section-label" style="margin-bottom:8px;">Kids link (pre-readers)</p>
+    <div style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+      <p class="section-label" style="margin-bottom:8px;">Alternate learner link</p>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <code id="kids-url" style="flex:1; min-width:180px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">/kids</code>
-        <button id="kids-copy" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Copy the kids link">📋 Copy</button>
-        <button id="kids-qr-btn" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Show a QR code for the kids link">▦ QR</button>
+        <code id="kids-url" style="flex:1; min-width:180px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">/student</code>
+        <button id="kids-copy" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Copy the alternate learner link">Copy</button>
+        <button id="kids-qr-btn" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Show a QR code for the alternate learner link">QR</button>
       </div>
       <div id="kids-qr-wrap" style="display:none; margin-top:12px; text-align:center;">
-        <img id="kids-qr-img" alt="QR code for the kids link" style="width:200px; height:200px; background:#fff; padding:10px; border-radius:var(--radius); border:1px solid var(--border);" />
+        <img id="kids-qr-img" alt="QR code for the alternate learner link" style="width:200px; height:200px; background:#fff; padding:10px; border-radius:var(--radius); border:1px solid var(--border);" />
       </div>
-      <p class="hint" style="margin:8px 0 0;">Use this for kindergarten / pre-K. Same class, kid-friendly UI.</p>
+      <p class="hint" style="margin:8px 0 0;">Legacy alternate view is hidden from the workforce app surface.</p>
     </div>
     <div id="qr-wrap" style="display:none; margin-top:12px; text-align:center;">
-      <img id="qr-img" alt="QR code for the student link" style="width:200px; height:200px; background:#fff; padding:10px; border-radius:var(--radius); border:1px solid var(--border);" />
-      <p class="hint" style="margin:8px 0 0;">Project this so students can scan with their phone camera.</p>
+      <img id="qr-img" alt="QR code for the learner link" style="width:200px; height:200px; background:#fff; padding:10px; border-radius:var(--radius); border:1px solid var(--border);" />
+      <p class="hint" style="margin:8px 0 0;">Project this so learners can scan with their phone camera.</p>
     </div>
     <p id="share-status" class="hint" style="margin:8px 0 0; min-height:1em;"></p>
     <p class="hint" style="margin-top:8px;">The mic stays on for the whole lesson. Close this tab to end class.</p>
@@ -249,11 +248,11 @@
 <!-- Sticky YouTube transport bar -->
 <div id="yt-transport" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:60; padding:10px 14px; background:var(--ink, #1a1a1a); color:#fff; border-top:3px solid var(--accent, #d9534f); box-shadow:0 -6px 24px rgba(0,0,0,0.25); gap:10px; align-items:center; flex-wrap:wrap; font-family:'DM Mono',monospace;">
   <button id="yt-t-back" type="button" title="Back 10 seconds" style="background:#333; color:#fff; border:1px solid #555; border-radius:8px; padding:8px 12px; font-size:14px; cursor:pointer; min-width:54px;">−10s</button>
-  <button id="yt-t-play" type="button" title="Play / pause" style="background:var(--accent,#d9534f); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:18px; cursor:pointer; min-width:54px;">▶</button>
+  <button id="yt-t-play" type="button" title="Play / pause" style="background:var(--accent,#d9534f); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:14px; cursor:pointer; min-width:54px;">Play</button>
   <button id="yt-t-fwd" type="button" title="Forward 10 seconds" style="background:#333; color:#fff; border:1px solid #555; border-radius:8px; padding:8px 12px; font-size:14px; cursor:pointer; min-width:54px;">+10s</button>
   <input id="yt-t-scrub" type="range" min="0" max="100" value="0" step="1" title="Scrub" style="flex:1; min-width:140px; accent-color:var(--accent,#d9534f);" />
   <span id="yt-t-time" style="font-size:12px; min-width:90px; text-align:right; opacity:0.8;">0:00 / 0:00</span>
-  <button id="yt-t-close" type="button" title="Close shared video" style="background:transparent; color:#fff; border:1px solid #555; border-radius:8px; padding:8px 12px; font-size:14px; cursor:pointer;">✕ Close</button>
+  <button id="yt-t-close" type="button" title="Close shared video" style="background:transparent; color:#fff; border:1px solid #555; border-radius:8px; padding:8px 12px; font-size:14px; cursor:pointer;">Close</button>
 </div>
 
 <script>
@@ -358,9 +357,9 @@
       : location.origin + '/student';
   }
   function currentKidsUrl() {
-    return currentClassCode
-      ? location.origin + '/kids?c=' + currentClassCode
-      : location.origin + '/kids';
+      return currentClassCode
+        ? location.origin + '/student?c=' + currentClassCode
+        : location.origin + '/student';
   }
   async function refreshShareUrl() {
     try {
@@ -457,7 +456,7 @@
     const url = currentShareUrl();
     try {
       await navigator.clipboard.writeText(url);
-      flashStatus('✓ Link copied');
+      flashStatus('Link copied');
     } catch (_) {
       const range = document.createRange();
       range.selectNode(studentUrlEl);
@@ -490,14 +489,14 @@
     }
   });
 
-  // ---- Kids link share buttons ----
+    // ---- Hidden alternate learner link share buttons ----
   const kidsQrWrap = document.getElementById('kids-qr-wrap');
   const kidsQrImg = document.getElementById('kids-qr-img');
   document.getElementById('kids-copy').addEventListener('click', async () => {
     const url = currentKidsUrl();
     try {
       await navigator.clipboard.writeText(url);
-      flashStatus('✓ Kids link copied');
+      flashStatus('Alternate learner link copied');
     } catch (_) {
       const range = document.createRange();
       range.selectNode(kidsUrlEl);
@@ -529,14 +528,14 @@
   }
 
   document.getElementById('end-class').addEventListener('click', async () => {
-    if (!confirm('End class now?\n\nEvery student will be disconnected and the lesson will be cleared. You\'ll need to re-enter the instructor passcode to start a new class.')) return;
+    if (!confirm('End class now?\n\nEvery learner will be disconnected and the lesson will be cleared. You\'ll need to re-enter the instructor passcode to start a new class.')) return;
     try { await postSession('new'); } catch (_) {}
     dropAuth();
     showGate();
   });
 
   document.getElementById('new-class').addEventListener('click', async () => {
-    if (!confirm('Start a new class?\n\nCurrent students will be disconnected and the share link will change. Lesson history, video, and document will be cleared.')) return;
+    if (!confirm('Start a new class?\n\nCurrent learners will be disconnected and the share link will change. Lesson history, video, and document will be cleared.')) return;
     try {
       const d = await postSession('new');
       if (!d) return; // got kicked to the gate
@@ -609,9 +608,9 @@
     btn.className = micToggle.className;
     btn.style.marginLeft = '8px';
     btn.title = 'Mic mishearing you? Record a clip (up to 30s) and Whisper will transcribe it.';
-    btn.textContent = '🎙 Record clip';
-    function setIdle() { btn.textContent = '🎙 Record clip'; btn.disabled = false; btn.classList.remove('recording'); }
-    function setRecording() { btn.textContent = '⏺ Stop & send'; btn.classList.add('recording'); }
+    btn.textContent = 'Record clip';
+    function setIdle() { btn.textContent = 'Record clip'; btn.disabled = false; btn.classList.remove('recording'); }
+    function setRecording() { btn.textContent = 'Stop and send'; btn.classList.add('recording'); }
     function setBusy(label) { btn.textContent = label; btn.disabled = true; }
     async function startRec() {
       if (!navigator.mediaDevices || !window.MediaRecorder) {
@@ -719,7 +718,7 @@
         for (const k of kids.slice(0, 12)) {
           const chip = document.createElement('span');
           chip.style.cssText = 'display:inline-flex; align-items:center; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:2px 8px;';
-          // Kid avatars are image paths in the kids view; show the initial
+      // Legacy alternate-view avatars are image paths; show the initial
           // (and a generic face) rather than a raw path.
           chip.textContent = '🙂' + (k.initial ? ' ' + k.initial : '');
           badge.appendChild(chip);
@@ -767,7 +766,7 @@
   }
 
   function updateAudience(n) {
-    audienceText.textContent = n === 1 ? '1 student' : n + ' students';
+    audienceText.textContent = n === 1 ? '1 learner' : n + ' learners';
     audiencePill.className = 'status-pill' + (n > 0 ? ' ok' : '');
   }
 
@@ -800,7 +799,7 @@
       node.remove();
     }
     if (!msgFeed.querySelector('[data-msg-id]')) {
-      msgFeed.innerHTML = '<div class="utter"><div class="tr" style="color:var(--muted); font-style:italic;">Messages from students will appear here.</div></div>';
+      msgFeed.innerHTML = '<div class="utter"><div class="tr" style="color:var(--muted); font-style:italic;">Messages from learners will appear here.</div></div>';
     }
   });
   function renderMessages(messages) {
@@ -894,7 +893,7 @@
             const d = await r.json().catch(() => ({}));
             if (r.ok) {
               form.remove();
-              replyStatus.textContent = '✓ Sent — the student sees it on their next refresh (a few seconds)';
+              replyStatus.textContent = 'Sent — the learner sees it on their next refresh (a few seconds)';
               setTimeout(() => { replyStatus.textContent = ''; }, 6000);
             } else {
               replyStatus.textContent = d.error || 'Could not send.';
@@ -914,7 +913,7 @@
   function resetMsgFeed() {
     lastSeenMsgId = 0;
     dismissedMsgIds.clear();
-    msgFeed.innerHTML = '<div class="utter"><div class="tr" style="color:var(--muted); font-style:italic;">Messages from students will appear here.</div></div>';
+    msgFeed.innerHTML = '<div class="utter"><div class="tr" style="color:var(--muted); font-style:italic;">Messages from learners will appear here.</div></div>';
   }
   async function pollAudience() {
     try {
@@ -1052,7 +1051,7 @@
     if (e.key === 'Enter') { e.preventDefault(); sendManual(); }
   });
 
-  // ---------- vocabulary mode (General / OSHA / Trades / Forklift / Flagging / Kindergarten) ----------
+  // ---------- vocabulary mode (General / OSHA / Trades / Forklift / Flagging) ----------
   const modeSelect = document.getElementById('mode-select');
   const modeStatus = document.getElementById('mode-status');
   let currentMode = 'general';
@@ -1104,14 +1103,14 @@
 
   // ---------- classroom grid ----------
   const FLAG_FOR_LANG = {
-    'English': '🇺🇸', 'Spanish': '🇪🇸', 'Dari': '🇦🇫', 'Somali': '🇸🇴',
-    'Vietnamese': '🇻🇳', 'Amharic': '🇪🇹', 'Arabic': '🇸🇦',
-    'Simplified Chinese': '🇨🇳', 'Tagalog': '🇵🇭', 'Swahili': '🇰🇪',
-    'French': '🇫🇷', 'Portuguese': '🇧🇷', 'Korean': '🇰🇷', 'Hindi': '🇮🇳',
-    'Punjabi': '🇮🇳', 'Russian': '🇷🇺', 'Ukrainian': '🇺🇦',
-    'Haitian Creole': '🇭🇹', 'Pashto': '🇦🇫', 'Burmese': '🇲🇲',
-    'Khmer': '🇰🇭', 'Hmong': '🇱🇦', 'Tigrinya': '🇪🇷',
-    'Karen (Sgaw)': '🇲🇲', 'Nepali': '🇳🇵', 'Malay': '🇲🇾', 'Turkish': '🇹🇷',
+    'English': '', 'Spanish': '', 'Dari': '', 'Somali': '',
+    'Vietnamese': '', 'Amharic': '', 'Arabic': '',
+    'Simplified Chinese': '', 'Tagalog': '', 'Swahili': '',
+    'French': '', 'Portuguese': '', 'Korean': '', 'Hindi': '',
+    'Punjabi': '', 'Russian': '', 'Ukrainian': '',
+    'Haitian Creole': '', 'Pashto': '', 'Burmese': '',
+    'Khmer': '', 'Hmong': '', 'Tigrinya': '',
+    'Karen (Sgaw)': '', 'Nepali': '', 'Malay': '', 'Turkish': '',
   };
   const transcriptLog = [];        // every published utterance: {ts, en, id}
   const rosterMap = new Map();     // sid -> {name, lang, ts, seen, lastPolled}
@@ -1139,16 +1138,16 @@
     return age < 40000 ? 'green' : age < 75000 ? 'yellow' : 'red';
   }
   function renderClassroom(roster, byLang) {
-    // Language breakdown summary (e.g. "5 Spanish • 2 Somali • 1 Amharic")
+    // Language breakdown summary (e.g. "5 Spanish, 2 Somali, 1 Amharic")
     const parts = Object.entries(byLang || {}).sort((a, b) => b[1] - a[1]);
-    classLangSummary.textContent = parts.map(([l, n]) => n + ' ' + l).join(' • ');
+    classLangSummary.textContent = parts.map(([l, n]) => n + ' ' + l).join(', ');
     for (const [l] of parts) langsSeen.add(l);
     roomLangsEl.style.display = parts.length ? 'flex' : 'none';
     roomLangsEl.innerHTML = '';
     for (const [l, n] of parts) {
       const chip = document.createElement('span');
       chip.style.cssText = 'display:inline-flex; align-items:center; gap:5px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px 10px; font-size:12px;';
-      chip.textContent = (FLAG_FOR_LANG[l] || '') + ' ' + l + ' × ' + n;
+      chip.textContent = l + ' x ' + n;
       roomLangsEl.appendChild(chip);
     }
 
@@ -1180,7 +1179,7 @@
       const tile = document.createElement('button');
       tile.type = 'button';
       tile.style.cssText = 'text-align:left; background:var(--surface); border:2px solid var(--border-strong, var(--border)); border-radius:var(--radius); padding:10px 12px; cursor:pointer; font-family:inherit; color:var(--text); min-height:44px;';
-      tile.title = 'Send a direct message to this student';
+      tile.title = 'Send a direct message to this learner';
       const state = connState(st, now);
       const nameRow = document.createElement('div');
       nameRow.style.cssText = 'display:flex; align-items:center; gap:6px; font-weight:600; font-size:14px;';
@@ -1465,7 +1464,7 @@
     if (data.hasCaptions && data.captionCount) {
       showVideoStatus('Captions ready (' + data.captionCount + ' lines). Students will see translations as you play.', 'ok');
     } else {
-      showVideoStatus('No captions available for this video — students will see the video but no translated captions. Try a video with closed captions enabled.', 'warn');
+      showVideoStatus('No captions available for this video — learners will see the video but no translated captions. Try a video with closed captions enabled.', 'warn');
     }
     videoWrap.style.display = 'block';
     videoClearBtn.style.display = 'inline-block';
@@ -1526,7 +1525,7 @@
     if (!ytPlayer || !ytReady) return;
     try {
       const s = ytPlayer.getPlayerState();
-      tBtnPlay.textContent = s === 1 ? '⏸' : '▶';
+      tBtnPlay.textContent = s === 1 ? 'Pause' : 'Play';
       const dur = ytPlayer.getDuration() || 0;
       const cur = ytPlayer.getCurrentTime() || 0;
       if (!scrubbing) {
@@ -1586,7 +1585,7 @@
   // ---------- Clear lesson history ----------
   const clearHistoryBtn = document.getElementById('clear-history');
   clearHistoryBtn.addEventListener('click', async () => {
-    if (!confirm('Wipe the lesson transcript? This clears it from the server and from every student\'s screen. The mic and video stay on.')) return;
+    if (!confirm('Wipe the lesson transcript? This clears it from the server and from every learner\'s screen. The mic and video stay on.')) return;
     clearHistoryBtn.disabled = true;
     const orig = clearHistoryBtn.textContent;
     try {
@@ -1594,7 +1593,7 @@
       if (d && d.ok) {
         recent.length = 0;
         feed.innerHTML = '';
-        clearHistoryBtn.textContent = 'Cleared ✓';
+        clearHistoryBtn.textContent = 'Cleared';
         setTimeout(() => { clearHistoryBtn.textContent = orig; }, 2000);
       }
     } finally {

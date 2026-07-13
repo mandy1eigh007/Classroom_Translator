@@ -639,10 +639,9 @@ app.get('/class/current', (req, res) => {
 // room code, which is exactly what the QR contains.
 app.get('/qr.png', async (req, res) => {
   const baseUrl = (req.get('x-forwarded-proto') || req.protocol) + '://' + req.get('host');
-  // Optional `?p=kids` switches the encoded page to the pre-reader UI. Any
-  // value other than the allow-list falls back to /student so a typo doesn't
-  // produce a broken QR.
-  const page = req.query.p === 'kids' ? '/kids' : '/student';
+// All QR codes now point to the learner view. Older page hints fall back to
+// /student so stale links do not produce a broken QR.
+  const page = '/student';
   const target = baseUrl + page + '?c=' + currentRoomCode;
   try {
     const buf = await QRCode.toBuffer(target, {
@@ -2045,7 +2044,7 @@ function renderStudySheet(lang, items, emptyMsg) {
 </style></head><body>
 <h1>Class study sheet</h1>
 <p class="sub">${escHtml(lang)} · ${escHtml(today)}</p>
-<button class="print" onclick="window.print()">🖨 Print or save as PDF</button>
+<button class="print" onclick="window.print()">Print or save as PDF</button>
 ${emptyMsg ? `<div class="empty">${escHtml(emptyMsg)}</div>` : `
 <p class="print-hint">Review these words before next class. The English word is on the left so you can match it when you hear it on the job.</p>
 <table>

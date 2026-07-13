@@ -12,7 +12,7 @@
 window.VOCAB_PRESETS = {
   general: {
     label: 'General',
-    prompt: 'general classroom',
+    prompt: 'workforce training',
     terms: [],
   },
   osha: {
@@ -64,17 +64,6 @@ window.VOCAB_PRESETS = {
       'lane closure', 'shoulder', 'oncoming traffic', 'queue', 'detour',
       'barricade', 'channelizing device', 'MUTCD', 'night work', 'flagging station',
       'stop position', 'release traffic', 'one-lane road', 'posted speed',
-    ],
-  },
-  kindergarten: {
-    label: 'Kindergarten',
-    prompt: 'kindergarten classroom (young children, very simple words)',
-    terms: [
-      'line up', 'sit down', 'raise your hand', 'bathroom', 'lunch',
-      'recess', 'circle time', 'quiet voices', 'clean up', 'backpack',
-      'snack', 'wash your hands', 'listen', 'share', 'take turns',
-      'good job', 'be kind', 'walking feet', 'story time', 'nap time',
-      'teacher', 'friend', 'crayon', 'scissors', 'glue', 'paper',
     ],
   },
 };

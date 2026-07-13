@@ -33,20 +33,20 @@ dashboard, also add them under Settings -> Bindings:
    -> Add user (email + password), then run this SQL once (SQL editor):
 
    ```sql
-   insert into profiles (id, role, display_name, email)
+   insert into cl_profiles (id, role, display_name, email)
    values ('<the-new-user-uuid>', 'admin', 'Mandy', '<the-email>');
    ```
 
 3. Sign in at `/admin` with that account.
 4. Optional: Authentication -> Providers -> Email — turning OFF "Confirm
-   email" makes teacher creation from the admin panel fully self-service
-   (with confirmation on, new teachers must confirm before their profile
+   email" makes instructor creation from the admin panel fully self-service
+   (with confirmation on, new instructors must confirm before their profile
    activates).
 
 ## Pages
 
 - `/` — landing
 - `/teach` — instructor (passcode-gated; mode selector, classroom grid, export)
-- `/student` — student (guest or Supabase email sign-in)
-- `/kids` — pre-reader student view
+- `/student` — learner view
+- `/dispatch` — field-team dispatch view
 - `/admin` — owner console (Supabase Auth, role `admin` required)

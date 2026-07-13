@@ -28,7 +28,8 @@
 //                      demand, cached for everyone else in that language
 // "Clearing history" and "new class" bump the epoch, which makes every old
 // msg/tr key invisible without needing deletes. Keys carry TTLs so KV
-// self-cleans (ephemeral by design — no student PII, nothing kept).
+// self-cleans. Live feed content is TTL-based; phrasebook, local settings,
+// and optional admin/reporting records are separate.
 
 export const LANG_CODES = {
   'English': 'en',

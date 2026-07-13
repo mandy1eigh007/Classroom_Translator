@@ -11,7 +11,7 @@
 //                               (replaces /history/clear)
 //          { action: "mode", mode, promptLabel, terms[] }
 //                               set the vocabulary mode (General / OSHA /
-//                               Trades / Forklift / Flagging / Kindergarten).
+//                               Trades / Forklift / Flagging).
 //                               Terms come from /public/vocab-presets.js and
 //                               are injected into translation prompts.
 //

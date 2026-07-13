@@ -1,4 +1,7 @@
 node_modules
+.wrangler/
+.qa/
+*.log
 
 # Duplicate local archive snapshots (keep extracted project files instead)
 classroom-translatorzip (1).zip
