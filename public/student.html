@@ -148,7 +148,7 @@
     <p class="display text-lg" style="color:var(--red)" id="join-stale-msg"></p>
     <p class="mt-1 text-sm" style="color:var(--ink2)" data-i18n="stale_ask">Ask your instructor for the current class link.</p>
   </div>
-  <div class="sticky bottom-0 mt-6 pt-2" style="background:linear-gradient(180deg, transparent, var(--cream) 30%);">
+  <div id="join-action" class="sticky bottom-0 mt-6 hidden pt-2" style="background:linear-gradient(180deg, transparent, var(--cream) 30%);">
     <button id="join-btn" class="retro-btn w-full py-5 text-xl disabled:opacity-50" style="background:var(--red); color:var(--paper);" disabled>
       <span data-i18n="join_btn">Join class</span>
     </button>
@@ -440,6 +440,7 @@ async function loadI18n(lang) {
 
 // ---------- Screen 1: language picker ----------
 const langGrid = $('lang-grid');
+let roomVerified = false;
 function renderLangGrid() {
   langGrid.innerHTML = '';
   for (const L of LANGS) {
@@ -451,11 +452,13 @@ function renderLangGrid() {
     b.addEventListener('click', () => {
       pendingLang = L.name;
       renderLangGrid();
-      $('join-btn').disabled = false;
+      $('join-action').classList.toggle('hidden', !(pendingLang && roomVerified));
+      $('join-btn').disabled = !roomVerified;
     });
     langGrid.appendChild(b);
   }
-  $('join-btn').disabled = !pendingLang;
+  $('join-action').classList.toggle('hidden', !(pendingLang && roomVerified));
+  $('join-btn').disabled = !(pendingLang && roomVerified);
 }
 renderLangGrid();
 
@@ -463,8 +466,6 @@ function showJoinStale(msg) {
   $('join-stale').classList.remove('hidden');
   $('join-stale-msg').textContent = msg;
   $('join-btn').disabled = true;
-  langGrid.style.opacity = '0.4';
-  langGrid.style.pointerEvents = 'none';
 }
 
 $('join-btn').addEventListener('click', () => {
@@ -591,7 +592,6 @@ if (sbClient) {
   }).catch(() => {});
 }
 
-let roomVerified = false;
 if (!roomCode) {
   setTimeout(() => showJoinStale(t('stale_link_needed')), 0);
 } else {
