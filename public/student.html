@@ -103,6 +103,7 @@
     .watermark span { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink); white-space: nowrap; user-select: none; }
     input, textarea { background: var(--paper); border: 2px solid var(--ink); border-radius: 10px; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
     input:focus, textarea:focus { outline: none; box-shadow: 3px 3px 0 var(--red); }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body data-fs="md" class="min-h-screen">
@@ -257,10 +258,10 @@
       <div id="pb-list" class="flex flex-col gap-2"></div>
     </section>
 
-    <!-- Message the teacher -->
+    <!-- Message the instructor -->
     <section class="retro-card mb-4 p-4" style="box-shadow:6px 6px 0 var(--red);">
-      <h3 class="display mb-1 text-lg" data-i18n="card_msg">Message the teacher</h3>
-      <p class="mb-2 text-sm" style="color:var(--ink2);" data-i18n="msg_hint">Write in your own language. The teacher sees it in English.</p>
+      <h3 class="display mb-1 text-lg" data-i18n="card_msg">Message the instructor</h3>
+      <p class="mb-2 text-sm" style="color:var(--ink2);" data-i18n="msg_hint">Write in your own language. The instructor sees it in English.</p>
       <input id="nick-input" type="text" maxlength="40" class="mb-2 w-full px-3 py-2 text-sm" data-i18n-ph="nick_ph" placeholder="Your name (optional)" autocomplete="off" />
       <textarea id="msg-text" rows="3" maxlength="400" class="w-full px-3 py-2 text-[15px]" data-i18n-ph="msg_ph" placeholder="Type your question…"></textarea>
       <div class="mt-2 flex items-center gap-2">
@@ -377,13 +378,13 @@ const UI_STRINGS = {
   card_sheet: 'Study sheet', sheet_hint: "Printable vocabulary list from today's class.", sheet_btn: 'Open study sheet',
   card_pb: 'My phrasebook', pb_sync: 'Sync', pb_hint: 'Tap a word in class, then Save, to build your list.',
   pb_empty: 'Nothing saved yet. Tap any English word in the lesson to look it up and save it.',
-  card_msg: 'Message the teacher', msg_hint: 'Write in your own language. The teacher sees it in English.',
+  card_msg: 'Message the instructor', msg_hint: 'Write in your own language. The instructor sees it in English.',
   nick_ph: 'Your name (optional)', msg_ph: 'Type your question…', msg_send: 'Send',
-  msg_sending: 'Sending…', msg_sent: 'Sent to teacher', msg_failed: 'Could not send.',
+  msg_sending: 'Sending…', msg_sent: 'Sent to instructor', msg_failed: 'Could not send.',
   card_voice: 'Voice settings', btn_slow: 'Slow voice', btn_natural: 'Natural voice',
   btn_change_lang: 'Change language',
   def_meaning: 'Meaning', def_example: 'Example', def_mylang: 'Listen in my language', def_save: 'Save',
-  teacher_label: 'TEACHER',
+  teacher_label: 'INSTRUCTOR',
   doc_show_en: 'Show English', doc_hide_en: 'Hide English', doc_page: 'Page {n} / {total}',
   auth_title: 'Your account',
   auth_hint: 'Sign in to keep your name, language, and phrasebook on any device — or just join as a guest.',
