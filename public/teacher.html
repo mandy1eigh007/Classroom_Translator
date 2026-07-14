@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Dashboard — ClassLingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/supabase-config.js"></script>
+  <style>
+    /* Design system — matches public/index.html exactly. */
+    :root {
+      --cream: #f3e9d2;
+      --paper: #fdf6e3;
+      --ink: #2a1a0f;
+      --ink2: #6b4f3a;
+      --red: #c2362e;
+      --mustard: #e0a82e;
+      --teal: #2b7a78;
+      --orange: #e2733a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--cream); color: var(--ink); min-height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      background-image:
+        radial-gradient(rgba(42,26,15,0.05) 1px, transparent 1px),
+        radial-gradient(rgba(42,26,15,0.03) 1px, transparent 1px);
+      background-size: 24px 24px, 8px 8px;
+      background-position: 0 0, 4px 4px;
+    }
+    ::selection { background: var(--mustard); color: var(--ink); }
+    a { color: inherit; text-decoration: none; }
+    .display { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-weight: 700; }
+    .mono    { font-family: 'DM Mono', monospace; }
+    .ink     { color: var(--ink); }
+    .ink2    { color: var(--ink2); }
+
+    .retro-card {
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 14px;
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+    .retro-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--red); color: var(--paper);
+      border: 3px solid var(--ink); border-radius: 10px;
+      padding: 14px 22px;
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase;
+      box-shadow: 5px 5px 0 var(--ink);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s;
+    }
+    .retro-btn:hover { transform: translate(-1px,-1px); box-shadow: 6px 6px 0 var(--ink); filter: brightness(1.05); }
+    .retro-btn:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 var(--ink); }
+    .retro-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+    .retro-btn.mustard { background: var(--mustard); color: var(--ink); }
+    .retro-btn.teal    { background: var(--teal); color: var(--paper); }
+    .retro-btn.ghost   { background: var(--paper); color: var(--ink); }
+    .retro-btn.sm { padding: 8px 14px; font-size: 11px; box-shadow: 3px 3px 0 var(--ink); }
+    .retro-btn.sm:hover { box-shadow: 4px 4px 0 var(--ink); }
+    .retro-btn.sm:active { box-shadow: 1px 1px 0 var(--ink); }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--paper); color: var(--ink);
+      border: 2px solid var(--ink); border-radius: 999px;
+      padding: 6px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      font-weight: 500;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: pulse 1.4s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    .chip.small { padding: 3px 10px; font-size: 10px; box-shadow: 2px 2px 0 var(--ink); letter-spacing: 0.12em; }
+
+    .ico-tile {
+      display: grid; place-items: center;
+      width: 48px; height: 48px;
+      border: 2.5px solid var(--ink); border-radius: 10px;
+      background: var(--red); color: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .divider { border-top: 2px dashed var(--ink); opacity: 0.45; }
+
+    .nav-link {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+      border: 2px solid var(--ink); border-radius: 8px;
+      padding: 8px 14px;
+      background: var(--paper); color: var(--ink);
+      box-shadow: 3px 3px 0 var(--ink);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .nav-link:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+    .nav-link.primary { background: var(--red); color: var(--paper); }
+    .nav-link.secondary { background: var(--mustard); color: var(--ink); }
+
+    .h-display { font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700; line-height: 1.02; letter-spacing: 0.01em; }
+    .label-mono { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; }
+
+    /* ---------- dashboard shell ---------- */
+    .topnav {
+      position: sticky; top: 0; z-index: 50;
+      border-bottom: 3px solid var(--ink);
+      background: rgba(243,233,210,0.95);
+      backdrop-filter: blur(6px);
+      padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .topnav .brand { display: flex; align-items: center; gap: 12px; }
+    .shell { display: flex; align-items: flex-start; gap: 20px; padding: 20px 24px 80px; max-width: 1500px; margin: 0 auto; }
+    .rail {
+      width: 240px; flex-shrink: 0;
+      position: sticky; top: 86px;
+      max-height: calc(100vh - 106px);
+      overflow-y: auto;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .rail-card { background: var(--paper); border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--ink); padding: 12px 14px; }
+    .rail-card h4 { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink2); margin-bottom: 8px; }
+    .rail-code { font-family: 'DM Mono', monospace; font-size: 26px; letter-spacing: 0.14em; }
+    .content { flex: 1; min-width: 0; }
+
+    .tabbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .tab-btn {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+      border: 2px solid var(--ink); border-radius: 8px;
+      padding: 8px 13px; background: var(--paper); color: var(--ink);
+      box-shadow: 3px 3px 0 var(--ink); cursor: pointer;
+    }
+    .tab-btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+    .tab-btn.active { background: var(--red); color: var(--paper); }
+    .tab-page { display: none; }
+    .tab-page.active { display: block; }
+
+    .panel { background: var(--paper); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 5px 5px 0 var(--ink); padding: 18px 20px; margin-bottom: 18px; }
+    .panel h3 { font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700; font-size: 17px; margin-bottom: 10px; }
+    .panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .panel-grid .panel { margin-bottom: 0; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat { background: var(--paper); border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--ink); padding: 14px 16px; }
+    .stat .num { font-family: 'DM Mono', monospace; font-size: 30px; font-weight: 500; }
+    .stat .lbl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink2); margin-top: 4px; }
+
+    label { display: block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink2); margin: 12px 0 5px; }
+    input, select, textarea {
+      width: 100%; background: #fff; border: 2px solid var(--ink); border-radius: 8px;
+      color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; padding: 9px 11px;
+    }
+    input:focus, select:focus, textarea:focus { outline: 3px solid var(--mustard); outline-offset: 0; }
+    textarea { min-height: 140px; resize: vertical; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+    .row > div { flex: 1; min-width: 150px; }
+    .row > .fixed { flex: 0; min-width: 0; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink2); padding: 8px 10px; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+    td { padding: 10px; border-bottom: 1px dashed rgba(42,26,15,0.35); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover td { background: rgba(224,168,46,0.18); }
+
+    .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; border: 2px solid var(--ink); background: var(--paper); }
+    .pill.green { background: var(--teal); color: var(--paper); }
+    .pill.red { background: var(--red); color: var(--paper); }
+    .pill.yellow { background: var(--mustard); color: var(--ink); }
+
+    .empty { color: var(--ink2); font-style: italic; padding: 10px 2px; font-size: 13px; }
+    .err-text { color: var(--red); font-size: 13px; font-weight: 600; min-height: 1em; margin-top: 8px; }
+    .ok-text { color: var(--teal); font-size: 13px; font-weight: 600; min-height: 1em; margin-top: 8px; }
+    .hint { font-size: 12px; color: var(--ink2); margin-top: 8px; line-height: 1.5; }
+
+    /* tree */
+    .tree { font-size: 13px; }
+    .tree .t-node { cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+    .tree .t-node:hover { background: rgba(224,168,46,0.25); }
+    .tree .t-kids { margin-left: 14px; border-left: 2px dashed rgba(42,26,15,0.3); padding-left: 8px; }
+    .tree .t-item { cursor: pointer; padding: 3px 6px; border-radius: 6px; color: var(--ink); }
+    .tree .t-item:hover { background: rgba(43,122,120,0.18); }
+    .tree .t-item.selected { background: var(--mustard); }
+    .tree .t-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .two-col { display: flex; gap: 18px; align-items: flex-start; }
+    .two-col .col-left { width: 340px; flex-shrink: 0; }
+    .two-col .col-right { flex: 1; min-width: 0; }
+    @media (max-width: 980px) {
+      .shell { flex-direction: column; }
+      .rail { width: 100%; position: static; max-height: none; }
+      .two-col { flex-direction: column; }
+      .two-col .col-left { width: 100%; }
+    }
+
+    .class-card { background: var(--paper); border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--ink); padding: 14px 16px; margin-bottom: 12px; cursor: pointer; }
+    .class-card:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--ink); }
+    .class-card.selected { box-shadow: 5px 5px 0 var(--mustard); }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(42,26,15,0.55); z-index: 100; display: none; align-items: flex-start; justify-content: center; padding: 6vh 16px; overflow-y: auto; }
+    .modal { width: 100%; max-width: 620px; background: var(--paper); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 8px 8px 0 var(--ink); padding: 22px 24px; }
+    .modal h3 { font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700; font-size: 19px; margin-bottom: 4px; }
+    .modal .m-sub { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink2); margin-bottom: 12px; }
+
+    .check-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .check-row input[type="checkbox"] { width: auto; }
+    .check-row label { margin: 0; font-family: 'Inter', sans-serif; font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--ink); }
+    .lang-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 2px 14px; }
+
+    #splash { min-height: 100dvh; display: flex; align-items: center; justify-content: center; }
+    #app { display: none; }
+    .event-line { padding: 6px 0; border-bottom: 1px dashed rgba(42,26,15,0.3); font-size: 13px; }
+    .event-line .e-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink2); }
+  </style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="retro-card" style="padding: 28px 36px; text-align: center;">
+    <div class="h-display" style="font-size: 24px;"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
+    <div class="label-mono ink2" style="margin-top: 8px;" id="splash-msg">Checking your session</div>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- ============ TOP NAV ============ -->
+  <nav class="topnav">
+    <div class="brand">
+      <div class="ico-tile display" style="width:44px; height:44px;">CL</div>
+      <div style="line-height: 1;">
+        <div class="h-display" style="font-size: 22px;"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
+        <div class="label-mono ink2" style="margin-top: 4px;">Teacher Dashboard</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span class="label-mono ink2" id="nav-who"></span>
+      <a href="/teach" class="nav-link secondary">Live Console</a>
+      <button class="nav-link" id="nav-logout">Log Out</button>
+    </div>
+  </nav>
+
+  <div class="shell">
+
+    <!-- ============ LEFT RAIL ============ -->
+    <aside class="rail">
+      <div class="rail-card">
+        <h4>Selected Class</h4>
+        <select id="rail-class"></select>
+        <div class="label-mono ink2" style="margin-top: 8px;" id="rail-class-trade"></div>
+        <div class="label-mono ink2" style="margin-top: 4px;" id="rail-class-lang"></div>
+      </div>
+
+      <div class="rail-card">
+        <h4>Active Session</h4>
+        <div id="rail-session"></div>
+      </div>
+
+      <div class="rail-card">
+        <h4>Classwork Index</h4>
+        <div class="tree" id="rail-index" style="max-height: 300px; overflow-y: auto;"></div>
+      </div>
+
+      <div class="rail-card">
+        <h4>Language Counts</h4>
+        <div id="rail-langs" class="empty">No session running.</div>
+      </div>
+
+      <div class="rail-card">
+        <h4>Help Flags</h4>
+        <div id="rail-help" class="empty">No flags.</div>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN CONTENT ============ -->
+    <div class="content">
+      <div class="tabbar" id="tabbar">
+        <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="tab-btn" data-tab="classes">Classes</button>
+        <button class="tab-btn" data-tab="students">Students</button>
+        <button class="tab-btn" data-tab="materials">Materials</button>
+        <button class="tab-btn" data-tab="live">Live Sessions</button>
+        <button class="tab-btn" data-tab="translations">Translations</button>
+        <button class="tab-btn" data-tab="vocab">Vocab Bank</button>
+        <button class="tab-btn" data-tab="reports">Reports</button>
+        <button class="tab-btn" data-tab="settings">Settings</button>
+      </div>
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="tab-page active" id="tab-dashboard">
+        <div class="panel" id="dash-today"></div>
+        <div class="panel" id="dash-session"></div>
+        <div class="panel-grid" style="margin-bottom: 18px;">
+          <div class="panel"><h3>Lobby</h3><div id="dash-lobby" class="empty">No active session.</div></div>
+          <div class="panel"><h3>Help / Confused Alerts</h3><div id="dash-help" class="empty">No alerts.</div></div>
+        </div>
+        <div class="panel-grid" style="margin-bottom: 18px;">
+          <div class="panel"><h3>Recent Materials</h3><div id="dash-materials" class="empty">No materials yet.</div></div>
+          <div class="panel"><h3>Translation Queue</h3><div id="dash-queue" class="empty">Nothing queued.</div></div>
+        </div>
+        <div class="panel"><h3>Last Session Summary</h3><div id="dash-last" class="empty">No past sessions.</div></div>
+      </div>
+
+      <!-- ===== CLASSES ===== -->
+      <div class="tab-page" id="tab-classes">
+        <div style="margin-bottom: 16px;"><button class="retro-btn sm" id="btn-create-class">Create Class</button></div>
+        <div class="two-col">
+          <div class="col-left" id="class-list"></div>
+          <div class="col-right">
+            <div class="panel" id="class-detail"><div class="empty">Select a class on the left.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== STUDENTS ===== -->
+      <div class="tab-page" id="tab-students">
+        <div style="margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="retro-btn sm" id="btn-add-student">Add Student</button>
+          <button class="retro-btn sm mustard" id="btn-import-roster">Import Roster</button>
+        </div>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Name</th><th>Preferred Language</th><th>Classes Enrolled</th><th>Last Active</th><th id="th-live" style="display:none;">Live Status</th></tr></thead>
+            <tbody id="student-rows"></tbody>
+          </table>
+          <div id="students-empty" class="empty" style="display:none;">No students yet. Add one or import a roster.</div>
+        </div>
+      </div>
+
+      <!-- ===== MATERIALS ===== -->
+      <div class="tab-page" id="tab-materials">
+        <div style="margin-bottom: 16px;"><button class="retro-btn sm" id="btn-new-material">New Material</button></div>
+        <div class="two-col">
+          <div class="col-left">
+            <div class="panel">
+              <h3>Index</h3>
+              <div class="tree" id="material-tree"></div>
+            </div>
+          </div>
+          <div class="col-right">
+            <div class="panel" id="material-detail"><div class="empty">Pick a material from the index, or create a new one.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LIVE SESSIONS ===== -->
+      <div class="tab-page" id="tab-live">
+        <div style="margin-bottom: 16px;"><button class="retro-btn sm" id="btn-new-session">Start New Session</button></div>
+        <div id="live-active"></div>
+        <div class="panel">
+          <h3>Past Sessions</h3>
+          <table>
+            <thead><tr><th>Date</th><th>Class</th><th>Duration</th><th>Students</th><th>Languages</th><th>Status</th></tr></thead>
+            <tbody id="session-rows"></tbody>
+          </table>
+          <div id="sessions-empty" class="empty" style="display:none;">No sessions yet.</div>
+        </div>
+      </div>
+
+      <!-- ===== TRANSLATIONS ===== -->
+      <div class="tab-page" id="tab-translations">
+        <div class="panel">
+          <div class="row">
+            <div><label>Class</label><select id="tf-class"><option value="">All classes</option></select></div>
+            <div><label>Subject</label><select id="tf-subject"><option value="">All subjects</option></select></div>
+            <div><label>Status</label><select id="tf-status">
+              <option value="">All</option>
+              <option value="complete">Complete</option>
+              <option value="partial">Partial</option>
+              <option value="missing">Missing</option>
+            </select></div>
+          </div>
+        </div>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Material</th><th>Class</th><th>Subject</th><th>Source</th><th>Translated</th><th>Missing</th><th>Updated</th><th>Actions</th></tr></thead>
+            <tbody id="translation-rows"></tbody>
+          </table>
+          <div id="translations-empty" class="empty" style="display:none;">No materials match this filter.</div>
+        </div>
+      </div>
+
+      <!-- ===== VOCAB BANK ===== -->
+      <div class="tab-page" id="tab-vocab">
+        <div style="margin-bottom: 16px;"><button class="retro-btn sm" id="btn-add-term">Add Term</button></div>
+        <div class="panel">
+          <div class="row">
+            <div><label>Category</label><select id="vf-category"><option value="">All categories</option></select></div>
+            <div><label>Language</label><select id="vf-language"><option value="">All languages</option></select></div>
+          </div>
+        </div>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Term</th><th>Context / Category</th><th>Language</th><th>Translation</th><th>Verified</th><th>Actions</th></tr></thead>
+            <tbody id="vocab-rows"></tbody>
+          </table>
+          <div id="vocab-empty" class="empty" style="display:none;">No vocab terms yet.</div>
+        </div>
+      </div>
+
+      <!-- ===== REPORTS ===== -->
+      <div class="tab-page" id="tab-reports">
+        <div class="stat-grid">
+          <div class="stat"><div class="num" id="rp-sessions">0</div><div class="lbl">Total sessions</div></div>
+          <div class="stat"><div class="num" id="rp-students">0</div><div class="lbl">Unique students served</div></div>
+          <div class="stat"><div class="num" id="rp-langs">0</div><div class="lbl">Languages this month</div></div>
+          <div class="stat"><div class="num" id="rp-translated">0</div><div class="lbl">Materials translated</div></div>
+        </div>
+        <div class="panel"><div class="empty">Detailed reporting coming in a future release.</div></div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="tab-page" id="tab-settings">
+        <div class="panel">
+          <h3>Account</h3>
+          <div id="set-account"></div>
+        </div>
+        <div class="panel">
+          <h3>Default Class</h3>
+          <select id="set-default-class" style="max-width: 360px;"></select>
+          <p class="hint">This class is selected when the dashboard opens.</p>
+        </div>
+        <div class="panel">
+          <h3>Default Session Language</h3>
+          <select id="set-default-lang" style="max-width: 360px;"></select>
+          <p class="hint">Source language used when starting a session.</p>
+        </div>
+        <div class="panel">
+          <h3>Notification Preferences</h3>
+          <div class="check-row">
+            <input type="checkbox" id="set-notify-help" checked />
+            <label for="set-notify-help">Show help / confused alerts on the dashboard</label>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>API / Integrations</h3>
+          <div class="empty">Integrations are planned for a future release.</div>
+        </div>
+        <button class="retro-btn sm teal" id="set-save">Save Settings</button>
+        <div id="set-status" class="ok-text"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- shared modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-box"></div>
+</div>
+
+<script>
+  // ---------------- constants ----------------
+  const CFG = window.CLASSLINGO_SUPABASE;
+  const sb = window.supabase.createClient(CFG.url, CFG.anonKey);
+  const $ = (id) => document.getElementById(id);
+
+  // Mirrors LANG_CODES in functions/api/_lib.js (name -> code).
+  const LANGS = [
+    ['English','en'],['Spanish','es'],['Dari','fa'],['Somali','so'],['Vietnamese','vi'],
+    ['Amharic','am'],['Arabic','ar'],['Simplified Chinese','zh-CN'],['Tagalog','tl'],['Swahili','sw'],
+    ['French','fr'],['Portuguese','pt'],['Korean','ko'],['Hindi','hi'],['Punjabi','pa'],
+    ['Russian','ru'],['Ukrainian','uk'],['Haitian Creole','ht'],['Pashto','ps'],['Burmese','my'],
+    ['Khmer','km'],['Hmong','hmn'],['Tigrinya','ti'],['Karen (Sgaw)','ksw'],['Nepali','ne'],
+    ['Malay','ms'],['Turkish','tr'],
+  ].map(([name, code]) => ({ name, code }));
+  const LANG_NAME = Object.fromEntries(LANGS.map(l => [l.code, l.name]));
+  const TARGET_LANGS = LANGS.filter(l => l.code !== 'en');
+
+  const TRADE_FOCUSES = ['General','Construction','Electrical','Plumbing','Carpentry','HVAC','Forklift/BFET','Safety/OSHA','Flagging','Other'];
+  const SUBJECT_DEFAULTS = ['Safety','Math','Tools','Jobsite Communication'];
+  const VOCAB_CATEGORIES = ['General','Safety','Construction','Electrical','Plumbing','Carpentry','HVAC','Dispatch','Flagging','Forklift'];
+  const MATERIAL_TYPES = [
+    { id: 'text', label: 'Plain text' },
+    { id: 'link', label: 'Link' },
+    { id: 'upload', label: 'Document upload' },
+    { id: 'video', label: 'Video link' },
+    { id: 'phrase_set', label: 'Phrase / vocab set' },
+  ];
+  const SETTINGS_KEY = 'clx_teacher_settings';
+
+  // ---------------- state ----------------
+  let me = null;                 // { id, email, display_name }
+  let classes = [];
+  let students = [];
+  let materials = [];
+  let sessions = [];
+  let vocab = [];
+  let activeSession = null;      // from /api/teacher or sessions list
+  let activeDetail = null;       // GET /api/teacher/sessions/:id (attendees + events)
+  let selectedClassId = null;
+  let selectedMaterialId = null; // null = editor closed, 'new' = creating
+  let settings = { defaultClassId: '', defaultLang: 'en', notifyHelp: true };
+  try { Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (_) {}
+
+  // ---------------- helpers ----------------
+  function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  function fmtDate(s) {
+    if (!s) return '—';
+    const d = new Date(s);
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' +
+           d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  function fmtDur(a, b) {
+    if (!a || !b) return '—';
+    const mins = Math.max(0, Math.round((new Date(b) - new Date(a)) / 60000));
+    return mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
+  }
+  function langName(code) { return LANG_NAME[code] || code || '—'; }
+
+  async function api(path, opts = {}) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = '/admin'; throw new Error('Signed out.'); }
+    const r = await fetch(path, {
+      method: opts.method || 'GET',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+      body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
+    });
+    let j = null;
+    try { j = await r.json(); } catch (_) {}
+    if (!j) throw new Error('The server returned an unreadable response.');
+    if (j.error) throw new Error(j.error);
+    return j.data;
+  }
+
+  function openModal(html) { $('modal-box').innerHTML = html; $('modal-overlay').style.display = 'flex'; }
+  function closeModal() { $('modal-overlay').style.display = 'none'; $('modal-box').innerHTML = ''; }
+  $('modal-overlay').addEventListener('click', (e) => { if (e.target === $('modal-overlay')) closeModal(); });
+
+  function langOptions(selected, includeEnglish = true) {
+    return (includeEnglish ? LANGS : TARGET_LANGS)
+      .map(l => `<option value="${l.code}"${l.code === selected ? ' selected' : ''}>${esc(l.name)}</option>`).join('');
+  }
+  function selectedClass() { return classes.find(c => c.id === selectedClassId) || null; }
+  function materialTranslations(m) { return Array.isArray(m.cl_material_translations) ? m.cl_material_translations : []; }
+  function translationSummary(m) {
+    const trs = materialTranslations(m);
+    const done = trs.filter(t => t.translation_status === 'complete');
+    if (!trs.length) return { label: 'Not translated', cls: '' };
+    if (done.length === trs.length) return { label: done.length + ' language' + (done.length === 1 ? '' : 's'), cls: 'green' };
+    return { label: done.length + '/' + trs.length + ' done', cls: 'yellow' };
+  }
+
+  // ---------------- auth ----------------
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = '/admin'; return; }
+    const { data: prof } = await sb.from('cl_profiles').select('*').eq('id', session.user.id).single();
+    if (!prof || (prof.role !== 'teacher' && prof.role !== 'admin') || prof.active === false) {
+      $('splash-msg').textContent = 'This account is not an instructor. Redirecting.';
+      setTimeout(() => { location.href = '/admin'; }, 1800);
+      return;
+    }
+    me = { id: session.user.id, email: session.user.email, display_name: prof.display_name };
+    $('nav-who').textContent = me.display_name || me.email || '';
+    $('splash-msg').textContent = 'Loading your classroom';
+    try {
+      const ctx = await api('/api/teacher');
+      activeSession = ctx.active_session || null;
+    } catch (e) {
+      // API not configured yet — the shell still loads; panels will show errors on use.
+      console.warn('teacher context:', e.message);
+    }
+    await loadAll();
+    if (!selectedClassId) {
+      selectedClassId = (settings.defaultClassId && classes.some(c => c.id === settings.defaultClassId))
+        ? settings.defaultClassId
+        : (classes[0] ? classes[0].id : null);
+    }
+    if (activeSession) await refreshActiveDetail();
+    $('splash').style.display = 'none';
+    $('app').style.display = 'block';
+    renderAll();
+    setInterval(async () => {
+      if (activeSession) { await refreshActiveDetail(); renderRail(); renderDashboard(); renderLive(); }
+    }, 15000);
+  }
+  $('nav-logout').addEventListener('click', async () => { await sb.auth.signOut(); location.href = '/admin'; });
+
+  async function loadAll() {
+    const results = await Promise.allSettled([
+      api('/api/teacher/classes'),
+      api('/api/teacher/students'),
+      api('/api/teacher/materials'),
+      api('/api/teacher/sessions'),
+      api('/api/teacher/vocab'),
+    ]);
+    classes   = results[0].status === 'fulfilled' ? (results[0].value || []) : classes;
+    students  = results[1].status === 'fulfilled' ? (results[1].value || []) : students;
+    materials = results[2].status === 'fulfilled' ? (results[2].value || []) : materials;
+    sessions  = results[3].status === 'fulfilled' ? (results[3].value || []) : sessions;
+    vocab     = results[4].status === 'fulfilled' ? (results[4].value || []) : vocab;
+    if (!activeSession) activeSession = sessions.find(s => s.status !== 'ended') || null;
+  }
+  async function refreshActiveDetail() {
+    if (!activeSession) { activeDetail = null; return; }
+    try { activeDetail = await api('/api/teacher/sessions/' + activeSession.id); }
+    catch (_) { activeDetail = null; }
+  }
+
+  // ---------------- tabs ----------------
+  $('tabbar').addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+    showTab(btn.dataset.tab);
+  });
+  function showTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    $('tab-' + tab).classList.add('active');
+  }
+
+  function renderAll() {
+    renderRail();
+    renderDashboard();
+    renderClasses();
+    renderStudents();
+    renderMaterials();
+    renderLive();
+    renderTranslations();
+    renderVocab();
+    renderReports();
+    renderSettings();
+  }
+
+  // ---------------- left rail ----------------
+  function renderRail() {
+    // class picker
+    $('rail-class').innerHTML = classes.length
+      ? classes.map(c => `<option value="${c.id}"${c.id === selectedClassId ? ' selected' : ''}>${esc(c.name)}</option>`).join('')
+      : '<option value="">No classes yet</option>';
+    const cls = selectedClass();
+    $('rail-class-trade').textContent = cls ? 'Trade: ' + cls.trade_focus : '';
+    $('rail-class-lang').textContent = cls ? 'Default: ' + langName(cls.default_source_language) : '';
+
+    // active session
+    if (activeSession) {
+      const attendees = activeDetail ? activeDetail.attendees : [];
+      const langs = [...new Set(attendees.map(a => a.preferred_language))].map(langName);
+      $('rail-session').innerHTML =
+        `<div class="rail-code">${esc(activeSession.session_code)}</div>` +
+        `<div class="label-mono ink2" style="margin-top:6px;">${attendees.length} connected</div>` +
+        `<div class="label-mono ink2" style="margin-top:4px;">${langs.length ? esc(langs.join(', ')) : 'No learners yet'}</div>`;
+    } else {
+      $('rail-session').innerHTML = '<div class="empty">No active session</div>';
+    }
+
+    // classwork index
+    $('rail-index').innerHTML = buildTreeHtml(materials.filter(m => !selectedClassId || !m.class_id || m.class_id === selectedClassId), 'rail');
+
+    // language counts
+    if (activeDetail && activeDetail.attendees.length) {
+      const tally = {};
+      for (const a of activeDetail.attendees) tally[a.preferred_language] = (tally[a.preferred_language] || 0) + 1;
+      $('rail-langs').className = '';
+      $('rail-langs').innerHTML = Object.entries(tally).sort((a, b) => b[1] - a[1])
+        .map(([code, n]) => `<div style="display:flex; justify-content:space-between; padding:2px 0;"><span>${esc(langName(code))}</span><span class="mono">${n}</span></div>`).join('');
+    } else {
+      $('rail-langs').className = 'empty';
+      $('rail-langs').textContent = activeSession ? 'No learners yet.' : 'No session running.';
+    }
+
+    // help flags
+    const flagged = activeDetail ? activeDetail.attendees.filter(a => a.help_flag) : [];
+    if (flagged.length) {
+      $('rail-help').className = '';
+      $('rail-help').innerHTML =
+        `<div class="pill red" style="margin-bottom:6px;">${flagged.length} flagged</div>` +
+        flagged.map(a => `<div style="padding:2px 0;">${esc(a.name)}</div>`).join('');
+    } else {
+      $('rail-help').className = 'empty';
+      $('rail-help').textContent = 'No flags.';
+    }
+  }
+  $('rail-class').addEventListener('change', () => {
+    selectedClassId = $('rail-class').value || null;
+    renderAll();
+  });
+
+  // Hierarchy: Subject -> Category -> Lesson -> material items.
+  function buildTreeHtml(list, keyPrefix) {
+    if (!list.length) return '<div class="empty">No materials yet.</div>';
+    const bySubject = {};
+    for (const m of list) {
+      const subj = (m.cl_material_subjects && m.cl_material_subjects.name) || 'General';
+      const cat = m.category || 'Uncategorized';
+      const lesson = m.lesson || 'No lesson';
+      bySubject[subj] = bySubject[subj] || {};
+      bySubject[subj][cat] = bySubject[subj][cat] || {};
+      bySubject[subj][cat][lesson] = bySubject[subj][cat][lesson] || [];
+      bySubject[subj][cat][lesson].push(m);
+    }
+    let html = '';
+    for (const subj of Object.keys(bySubject).sort()) {
+      html += `<div class="t-node t-label" data-toggle>${esc(subj)}</div><div class="t-kids">`;
+      const cats = bySubject[subj];
+      for (const cat of Object.keys(cats).sort()) {
+        html += `<div class="t-node t-label" data-toggle>${esc(cat)}</div><div class="t-kids">`;
+        const lessons = cats[cat];
+        for (const lesson of Object.keys(lessons).sort()) {
+          html += `<div class="t-node t-label" data-toggle>${esc(lesson)}</div><div class="t-kids">`;
+          for (const m of lessons[lesson]) {
+            const sel = m.id === selectedMaterialId ? ' selected' : '';
+            html += `<div class="t-item${sel}" data-material="${m.id}">${esc(m.title)}</div>`;
+          }
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+    return html;
+  }
+  function wireTree(rootEl) {
+    rootEl.addEventListener('click', (e) => {
+      const toggle = e.target.closest('[data-toggle]');
+      if (toggle) {
+        const kids = toggle.nextElementSibling;
+        if (kids && kids.classList.contains('t-kids')) {
+          kids.style.display = kids.style.display === 'none' ? '' : 'none';
+        }
+        return;
+      }
+      const item = e.target.closest('[data-material]');
+      if (item) {
+        selectedMaterialId = item.dataset.material;
+        showTab('materials');
+        renderMaterials();
+        renderRail();
+      }
+    });
+  }
+  wireTree($('rail-index'));
+  wireTree($('material-tree'));
+
+  // ---------------- dashboard ----------------
+  function renderDashboard() {
+    const cls = selectedClass();
+    $('dash-today').innerHTML =
+      '<h3>Today’s Class</h3>' +
+      (cls
+        ? `<div class="h-display" style="font-size:24px;">${esc(cls.name)}</div>` +
+          `<div class="label-mono ink2" style="margin-top:6px;">${esc(new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }))} &middot; Trade: ${esc(cls.trade_focus)}</div>`
+        : '<div class="empty">No class selected. Create one in the Classes tab.</div>');
+
+    if (activeSession) {
+      $('dash-session').innerHTML =
+        '<h3>Session Control</h3>' +
+        `<div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">` +
+        `<div><div class="label-mono ink2">Join code</div><div class="rail-code" style="font-size:34px;">${esc(activeSession.session_code)}</div></div>` +
+        `<a href="/teach" class="retro-btn teal">Resume Session</a>` +
+        `<button class="retro-btn ghost" id="btn-end-session">End Session</button>` +
+        `</div>`;
+      $('btn-end-session').addEventListener('click', endSession);
+    } else {
+      $('dash-session').innerHTML =
+        '<h3>Session Control</h3>' +
+        '<button class="retro-btn" id="btn-start-session">Start Live Session</button>' +
+        '<p class="hint">Creates a session record and opens the live teaching console.</p>';
+      $('btn-start-session').addEventListener('click', startSession);
+    }
+
+    // lobby
+    const attendees = activeDetail ? activeDetail.attendees : [];
+    if (attendees.length) {
+      $('dash-lobby').className = '';
+      $('dash-lobby').innerHTML =
+        `<div class="label-mono ink2" style="margin-bottom:8px;">${attendees.length} joined</div>` +
+        attendees.map(a => `<div style="display:flex; justify-content:space-between; padding:3px 0;"><span>${esc(a.name)}</span><span class="ink2">${esc(langName(a.preferred_language))}</span></div>`).join('');
+    } else {
+      $('dash-lobby').className = 'empty';
+      $('dash-lobby').textContent = activeSession ? 'No learners have joined yet.' : 'No active session.';
+    }
+
+    // help alerts
+    const flagged = (settings.notifyHelp && activeDetail) ? activeDetail.attendees.filter(a => a.help_flag) : [];
+    if (flagged.length) {
+      $('dash-help').className = '';
+      $('dash-help').innerHTML = flagged.map(a =>
+        `<div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0;">` +
+        `<span>${esc(a.name)} <span class="ink2 mono" style="font-size:11px;">${esc(fmtDate(a.help_flagged_at))}</span></span>` +
+        `<button class="nav-link" style="padding:4px 10px; font-size:10px;" data-clear-flag="${a.id}">Clear</button></div>`).join('');
+    } else {
+      $('dash-help').className = 'empty';
+      $('dash-help').textContent = settings.notifyHelp ? 'No alerts.' : 'Help alerts are turned off in Settings.';
+    }
+
+    // recent materials
+    const recent = materials.slice(0, 5);
+    if (recent.length) {
+      $('dash-materials').className = '';
+      $('dash-materials').innerHTML = recent.map(m => {
+        const s = translationSummary(m);
+        return `<div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0;">` +
+          `<span class="t-item" data-material="${m.id}" style="padding:2px 4px;">${esc(m.title)}</span>` +
+          `<span class="pill ${s.cls}">${esc(s.label)}</span></div>`;
+      }).join('');
+    } else {
+      $('dash-materials').className = 'empty';
+      $('dash-materials').textContent = 'No materials yet.';
+    }
+
+    // translation queue: pending or errored language rows
+    const queue = [];
+    for (const m of materials) {
+      for (const t of materialTranslations(m)) {
+        if (t.translation_status !== 'complete') queue.push({ m, t });
+      }
+    }
+    if (queue.length) {
+      $('dash-queue').className = '';
+      $('dash-queue').innerHTML = queue.slice(0, 8).map(({ m, t }) =>
+        `<div style="display:flex; justify-content:space-between; padding:4px 0;">` +
+        `<span>${esc(m.title)} <span class="ink2">(${esc(langName(t.target_language))})</span></span>` +
+        `<span class="pill ${t.translation_status === 'error' ? 'red' : 'yellow'}">${esc(t.translation_status)}</span></div>`).join('');
+    } else {
+      $('dash-queue').className = 'empty';
+      $('dash-queue').textContent = 'Nothing queued.';
+    }
+
+    // last session summary
+    const last = sessions.find(s => s.status === 'ended');
+    if (last) {
+      $('dash-last').className = '';
+      $('dash-last').innerHTML =
+        `<div class="row">` +
+        `<div><div class="label-mono ink2">Date</div><div>${esc(fmtDate(last.started_at || last.created_at))}</div></div>` +
+        `<div><div class="label-mono ink2">Duration</div><div>${esc(fmtDur(last.started_at, last.ended_at))}</div></div>` +
+        `<div><div class="label-mono ink2">Students</div><div>${last.student_count || 0}</div></div>` +
+        `<div><div class="label-mono ink2">Languages</div><div>${esc((last.languages || []).map(langName).join(', ') || '—')}</div></div>` +
+        `<div><div class="label-mono ink2">Class</div><div>${esc(last.class_name || '—')}</div></div>` +
+        `</div>`;
+    } else {
+      $('dash-last').className = 'empty';
+      $('dash-last').textContent = 'No past sessions.';
+    }
+  }
+  $('dash-materials').addEventListener('click', (e) => {
+    const item = e.target.closest('[data-material]');
+    if (item) { selectedMaterialId = item.dataset.material; showTab('materials'); renderMaterials(); }
+  });
+  $('dash-help').addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-clear-flag]');
+    if (!btn) return;
+    btn.disabled = true;
+    await sb.from('cl_session_attendees').update({ help_flag: false }).eq('id', btn.dataset.clearFlag);
+    await refreshActiveDetail();
+    renderRail(); renderDashboard();
+  });
+
+  async function startSession() {
+    const btn = $('btn-start-session');
+    if (btn) btn.disabled = true;
+    try {
+      const s = await api('/api/teacher/sessions', { method: 'POST', body: { class_id: selectedClassId } });
+      activeSession = s;
+      location.href = '/teach';
+    } catch (e) {
+      if (btn) btn.disabled = false;
+      alert('Could not start the session: ' + e.message);
+    }
+  }
+  async function endSession() {
+    if (!activeSession) return;
+    try {
+      await api('/api/teacher/sessions/' + activeSession.id, { method: 'PUT', body: { status: 'ended' } });
+      activeSession = null;
+      activeDetail = null;
+      await loadAll();
+      renderAll();
+    } catch (e) { alert('Could not end the session: ' + e.message); }
+  }
+
+  // ---------------- classes ----------------
+  function renderClasses() {
+    const list = $('class-list');
+    if (!classes.length) {
+      list.innerHTML = '<div class="empty">No classes yet. Create your first class.</div>';
+    } else {
+      list.innerHTML = classes.map(c => `
+        <div class="class-card${c.id === selectedClassId ? ' selected' : ''}" data-class="${c.id}">
+          <div class="h-display" style="font-size:17px;">${esc(c.name)}</div>
+          <div class="label-mono ink2" style="margin:6px 0;">${esc(c.trade_focus)} &middot; ${c.student_count || 0} students</div>
+          <div class="label-mono ink2" style="margin-bottom:10px;">Last session: ${esc(c.last_session_at ? fmtDate(c.last_session_at) : 'never')}</div>
+          <span class="pill ${c.status === 'active' ? 'green' : ''}">${esc(c.status)}</span>
+          <div style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="nav-link" style="padding:4px 10px; font-size:10px;" data-act="open" data-id="${c.id}">Open</button>
+            <button class="nav-link" style="padding:4px 10px; font-size:10px;" data-act="start" data-id="${c.id}">Start Session</button>
+            <button class="nav-link" style="padding:4px 10px; font-size:10px;" data-act="archive" data-id="${c.id}">${c.status === 'archived' ? 'Unarchive' : 'Archive'}</button>
+          </div>
+        </div>`).join('');
+    }
+    renderClassDetail();
+  }
+  function renderClassDetail() {
+    const c = selectedClass();
+    const box = $('class-detail');
+    if (!c) { box.innerHTML = '<div class="empty">Select a class on the left.</div>'; return; }
+    const roster = students.filter(s => (s.classes || []).some(cl => cl.id === c.id));
+    const recentMats = materials.filter(m => m.class_id === c.id).slice(0, 3);
+    box.innerHTML = `
+      <h3>Class Detail</h3>
+      <label>Class name</label>
+      <input id="cd-name" value="${esc(c.name)}" />
+      <label>Trade focus</label>
+      <select id="cd-trade">${TRADE_FOCUSES.map(t => `<option${t === c.trade_focus ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>
+      <label>Default source language</label>
+      <select id="cd-lang">${langOptions(c.default_source_language)}</select>
+      <div class="divider" style="margin:16px 0;"></div>
+      <div class="label-mono ink2" style="margin-bottom:6px;">Roster — ${roster.length} students</div>
+      <div>${roster.slice(0, 6).map(s => esc(s.name)).join(', ') || '<span class="empty">No students enrolled.</span>'}${roster.length > 6 ? ', &hellip;' : ''}</div>
+      <div class="label-mono ink2" style="margin:14px 0 6px;">Recent materials</div>
+      <div>${recentMats.length ? recentMats.map(m => `<div class="t-item" data-material="${m.id}" style="padding:2px 4px;">${esc(m.title)}</div>`).join('') : '<span class="empty">No materials for this class yet.</span>'}</div>
+      <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="retro-btn sm teal" id="cd-save">Save Changes</button>
+        <button class="retro-btn sm ghost" id="cd-roster">Manage Roster</button>
+        <button class="retro-btn sm ghost" id="cd-materials">Open Materials</button>
+        <button class="retro-btn sm" id="cd-start">Start Live Session</button>
+      </div>
+      <div id="cd-status" class="err-text"></div>`;
+    $('cd-save').addEventListener('click', async () => {
+      $('cd-save').disabled = true;
+      try {
+        const updated = await api('/api/teacher/classes/' + c.id, { method: 'PUT', body: {
+          name: $('cd-name').value.trim() || c.name,
+          trade_focus: $('cd-trade').value,
+          default_source_language: $('cd-lang').value,
+        }});
+        Object.assign(c, updated);
+        renderAll();
+      } catch (e) { $('cd-status').textContent = e.message; }
+      finally { const b = $('cd-save'); if (b) b.disabled = false; }
+    });
+    $('cd-roster').addEventListener('click', () => showTab('students'));
+    $('cd-materials').addEventListener('click', () => { showTab('materials'); renderMaterials(); });
+    $('cd-start').addEventListener('click', startSession);
+    box.querySelectorAll('[data-material]').forEach(el => el.addEventListener('click', () => {
+      selectedMaterialId = el.dataset.material; showTab('materials'); renderMaterials();
+    }));
+  }
+  $('class-list').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-act]');
+    if (btn) {
+      const id = btn.dataset.id;
+      if (btn.dataset.act === 'open') { selectedClassId = id; renderAll(); }
+      if (btn.dataset.act === 'start') { selectedClassId = id; await startSession(); }
+      if (btn.dataset.act === 'archive') {
+        const c = classes.find(x => x.id === id);
+        try {
+          await api('/api/teacher/classes/' + id, { method: 'PUT', body: { status: c.status === 'archived' ? 'active' : 'archived' } });
+          await loadAll(); renderAll();
+        } catch (err) { alert(err.message); }
+      }
+      return;
+    }
+    const card = e.target.closest('.class-card');
+    if (card) { selectedClassId = card.dataset.class; renderAll(); }
+  });
+  $('btn-create-class').addEventListener('click', () => {
+    openModal(`
+      <h3>Create Class</h3>
+      <div class="m-sub">A class groups students, materials, and sessions</div>
+      <label>Class name</label><input id="nc-name" placeholder="e.g. Cohort 12 — Mornings" />
+      <label>Trade focus</label><select id="nc-trade">${TRADE_FOCUSES.map(t => `<option>${esc(t)}</option>`).join('')}</select>
+      <label>Default source language</label><select id="nc-lang">${langOptions('en')}</select>
+      <div style="margin-top:18px; display:flex; gap:10px;">
+        <button class="retro-btn sm teal" id="nc-create">Create</button>
+        <button class="retro-btn sm ghost" id="nc-cancel">Cancel</button>
+      </div>
+      <div id="nc-status" class="err-text"></div>`);
+    $('nc-cancel').addEventListener('click', closeModal);
+    $('nc-create').addEventListener('click', async () => {
+      $('nc-create').disabled = true;
+      try {
+        const c = await api('/api/teacher/classes', { method: 'POST', body: {
+          name: $('nc-name').value.trim(),
+          trade_focus: $('nc-trade').value,
+          default_source_language: $('nc-lang').value,
+        }});
+        closeModal();
+        await loadAll();
+        selectedClassId = c ? c.id : selectedClassId;
+        renderAll();
+      } catch (e) { $('nc-status').textContent = e.message; $('nc-create').disabled = false; }
+    });
+  });
+
+  // ---------------- students ----------------
+  function renderStudents() {
+    const liveById = {};
+    if (activeDetail) for (const a of activeDetail.attendees) if (a.student_id) liveById[a.student_id] = true;
+    const showLive = !!activeSession;
+    $('th-live').style.display = showLive ? '' : 'none';
+    $('student-rows').innerHTML = students.map(s => `
+      <tr>
+        <td>${esc(s.name)}</td>
+        <td>${esc(langName(s.preferred_language))}</td>
+        <td>${esc((s.classes || []).map(c => c.name).join(', ') || '—')}</td>
+        <td>${esc(s.last_active_at ? fmtDate(s.last_active_at) : '—')}</td>
+        ${showLive ? `<td><span class="pill ${liveById[s.id] ? 'green' : ''}">${liveById[s.id] ? 'Connected' : 'Offline'}</span></td>` : ''}
+      </tr>`).join('');
+    $('students-empty').style.display = students.length ? 'none' : 'block';
+  }
+  function classOptions(selected) {
+    return '<option value="">No class</option>' +
+      classes.map(c => `<option value="${c.id}"${c.id === selected ? ' selected' : ''}>${esc(c.name)}</option>`).join('');
+  }
+  $('btn-add-student').addEventListener('click', () => {
+    openModal(`
+      <h3>Add Student</h3>
+      <div class="m-sub">Name and language only — this is a translation tool, not a records system</div>
+      <label>Name</label><input id="ns-name" placeholder="First name or preferred name" />
+      <label>Preferred language</label><select id="ns-lang">${langOptions('es')}</select>
+      <label>Assign to class</label><select id="ns-class">${classOptions(selectedClassId)}</select>
+      <div style="margin-top:18px; display:flex; gap:10px;">
+        <button class="retro-btn sm teal" id="ns-create">Add</button>
+        <button class="retro-btn sm ghost" id="ns-cancel">Cancel</button>
+      </div>
+      <div id="ns-status" class="err-text"></div>`);
+    $('ns-cancel').addEventListener('click', closeModal);
+    $('ns-create').addEventListener('click', async () => {
+      $('ns-create').disabled = true;
+      try {
+        await api('/api/teacher/students', { method: 'POST', body: {
+          name: $('ns-name').value.trim(),
+          preferred_language: $('ns-lang').value,
+          class_id: $('ns-class').value || null,
+        }});
+        closeModal(); await loadAll(); renderAll();
+      } catch (e) { $('ns-status').textContent = e.message; $('ns-create').disabled = false; }
+    });
+  });
+  $('btn-import-roster').addEventListener('click', () => {
+    openModal(`
+      <h3>Import Roster</h3>
+      <div class="m-sub">One name per line</div>
+      <label>Names</label><textarea id="ir-names" placeholder="Maria
+Ahmed
+Nguyen"></textarea>
+      <label>Preferred language for everyone</label><select id="ir-lang">${langOptions('es')}</select>
+      <label>Assign to class</label><select id="ir-class">${classOptions(selectedClassId)}</select>
+      <div style="margin-top:18px; display:flex; gap:10px;">
+        <button class="retro-btn sm teal" id="ir-import">Import</button>
+        <button class="retro-btn sm ghost" id="ir-cancel">Cancel</button>
+      </div>
+      <div id="ir-status" class="err-text"></div>`);
+    $('ir-cancel').addEventListener('click', closeModal);
+    $('ir-import').addEventListener('click', async () => {
+      const names = $('ir-names').value.split('\n').map(n => n.trim()).filter(Boolean);
+      if (!names.length) { $('ir-status').textContent = 'Paste at least one name.'; return; }
+      $('ir-import').disabled = true;
+      try {
+        await api('/api/teacher/students', { method: 'POST', body: {
+          students: names.map(name => ({ name })),
+          preferred_language: $('ir-lang').value,
+          class_id: $('ir-class').value || null,
+        }});
+        closeModal(); await loadAll(); renderAll();
+      } catch (e) { $('ir-status').textContent = e.message; $('ir-import').disabled = false; }
+    });
+  });
+
+  // ---------------- materials ----------------
+  function subjectNames() {
+    const names = new Set(SUBJECT_DEFAULTS);
+    for (const m of materials) if (m.cl_material_subjects && m.cl_material_subjects.name) names.add(m.cl_material_subjects.name);
+    return [...names].sort();
+  }
+  function renderMaterials() {
+    $('material-tree').innerHTML = buildTreeHtml(materials.filter(m => !selectedClassId || !m.class_id || m.class_id === selectedClassId), 'mat');
+    renderMaterialDetail();
+  }
+  function renderMaterialDetail() {
+    const box = $('material-detail');
+    const isNew = selectedMaterialId === 'new';
+    const m = isNew ? null : materials.find(x => x.id === selectedMaterialId);
+    if (!isNew && !m) { box.innerHTML = '<div class="empty">Pick a material from the index, or create a new one.</div>'; return; }
+    const subjName = m && m.cl_material_subjects ? m.cl_material_subjects.name : '';
+    const trs = m ? materialTranslations(m) : [];
+    box.innerHTML = `
+      <h3>${isNew ? 'New Material' : 'Material Detail'}</h3>
+      <label>Title</label><input id="md-title" value="${esc(m ? m.title : '')}" placeholder="e.g. Ladder Safety Basics" />
+      <div class="row">
+        <div><label>Subject</label><select id="md-subject">${subjectNames().map(s => `<option${s === subjName ? ' selected' : ''}>${esc(s)}</option>`).join('')}</select></div>
+        <div><label>Category</label><input id="md-category" value="${esc(m ? (m.category || '') : '')}" placeholder="e.g. PPE" /></div>
+        <div><label>Lesson</label><input id="md-lesson" value="${esc(m ? (m.lesson || '') : '')}" placeholder="e.g. Lesson 1" /></div>
+      </div>
+      <div class="row">
+        <div><label>Class</label><select id="md-class">${classOptions(m ? m.class_id : selectedClassId)}</select></div>
+        <div><label>Type</label><select id="md-type">${MATERIAL_TYPES.map(t => `<option value="${t.id}"${m && m.material_type === t.id ? ' selected' : ''}>${esc(t.label)}</option>`).join('')}</select></div>
+        <div><label>Source language</label><select id="md-lang">${langOptions(m ? m.source_language : 'en')}</select></div>
+      </div>
+      <label id="md-content-label">Original content</label>
+      <textarea id="md-content" placeholder="Paste the lesson text, or a URL for link and video types.">${esc(m ? (m.content || '') : '')}</textarea>
+      <div class="check-row" style="margin-top:12px;">
+        <input type="checkbox" id="md-published" ${m && m.is_published ? 'checked' : ''} />
+        <label for="md-published">Live / published — students can see this material</label>
+      </div>
+      ${trs.length ? `
+      <div class="label-mono ink2" style="margin:14px 0 6px;">Translation status</div>
+      <table>
+        <thead><tr><th>Language</th><th>Status</th><th>Last Updated</th></tr></thead>
+        <tbody>${trs.map(t => `<tr><td>${esc(langName(t.target_language))}</td><td><span class="pill ${t.translation_status === 'complete' ? 'green' : t.translation_status === 'error' ? 'red' : 'yellow'}">${esc(t.translation_status)}</span></td><td>${esc(fmtDate(t.updated_at))}</td></tr>`).join('')}</tbody>
+      </table>` : ''}
+      <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="retro-btn sm teal" id="md-save">Save</button>
+        ${m ? '<button class="retro-btn sm mustard" id="md-translate">Pre-Translate</button>' : ''}
+        ${m && activeSession ? '<button class="retro-btn sm" id="md-present">Present to Class</button>' : ''}
+      </div>
+      <div id="md-status" class="err-text"></div>`;
+    $('md-save').addEventListener('click', async () => {
+      $('md-save').disabled = true;
+      const payload = {
+        title: $('md-title').value.trim(),
+        category: $('md-category').value.trim() || null,
+        lesson: $('md-lesson').value.trim() || null,
+        class_id: $('md-class').value || null,
+        material_type: $('md-type').value,
+        source_language: $('md-lang').value,
+        content: $('md-content').value,
+        is_published: $('md-published').checked,
+      };
+      try {
+        if (isNew) {
+          payload.subject_name = $('md-subject').value;
+          const created = await api('/api/teacher/materials', { method: 'POST', body: payload });
+          selectedMaterialId = created ? created.id : null;
+        } else {
+          const subjId = subjectIdByName($('md-subject').value);
+          if (subjId) payload.subject_id = subjId;
+          await api('/api/teacher/materials/' + m.id, { method: 'PUT', body: payload });
+        }
+        await loadAll(); renderMaterials(); renderRail(); renderDashboard(); renderTranslations();
+      } catch (e) { $('md-status').textContent = e.message; const b = $('md-save'); if (b) b.disabled = false; }
+    });
+    if (m) {
+      const trBtn = $('md-translate');
+      if (trBtn) trBtn.addEventListener('click', () => openTranslateModal(m));
+      const prBtn = $('md-present');
+      if (prBtn) prBtn.addEventListener('click', async () => {
+        prBtn.disabled = true;
+        await sb.from('cl_session_events').insert({
+          session_id: activeSession.id,
+          event_type: 'material_presented',
+          payload: { material_id: m.id, title: m.title },
+        });
+        prBtn.textContent = 'Presented';
+        setTimeout(() => { prBtn.textContent = 'Present to Class'; prBtn.disabled = false; }, 2500);
+      });
+    }
+  }
+  function subjectIdByName(name) {
+    for (const m of materials) {
+      if (m.cl_material_subjects && m.cl_material_subjects.name === name) return m.cl_material_subjects.id;
+    }
+    return null;
+  }
+  $('btn-new-material').addEventListener('click', () => { selectedMaterialId = 'new'; renderMaterialDetail(); });
+
+  function openTranslateModal(m) {
+    const done = new Set(materialTranslations(m).filter(t => t.translation_status === 'complete').map(t => t.target_language));
+    openModal(`
+      <h3>Pre-Translate</h3>
+      <div class="m-sub">${esc(m.title)}</div>
+      <div class="lang-grid">
+        ${TARGET_LANGS.map(l => `
+          <div class="check-row">
+            <input type="checkbox" id="tl-${esc(l.code)}" value="${esc(l.code)}" data-tl />
+            <label for="tl-${esc(l.code)}">${esc(l.name)}${done.has(l.code) ? ' (done)' : ''}</label>
+          </div>`).join('')}
+      </div>
+      <p class="hint">Up to 10 languages per run. Translations are cached — re-running a language replaces its cached copy.</p>
+      <div style="margin-top:14px; display:flex; gap:10px;">
+        <button class="retro-btn sm teal" id="tl-start">Start Pre-Translation</button>
+        <button class="retro-btn sm ghost" id="tl-cancel">Cancel</button>
+      </div>
+      <div id="tl-progress" style="margin-top:12px;"></div>`);
+    $('tl-cancel').addEventListener('click', closeModal);
+    $('tl-start').addEventListener('click', async () => {
+      const codes = [...document.querySelectorAll('input[data-tl]:checked')].map(cb => cb.value);
+      if (!codes.length) { $('tl-progress').innerHTML = '<div class="err-text">Pick at least one language.</div>'; return; }
+      if (codes.length > 10) { $('tl-progress').innerHTML = '<div class="err-text">Max 10 languages per run.</div>'; return; }
+      $('tl-start').disabled = true;
+      $('tl-progress').innerHTML = '<div class="label-mono ink2">Translating ' + codes.length + ' language(s)&hellip; this can take a minute.</div>';
+      try {
+        const res = await api('/api/teacher/materials/' + m.id + '/translate', { method: 'POST', body: { languages: codes } });
+        $('tl-progress').innerHTML = Object.entries(res.results).map(([code, r]) =>
+          `<div style="display:flex; justify-content:space-between; padding:3px 0;"><span>${esc(langName(code))}</span>` +
+          `<span class="pill ${r.status === 'complete' ? 'green' : 'red'}">${esc(r.status)}</span></div>` +
+          (r.message ? `<div class="hint">${esc(r.message)}</div>` : '')).join('');
+        await loadAll(); renderMaterials(); renderTranslations(); renderDashboard();
+      } catch (e) {
+        $('tl-progress').innerHTML = '<div class="err-text">' + esc(e.message) + '</div>';
+      } finally {
+        const b = $('tl-start'); if (b) { b.disabled = false; b.textContent = 'Run Again'; }
+      }
+    });
+  }
+
+  // ---------------- live sessions ----------------
+  function renderLive() {
+    const box = $('live-active');
+    if (activeSession) {
+      const attendees = activeDetail ? activeDetail.attendees : [];
+      const events = activeDetail ? activeDetail.events : [];
+      const presented = events.filter(ev => ev.event_type === 'material_presented');
+      box.innerHTML = `
+        <div class="panel">
+          <h3>Active Session${activeDetail && activeDetail.class_name ? ' — ' + esc(activeDetail.class_name) : ''}</h3>
+          <div class="row" style="align-items: flex-start;">
+            <div>
+              <div class="label-mono ink2">Join code</div>
+              <div class="rail-code" style="font-size:44px;">${esc(activeSession.session_code)}</div>
+              <div class="retro-card" style="box-shadow:3px 3px 0 var(--ink); padding:26px; margin-top:12px; text-align:center; max-width:220px;">
+                <div class="label-mono ink2">QR display — connect students</div>
+              </div>
+              <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+                <a href="/teach" class="retro-btn sm teal">Open Live Console</a>
+                <button class="retro-btn sm ghost" id="live-end">End Session</button>
+              </div>
+            </div>
+            <div>
+              <div class="label-mono ink2" style="margin-bottom:6px;">Lobby — ${attendees.length} joined</div>
+              ${attendees.length ? attendees.map(a =>
+                `<div style="display:flex; justify-content:space-between; padding:3px 0;"><span>${esc(a.name)}</span>` +
+                `<span class="ink2">${esc(langName(a.preferred_language))}${a.help_flag ? ' &middot; HELP' : ''}</span></div>`).join('')
+                : '<div class="empty">No learners yet.</div>'}
+              <div class="label-mono ink2" style="margin:14px 0 6px;">Materials presented</div>
+              ${presented.length ? presented.map(ev => `<div style="padding:2px 0;">${esc((ev.payload && ev.payload.title) || 'Material')}</div>`).join('') : '<div class="empty">None yet.</div>'}
+            </div>
+            <div>
+              <div class="label-mono ink2" style="margin-bottom:6px;">Timeline</div>
+              ${events.length ? events.slice(-15).map(ev =>
+                `<div class="event-line"><span class="e-meta">${esc(fmtDate(ev.created_at))}</span> — ${esc(ev.event_type.replace(/_/g, ' '))}</div>`).join('')
+                : '<div class="empty">No events yet.</div>'}
+            </div>
+          </div>
+        </div>`;
+      $('live-end').addEventListener('click', endSession);
+    } else {
+      box.innerHTML = '';
+    }
+    const past = sessions.filter(s => s.status === 'ended');
+    $('session-rows').innerHTML = past.map(s => `
+      <tr>
+        <td>${esc(fmtDate(s.started_at || s.created_at))}</td>
+        <td>${esc(s.class_name || '—')}</td>
+        <td>${esc(fmtDur(s.started_at, s.ended_at))}</td>
+        <td>${s.student_count || 0}</td>
+        <td>${esc((s.languages || []).map(langName).join(', ') || '—')}</td>
+        <td><span class="pill">${esc(s.status)}</span></td>
+      </tr>`).join('');
+    $('sessions-empty').style.display = past.length ? 'none' : 'block';
+  }
+  $('btn-new-session').addEventListener('click', async () => {
+    if (activeSession) { alert('End the current session before starting a new one.'); return; }
+    await startSession();
+  });
+
+  // ---------------- translations ----------------
+  function renderTranslations() {
+    // filter dropdowns
+    const clsSel = $('tf-class'), subjSel = $('tf-subject');
+    const keepC = clsSel.value, keepS = subjSel.value;
+    clsSel.innerHTML = '<option value="">All classes</option>' + classes.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    subjSel.innerHTML = '<option value="">All subjects</option>' + subjectNames().map(s => `<option>${esc(s)}</option>`).join('');
+    clsSel.value = keepC; subjSel.value = keepS;
+
+    const fClass = clsSel.value, fSubj = subjSel.value, fStatus = $('tf-status').value;
+    const classNameById = Object.fromEntries(classes.map(c => [c.id, c.name]));
+    const rows = materials.filter(m => {
+      if (fClass && m.class_id !== fClass) return false;
+      const subj = (m.cl_material_subjects && m.cl_material_subjects.name) || 'General';
+      if (fSubj && subj !== fSubj) return false;
+      const done = materialTranslations(m).filter(t => t.translation_status === 'complete');
+      const status = !done.length ? 'missing' : (done.length >= TARGET_LANGS.length ? 'complete' : 'partial');
+      if (fStatus && status !== fStatus) return false;
+      return true;
+    });
+    $('translation-rows').innerHTML = rows.map(m => {
+      const trs = materialTranslations(m);
+      const done = trs.filter(t => t.translation_status === 'complete').map(t => t.target_language);
+      const missing = TARGET_LANGS.filter(l => !done.includes(l.code));
+      const updated = trs.map(t => t.updated_at).sort().pop();
+      const missLabel = missing.length === TARGET_LANGS.length ? 'All' :
+        missing.length > 4 ? missing.length + ' languages' : missing.map(l => l.name).join(', ') || 'None';
+      return `<tr>
+        <td>${esc(m.title)}</td>
+        <td>${esc(classNameById[m.class_id] || '—')}</td>
+        <td>${esc((m.cl_material_subjects && m.cl_material_subjects.name) || 'General')}</td>
+        <td>${esc(langName(m.source_language))}</td>
+        <td>${esc(done.map(langName).join(', ') || 'None')}</td>
+        <td>${esc(missLabel)}</td>
+        <td>${esc(updated ? fmtDate(updated) : '—')}</td>
+        <td style="white-space:nowrap;">
+          <button class="nav-link" style="padding:4px 8px; font-size:10px;" data-act="translate" data-id="${m.id}">Pre-Translate</button>
+          <button class="nav-link" style="padding:4px 8px; font-size:10px;" data-act="view" data-id="${m.id}">View</button>
+          <button class="nav-link" style="padding:4px 8px; font-size:10px;" data-act="clear" data-id="${m.id}">Clear Cache</button>
+        </td>
+      </tr>`;
+    }).join('');
+    $('translations-empty').style.display = rows.length ? 'none' : 'block';
+  }
+  ['tf-class', 'tf-subject', 'tf-status'].forEach(id => $(id).addEventListener('change', renderTranslations));
+  $('translation-rows').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const m = materials.find(x => x.id === btn.dataset.id);
+    if (!m) return;
+    if (btn.dataset.act === 'translate') { openTranslateModal(m); return; }
+    if (btn.dataset.act === 'view') {
+      btn.disabled = true;
+      try {
+        const full = await api('/api/teacher/materials/' + m.id);
+        const trs = (full.cl_material_translations || []).filter(t => t.translation_status === 'complete');
+        openModal(`
+          <h3>Translations</h3>
+          <div class="m-sub">${esc(m.title)}</div>
+          ${trs.length ? trs.map(t => `
+            <div class="label-mono ink2" style="margin:12px 0 4px;">${esc(langName(t.target_language))}</div>
+            <div style="border:2px solid var(--ink); border-radius:8px; padding:10px 12px; background:#fff; white-space:pre-wrap; font-size:13px;">${esc(t.translated_content)}</div>`).join('')
+            : '<div class="empty">No completed translations yet.</div>'}
+          <div style="margin-top:16px;"><button class="retro-btn sm ghost" id="vt-close">Close</button></div>`);
+        $('vt-close').addEventListener('click', closeModal);
+      } catch (err) { alert(err.message); }
+      finally { btn.disabled = false; }
+      return;
+    }
+    if (btn.dataset.act === 'clear') {
+      if (!confirm('Clear all cached translations for "' + m.title + '"?')) return;
+      btn.disabled = true;
+      await sb.from('cl_material_translations').delete().eq('material_id', m.id);
+      await loadAll(); renderTranslations(); renderMaterials(); renderDashboard();
+    }
+  });
+
+  // ---------------- vocab bank ----------------
+  function renderVocab() {
+    const catSel = $('vf-category'), langSel = $('vf-language');
+    const keepC = catSel.value, keepL = langSel.value;
+    const cats = new Set(VOCAB_CATEGORIES);
+    for (const v of vocab) if (v.category) cats.add(v.category);
+    catSel.innerHTML = '<option value="">All categories</option>' + [...cats].sort().map(c => `<option>${esc(c)}</option>`).join('');
+    langSel.innerHTML = '<option value="">All languages</option>' + TARGET_LANGS.map(l => `<option value="${l.code}">${esc(l.name)}</option>`).join('');
+    catSel.value = keepC; langSel.value = keepL;
+
+    const rows = vocab.filter(v =>
+      (!catSel.value || v.category === catSel.value) &&
+      (!langSel.value || v.target_language === langSel.value));
+    $('vocab-rows').innerHTML = rows.map(v => `
+      <tr>
+        <td>${esc(v.term)}</td>
+        <td>${esc(v.category || 'General')}</td>
+        <td>${esc(v.target_language ? langName(v.target_language) : '—')}</td>
+        <td>${esc(v.translation || '—')}</td>
+        <td><span class="pill ${v.is_verified ? 'green' : ''}">${v.is_verified ? 'Verified' : 'Unverified'}</span></td>
+        <td><button class="nav-link" style="padding:4px 8px; font-size:10px;" data-verify="${v.id}" data-val="${v.is_verified ? '0' : '1'}">${v.is_verified ? 'Unverify' : 'Verify'}</button></td>
+      </tr>`).join('');
+    $('vocab-empty').style.display = rows.length ? 'none' : 'block';
+  }
+  ['vf-category', 'vf-language'].forEach(id => $(id).addEventListener('change', renderVocab));
+  $('vocab-rows').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-verify]');
+    if (!btn) return;
+    btn.disabled = true;
+    await sb.from('cl_vocab_terms').update({ is_verified: btn.dataset.val === '1' }).eq('id', btn.dataset.verify);
+    await loadAll(); renderVocab();
+  });
+  $('btn-add-term').addEventListener('click', () => {
+    openModal(`
+      <h3>Add Term</h3>
+      <div class="m-sub">Trade vocabulary for consistent translation</div>
+      <label>Term (English)</label><input id="nv-term" placeholder="e.g. lockout tagout" />
+      <label>Context / category</label><select id="nv-cat">${VOCAB_CATEGORIES.map(c => `<option>${esc(c)}</option>`).join('')}</select>
+      <label>Target language</label><select id="nv-lang">${TARGET_LANGS.map(l => `<option value="${l.code}">${esc(l.name)}</option>`).join('')}</select>
+      <label>Translation</label><input id="nv-translation" placeholder="Verified translation in the target language" />
+      <div style="margin-top:18px; display:flex; gap:10px;">
+        <button class="retro-btn sm teal" id="nv-create">Add Term</button>
+        <button class="retro-btn sm ghost" id="nv-cancel">Cancel</button>
+      </div>
+      <div id="nv-status" class="err-text"></div>`);
+    $('nv-cancel').addEventListener('click', closeModal);
+    $('nv-create').addEventListener('click', async () => {
+      $('nv-create').disabled = true;
+      try {
+        await api('/api/teacher/vocab', { method: 'POST', body: {
+          term: $('nv-term').value.trim(),
+          category: $('nv-cat').value,
+          source_language: 'en',
+          target_language: $('nv-lang').value,
+          translation: $('nv-translation').value.trim() || null,
+        }});
+        closeModal(); await loadAll(); renderVocab();
+      } catch (e) { $('nv-status').textContent = e.message; $('nv-create').disabled = false; }
+    });
+  });
+
+  // ---------------- reports ----------------
+  function renderReports() {
+    $('rp-sessions').textContent = sessions.length;
+    $('rp-students').textContent = students.length;
+    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+    const monthLangs = new Set();
+    for (const s of sessions) {
+      if (new Date(s.created_at) >= monthStart) for (const l of (s.languages || [])) monthLangs.add(l);
+    }
+    $('rp-langs').textContent = monthLangs.size;
+    $('rp-translated').textContent = materials.filter(m =>
+      materialTranslations(m).some(t => t.translation_status === 'complete')).length;
+  }
+
+  // ---------------- settings ----------------
+  function renderSettings() {
+    $('set-account').innerHTML =
+      `<div class="row">` +
+      `<div><div class="label-mono ink2">Name</div><div>${esc(me.display_name || '—')}</div></div>` +
+      `<div><div class="label-mono ink2">Email</div><div class="mono" style="font-size:13px;">${esc(me.email || '—')}</div></div>` +
+      `<div><div class="label-mono ink2">Org</div><div id="set-org">—</div></div>` +
+      `</div>`;
+    $('set-default-class').innerHTML = '<option value="">First class in the list</option>' +
+      classes.map(c => `<option value="${c.id}"${c.id === settings.defaultClassId ? ' selected' : ''}>${esc(c.name)}</option>`).join('');
+    $('set-default-lang').innerHTML = langOptions(settings.defaultLang || 'en');
+    $('set-notify-help').checked = settings.notifyHelp !== false;
+  }
+  $('set-save').addEventListener('click', () => {
+    settings.defaultClassId = $('set-default-class').value;
+    settings.defaultLang = $('set-default-lang').value;
+    settings.notifyHelp = $('set-notify-help').checked;
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    $('set-status').textContent = 'Saved.';
+    setTimeout(() => { $('set-status').textContent = ''; }, 2500);
+    renderDashboard();
+  });
+
+  init();
+</script>
+</body>
+</html>
