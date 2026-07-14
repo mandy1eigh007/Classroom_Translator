@@ -1,5 +1,6 @@
 // /api/teacher/materials/:id — GET, PUT a single material.
 import { requireTeacher, envelope, errResponse, corsPreflight, sb, readBody, pick, isUuid } from '../_auth.js';
+import { validateMaterialRefs } from '../_material_refs.js';
 
 export function onRequestOptions() { return corsPreflight(); }
 
@@ -35,6 +36,9 @@ export async function onRequestPut(context) {
   if (fields.class_id && !isUuid(fields.class_id)) return errResponse('Invalid class id.');
   if (fields.subject_id && !isUuid(fields.subject_id)) return errResponse('Invalid subject id.');
   try {
+    const refError = await validateMaterialRefs(context.env, auth.user.id, fields);
+    if (refError) return refError;
+
     const rows = await sb(context.env, `cl_materials?id=eq.${id}&teacher_id=eq.${auth.user.id}`, {
       method: 'PATCH',
       body: fields,

@@ -1,5 +1,6 @@
 // /api/teacher/materials — GET list (optional ?class_id=), POST create.
 import { requireTeacher, envelope, errResponse, corsPreflight, sb, readBody, pick, isUuid } from './_auth.js';
+import { validateMaterialRefs } from './_material_refs.js';
 
 export function onRequestOptions() { return corsPreflight(); }
 
@@ -51,6 +52,9 @@ export async function onRequestPost(context) {
         if (created && created[0]) fields.subject_id = created[0].id;
       }
     }
+    const refError = await validateMaterialRefs(context.env, auth.user.id, fields);
+    if (refError) return refError;
+
     const rows = await sb(context.env, 'cl_materials', {
       method: 'POST',
       body: { ...fields, teacher_id: auth.user.id },
