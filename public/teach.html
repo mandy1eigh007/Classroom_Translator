@@ -28,23 +28,22 @@
   </div>
 
   <div id="browser-tip" style="display:none; margin-bottom:14px; padding:10px 14px; background:#fff7e0; border:1px solid #f0c75a; border-radius:var(--radius); color:#5a4a14; font-size:13px; line-height:1.4;">
-    <strong>Heads-up:</strong> if the mic won't pick up your voice, or videos
-    / documents won't upload, try a different browser (Microsoft Edge or
-    Firefox usually work) before assuming the app is broken.
+    <strong>Browser note:</strong> if microphone, video, or document upload is unavailable,
+    try Microsoft Edge, Firefox, or Chrome.
     <button id="browser-tip-close" type="button" aria-label="Dismiss"
             style="float:right; background:transparent; border:none; color:#5a4a14; font-size:12px; line-height:1; cursor:pointer; padding:2px 4px; margin-left:8px;">Close</button>
   </div>
 
   <div id="auth-gate" style="display:none; margin-bottom:18px;">
-    <p class="section-label">Instructor passcode</p>
+    <p class="section-label">Instructor access</p>
     <input id="passcode-input" type="password" autocomplete="current-password"
-           placeholder="Enter instructor passcode"
+           placeholder="Enter instructor access key"
            style="width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-family:'DM Mono',monospace; font-size:14px; padding:12px 14px; margin-bottom:10px;" />
-    <button id="passcode-submit" class="btn btn-primary">Unlock instructor</button>
+    <button id="passcode-submit" class="btn btn-primary">Continue</button>
     <p id="passcode-err" style="display:none; color:var(--red); font-size:12px; margin-top:8px;">
-      Wrong passcode.
+      Access key not recognized.
     </p>
-    <p class="hint">Ask whoever set up the app for the passcode. (It's the TEACHER_PASSWORD environment variable in the Cloudflare dashboard.)</p>
+    <p class="hint">Use the instructor dashboard when possible. This access key is for direct live-console access.</p>
   </div>
 
   <div id="main-ui" style="display:none;">
@@ -53,13 +52,13 @@
     <div class="card-head">
       <h3 class="card-title">Session</h3>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button id="new-class" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Disconnect current learners and start a new class with a fresh link">+ New class</button>
+        <button id="new-class" class="btn" type="button" style="width:auto; padding:10px 14px;" title="Disconnect current learners and start a new class with a fresh link">New class</button>
         <button id="end-class" class="btn" type="button" style="width:auto; padding:10px 14px; border-color:var(--red); color:var(--red);" title="Disconnect every learner and lock the instructor view">End class</button>
         <button id="mic-toggle" class="btn btn-primary" type="button" style="width:auto; padding:10px 18px;">Pause mic</button>
       </div>
     </div>
     <div class="toolbar">
-      <span id="mic-status" class="status-pill"><span class="dot"></span><span id="mic-text">Starting...</span></span>
+      <span id="mic-status" class="status-pill"><span class="dot"></span><span id="mic-text">Starting</span></span>
       <span id="audience" class="status-pill"><span class="dot"></span><span id="audience-text">0 learners</span></span>
       <span id="lost-pill" class="status-pill" style="display:none; border-color:var(--red); color:var(--red);">
         <span class="dot" style="background:var(--red);"></span><span id="lost-text"></span>
@@ -133,7 +132,7 @@
         <button id="doc-upload" class="btn btn-primary" type="button">Upload</button>
         <button id="doc-clear" class="btn" type="button" style="display:none; width:auto;">Clear</button>
       </div>
-      <p class="hint" style="margin:0 0 8px;">TXT and photos (JPG/PNG) work now — photos are OCR'd automatically. PDF/DOCX parsing is coming soon: for now save the page as text or snap a photo of it.</p>
+      <p class="hint" style="margin:0 0 8px;">TXT and image files are supported. For PDF or DOCX content, export the page as text or upload a clear image of the page.</p>
       <p id="doc-err" style="display:none; color:var(--red); font-size:12px; margin:0 0 8px;"></p>
       <div id="doc-nav" style="display:none; padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -153,7 +152,7 @@
     <section class="card card--violet">
       <h3 class="card-title">Live transcript (English)</h3>
       <div class="panel" style="flex:1; min-height:140px; margin:0;">
-        <p class="panel-text" id="live-text">Waiting for mic permission...</p>
+        <p class="panel-text" id="live-text">Waiting for microphone permission.</p>
       </div>
     </section>
 
@@ -528,7 +527,7 @@
   }
 
   document.getElementById('end-class').addEventListener('click', async () => {
-    if (!confirm('End class now?\n\nEvery learner will be disconnected and the lesson will be cleared. You\'ll need to re-enter the instructor passcode to start a new class.')) return;
+    if (!confirm('End class now?\n\nEvery learner will be disconnected and the lesson will be cleared. You will need instructor access to start another direct console session.')) return;
     try { await postSession('new'); } catch (_) {}
     dropAuth();
     showGate();
@@ -550,7 +549,7 @@
       recent.length = 0;
       latestUnderstood = {};
       feed.innerHTML = '';
-      setLive('Waiting for English speech...', false);
+      setLive('Waiting for English speech.', false);
       updateAudience(0);
       updateLost({}, {});
       resetMsgFeed();
@@ -956,7 +955,7 @@
     recognition.onstart = () => {
       isRunning = true;
       setMic('live', 'Listening');
-      if (!liveEl.classList.contains('filled')) setLive('Listening for English speech...', false);
+      if (!liveEl.classList.contains('filled')) setLive('Listening for English speech.', false);
     };
 
     recognition.onresult = (e) => {
@@ -1007,7 +1006,7 @@
   function resumeMic() {
     isPaused = false;
     micToggle.textContent = 'Pause mic';
-    setMic('ok', 'Starting...');
+    setMic('ok', 'Starting');
     start();
   }
   micToggle.addEventListener('click', () => {
@@ -1033,7 +1032,7 @@
   manualInput.addEventListener('blur', () => {
     if (micWasRunningBeforeTyping && !isPaused) {
       micWasRunningBeforeTyping = false;
-      setMic('ok', 'Starting...');
+      setMic('ok', 'Starting');
       start();
     }
   });

@@ -139,7 +139,7 @@
       <button id="gate-submit" class="btn btn-primary" style="width:100%;">Sign in</button>
     </div>
     <div id="gate-err" class="err"></div>
-    <p class="hint">Admin accounts only. Sign in with the Supabase Auth account whose profile role is "admin".</p>
+    <p class="hint">Authorized administrator accounts only.</p>
   </div>
 </div>
 
@@ -180,8 +180,7 @@
           <h3>Active sessions right now</h3>
           <div id="dash-active-list" class="empty">Loading…</div>
         </div>
-        <p class="hint">Counts come from sessions saved to Supabase (transcript export on the instructor page and signed-in
-          usage). Live KV-only classes that were never saved do not appear here.</p>
+        <p class="hint">Counts reflect saved sessions and signed-in usage.</p>
       </div>
 
       <!-- ===== Instructors ===== -->
@@ -198,8 +197,7 @@
             <div style="flex:0;"><button id="nt-create" class="btn btn-primary">Create</button></div>
           </div>
           <div id="nt-status" class="err"></div>
-          <p class="hint">The instructor signs in with this email and password, then changes the password with "Reset password".
-            If your Supabase project requires email confirmation, the instructor must confirm before their profile activates.</p>
+          <p class="hint">Use this for managed instructor accounts. Invite-based signup is available from the instructor access page.</p>
         </div>
         <div class="panel">
           <h3>All instructors</h3>
@@ -716,7 +714,7 @@
             p.charAt(0).toUpperCase() + p.slice(1) + '</option>').join('') +
         '</select></td>' +
         '<td>' + lim[0] + '</td><td>' + lim[1] + '</td>' +
-        '<td><span class="pill muted">Billing: coming soon</span></td></tr>';
+        '<td><span class="pill muted">Billing not configured</span></td></tr>';
     }).join('');
     $('sub-empty').style.display = orgsCache.length ? 'none' : 'block';
   }

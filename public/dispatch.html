@@ -150,7 +150,7 @@
 
       <div id="worker-fields" style="display:none;">
         <p class="section-label">Your name</p>
-        <input type="text" id="setup-name" placeholder="Juan" maxlength="40" style="margin-bottom:14px;" />
+        <input type="text" id="setup-name" placeholder="Name" maxlength="40" style="margin-bottom:14px;" />
         <p class="section-label">Your language</p>
         <select id="setup-lang" style="margin-bottom:14px;">
           <option value="">Pick your language</option>
@@ -185,8 +185,8 @@
       </div>
 
       <div id="dispatcher-fields" style="display:none;">
-        <p class="section-label">Instructor passcode</p>
-        <input type="password" id="setup-passcode" placeholder="Instructor passcode"
+        <p class="section-label">Dispatcher access</p>
+        <input type="password" id="setup-passcode" placeholder="Access key"
                autocomplete="current-password" style="margin-bottom:14px;" />
       </div>
 
@@ -217,7 +217,7 @@
       </p>
 
       <div style="display:flex; gap:8px; align-items:flex-end; margin-bottom:14px;">
-        <textarea id="dp-text" placeholder="Type a message or tap MIC..."></textarea>
+        <textarea id="dp-text" placeholder="Type a message or use MIC"></textarea>
         <div style="display:flex; flex-direction:column; gap:6px;">
           <button class="mic-btn" id="dp-mic">MIC</button>
           <button class="btn btn-primary" id="dp-send"
@@ -248,13 +248,13 @@
   <div id="screen-worker" class="screen">
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; padding-bottom:12px; border-bottom:2px solid var(--ink);">
       <div class="roster-dot" id="wk-dot"></div>
-      <span style="font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-2);" id="wk-status-label">Connecting...</span>
+      <span style="font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-2);" id="wk-status-label">Connecting</span>
       <span style="flex:1;"></span>
       <span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--ink-2);" id="wk-identity"></span>
     </div>
 
     <div class="dispatch-msg" id="wk-msg-box">
-      <div class="msg-text" id="wk-msg-text" style="color:var(--ink-2); font-style:italic; font-size:18px; font-weight:400;">Waiting for dispatch...</div>
+      <div class="msg-text" id="wk-msg-text" style="color:var(--ink-2); font-style:italic; font-size:18px; font-weight:400;">Waiting for instructions.</div>
       <div class="msg-en" id="wk-msg-en"></div>
     </div>
 
@@ -528,7 +528,7 @@ async function sendDispatch(text) {
   text = text.trim();
   if (!text) return;
   const btn = $('dp-send');
-  btn.disabled = true; btn.textContent = '...';
+  btn.disabled = true; btn.textContent = 'Sending';
   try {
     const r = await fetch('/api/dispatch/send', {
       method: 'POST',
@@ -619,7 +619,7 @@ async function registerWorker() {
     $('wk-status-label').textContent = 'Connected';
   } catch (_) {
     $('wk-dot').classList.remove('live');
-    $('wk-status-label').textContent = 'Reconnecting...';
+    $('wk-status-label').textContent = 'Reconnecting';
   }
 }
 

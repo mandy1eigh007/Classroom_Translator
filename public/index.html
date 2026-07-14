@@ -36,22 +36,22 @@
 
     .retro-card {
       background: var(--paper);
-      border: 3px solid var(--ink);
-      border-radius: 14px;
-      box-shadow: 6px 6px 0 var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: 4px 4px 0 rgba(42,26,15,0.85);
     }
     .retro-btn {
       display: inline-flex; align-items: center; gap: 10px;
       background: var(--red); color: var(--paper);
-      border: 3px solid var(--ink); border-radius: 10px;
+      border: 2px solid var(--ink); border-radius: 8px;
       padding: 14px 22px;
       font-family: 'Atkinson Hyperlegible', sans-serif;
       font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase;
-      box-shadow: 5px 5px 0 var(--ink);
+      box-shadow: 3px 3px 0 rgba(42,26,15,0.9);
       transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s;
     }
-    .retro-btn:hover { transform: translate(-1px,-1px); box-shadow: 6px 6px 0 var(--ink); filter: brightness(1.05); }
-    .retro-btn:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 var(--ink); }
+    .retro-btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 rgba(42,26,15,0.9); filter: brightness(1.05); }
+    .retro-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
     .retro-btn.mustard { background: var(--mustard); color: var(--ink); }
     .retro-btn.teal    { background: var(--teal); color: var(--paper); }
     .retro-btn.ghost   { background: var(--paper); color: var(--ink); }
@@ -64,7 +64,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
       font-weight: 500;
-      box-shadow: 3px 3px 0 var(--ink);
+      box-shadow: 2px 2px 0 rgba(42,26,15,0.9);
     }
     .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: pulse 1.4s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
@@ -72,9 +72,9 @@
     .ico-tile {
       display: grid; place-items: center;
       width: 48px; height: 48px;
-      border: 2.5px solid var(--ink); border-radius: 10px;
+      border: 2px solid var(--ink); border-radius: 8px;
       background: var(--red); color: var(--paper);
-      box-shadow: 3px 3px 0 var(--ink);
+      box-shadow: 2px 2px 0 rgba(42,26,15,0.85);
     }
     .ico-tile.mustard { background: var(--mustard); color: var(--ink); }
     .ico-tile.teal    { background: var(--teal);    color: var(--paper); }
@@ -91,10 +91,10 @@
       border: 2px solid var(--ink); border-radius: 8px;
       padding: 8px 14px;
       background: var(--paper); color: var(--ink);
-      box-shadow: 3px 3px 0 var(--ink);
+      box-shadow: 2px 2px 0 rgba(42,26,15,0.85);
       transition: transform 0.1s, box-shadow 0.1s;
     }
-    .nav-link:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+    .nav-link:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 rgba(42,26,15,0.85); }
     .nav-link.primary { background: var(--red); color: var(--paper); }
     .nav-link.secondary { background: var(--mustard); color: var(--ink); }
 
@@ -115,7 +115,7 @@
         </div>
       </a>
       <div class="flex items-center gap-3">
-        <a href="/teach" class="nav-link primary hidden sm:inline-flex">Instructor</a>
+        <a href="/teacher" class="nav-link primary hidden sm:inline-flex">Instructor</a>
         <a href="/student" class="nav-link secondary">Learner</a>
       </div>
     </div>
@@ -127,20 +127,20 @@
     <section class="relative px-6 py-20 lg:px-10 lg:py-28">
       <div class="mx-auto max-w-7xl">
         <div class="max-w-3xl">
-          <div class="mb-7"><span class="chip"><span class="dot"></span>28 languages &middot; Trade-aware &middot; Dispatch-ready</span></div>
+          <div class="mb-7"><span class="chip">28 languages &middot; Trade-aware &middot; Classroom and field use</span></div>
           <h1 class="h-display ink" style="font-size: clamp(48px, 8vw, 96px);">
-            Teach the trade.<br/>
-            <span style="color: var(--red);">They understand.</span>
+            Trade instruction,<br/>
+            <span style="color: var(--red);">translated live.</span>
           </h1>
           <p class="mt-7 max-w-xl text-base leading-7 ink2 sm:text-lg" style="font-weight:500;">
-            Real-time translation for workforce classrooms and field teams. Instructors speak in English while multilingual learners and crews follow in their own language, with safety terms, jobsite language, and study notes built in.
+            Real-time translation for workforce classrooms and field teams. Instructors teach in English while multilingual learners follow in their language, with safety terms, jobsite language, and study support built in.
           </p>
           <div class="mt-9 flex flex-wrap gap-4">
-            <a href="/teach" class="retro-btn">
-              I'm Instructing
+            <a href="/teacher" class="retro-btn">
+              Instructor Dashboard
             </a>
             <a href="/student" class="retro-btn mustard">
-              I'm Learning
+              Learner View
             </a>
           </div>
         </div>
@@ -165,13 +165,13 @@
         <!-- Instructor -->
         <div class="retro-card p-8 lg:p-10">
           <div class="flex items-center gap-3 mb-5">
-            <span class="label-mono" style="color: var(--red);">Instructor · /teach</span>
+            <span class="label-mono" style="color: var(--red);">Instructor · /teacher</span>
           </div>
           <h3 class="h-display ink" style="font-size: clamp(28px, 3.4vw, 40px);">
             Teach. <span style="color: var(--red);">Translate.</span> Keep moving.
           </h3>
           <p class="mt-4 text-sm leading-7 ink2" style="font-weight:500;">
-            Sign in, put the QR on the screen, and teach trades, safety, math, or jobsite skills in English. Pause the mic anytime. Share class materials, photos, or video links so learners can follow along in their language.
+            Sign in, display the class link, and teach trades, safety, math, or jobsite skills in English. Pause the mic anytime. Share class materials, photos, or video links so learners can follow along in their language.
           </p>
           <div class="divider my-6"></div>
           <ul class="space-y-3 text-sm ink" style="font-weight:500;">
@@ -179,8 +179,8 @@
             <li>Class materials, images, and links translated in context</li>
             <li>Synced YouTube playback</li>
           </ul>
-          <a href="/teach" class="retro-btn mt-8">
-            Open Instructor View
+          <a href="/teacher" class="retro-btn mt-8">
+            Open Instructor Dashboard
           </a>
         </div>
 
@@ -193,7 +193,7 @@
             Pick a language. <span style="color: var(--mustard);">Follow the work.</span>
           </h3>
           <p class="mt-4 text-sm leading-7 ink2" style="font-weight:500;">
-            Open the link on your phone, pick your language, and follow the class live. Tap to hear trade terms out loud, hold to pause, replay what you missed, or make the text easier to read.
+            Open the link, choose a language, and follow the class live. Learners can hear key terms, pause the feed, replay recent translation, or increase text size.
           </p>
           <div class="divider my-6"></div>
           <ul class="grid grid-cols-1 gap-3 text-sm ink" style="font-weight:500;" id="student-list"></ul>
@@ -207,16 +207,16 @@
 
     <!-- CLOSING CTA -->
     <section class="px-6 pb-20 lg:px-10 lg:pb-28">
-      <div class="mx-auto flex max-w-7xl flex-col gap-6 retro-card p-7 sm:flex-row sm:items-center sm:justify-between lg:p-9" style="box-shadow: 6px 6px 0 var(--teal);">
+      <div class="mx-auto flex max-w-7xl flex-col gap-6 retro-card p-7 sm:flex-row sm:items-center sm:justify-between lg:p-9" style="box-shadow: 4px 4px 0 var(--teal);">
         <div class="flex items-start gap-5">
           <div class="ico-tile teal display" style="width:56px; height:56px;">28</div>
           <div>
             <h2 class="h-display ink" style="font-size: 28px;">Workforce classrooms. Field teams.</h2>
-            <p class="mt-2 ink2" style="font-weight:500;">Built for multilingual training, safety talks, and jobsite communication. Start a session in under a minute — learners just need the link.</p>
+            <p class="mt-2 ink2" style="font-weight:500;">Built for multilingual training, safety talks, and jobsite communication. Instructors start a session and share one class link.</p>
           </div>
         </div>
         <div class="flex flex-wrap gap-3">
-          <a href="/teach" class="retro-btn">Instructor</a>
+          <a href="/teacher" class="retro-btn">Instructor</a>
           <a href="/student" class="retro-btn mustard">Learner</a>
           <a href="/dispatch" class="retro-btn" style="background:var(--teal); color:var(--paper);">Dispatch</a>
         </div>
@@ -232,22 +232,22 @@
     const features = [
       { icon: 'languages',    title: 'TRADE-AWARE TRANSLATION',  copy: 'Instructors speak naturally. ClassLingo keeps trade, safety, and jobsite language in context.',  tone: 'red' },
       { icon: 'globe',        title: '28 LANGUAGES',      copy: 'Spanish, Dari, Somali, Pashto, Hmong, Karen, Haitian Creole, and more. Learners can switch mid-class.', tone: 'mustard' },
-      { icon: 'radio',        title: 'CLASSROOM + DISPATCH',        copy: 'Teach in the room or send field instructions to workers from a separate dispatch view.',   tone: 'teal' },
-      { icon: 'file-text',    title: 'STUDY NOTES',     copy: 'Learners can generate topic-based study notes from class content without keeping a permanent raw transcript.',    tone: 'orange' },
-      { icon: 'volume-2',     title: 'LISTEN MODE',       copy: 'Learners can tap to hear phrases or use audio-first dispatch for field work.', tone: 'red' },
-      { icon: 'book-open', title: 'TRADE VOCAB BANK',         copy: 'Built to grow a trade-language bank from class speech, dispatch phrases, and curated vocabulary.',  tone: 'teal' },
+      { icon: 'radio',        title: 'CLASSROOM + DISPATCH',        copy: 'Run a live classroom session or send field instructions from a separate dispatch view.',   tone: 'teal' },
+      { icon: 'file-text',    title: 'STUDY SUPPORT',     copy: 'Learners can generate topic-based study notes from class content without keeping a permanent raw transcript.',    tone: 'orange' },
+      { icon: 'volume-2',     title: 'AUDIO SUPPORT',       copy: 'Learners can listen to translated phrases or use audio-first dispatch for field work.', tone: 'red' },
+      { icon: 'book-open', title: 'TRADE VOCAB BANK',         copy: 'Build a shared trade-language bank from class speech, dispatch phrases, and curated vocabulary.',  tone: 'teal' },
     ];
     const toneShadow = { red: 'var(--red)', mustard: 'var(--mustard)', teal: 'var(--teal)', orange: 'var(--orange)' };
     const studentFeatures = [
       { icon: 'languages',  label: 'Pick your language (28 options)' },
       { icon: 'refresh-cw', label: 'Switch language mid-class' },
-      { icon: 'volume-2',   label: 'Tap to hear (TTS)' },
-      { icon: 'pause',      label: 'Hold to pause incoming text' },
-      { icon: 'rotate-ccw', label: 'Replay anything you missed' },
-      { icon: 'type',       label: 'Bump font size up' },
+      { icon: 'volume-2',   label: 'Listen to translated text' },
+      { icon: 'pause',      label: 'Pause incoming text' },
+      { icon: 'rotate-ccw', label: 'Replay recent translation' },
+      { icon: 'type',       label: 'Increase text size' },
     ];
     document.getElementById('features-grid').innerHTML = features.map((f, i) => `
-      <div class="retro-card p-6" style="box-shadow: 5px 5px 0 ${toneShadow[f.tone]};">
+      <div class="retro-card p-6" style="box-shadow: 4px 4px 0 ${toneShadow[f.tone]};">
         <div class="flex items-start gap-4">
           <div class="ico-tile ${f.tone === 'red' ? '' : f.tone} display">${String(i + 1).padStart(2, '0')}</div>
           <div>

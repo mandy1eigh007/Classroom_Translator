@@ -98,7 +98,7 @@
     .watermark {
       position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
       display: flex; flex-wrap: wrap; align-content: flex-start; gap: 60px 80px; padding: 40px;
-      transform: rotate(-22deg) scale(1.4); transform-origin: center; opacity: 0.05;
+      transform: rotate(-22deg) scale(1.4); transform-origin: center; opacity: 0.025;
     }
     .watermark span { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--ink); white-space: nowrap; user-select: none; }
     input, textarea { background: var(--paper); border: 2px solid var(--ink); border-radius: 10px; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
@@ -121,7 +121,7 @@
       <h2 class="display text-lg" data-i18n="auth_title">Your account</h2>
       <span id="auth-state" class="label-mono"></span>
     </div>
-    <p class="mb-3 text-sm" style="color:var(--ink2)" data-i18n="auth_hint">Sign in to keep your name, language, and phrasebook on any device — or just join as a guest.</p>
+    <p class="mb-3 text-sm" style="color:var(--ink2)" data-i18n="auth_hint">Sign in to keep your name, language, and phrasebook on any device, or continue as a guest.</p>
     <div id="auth-buttons" class="flex flex-wrap gap-2">
       <button id="auth-guest" class="retro-btn px-4 py-2 text-sm" data-i18n="auth_guest">Join as guest</button>
       <button id="auth-show" class="retro-btn px-4 py-2 text-sm" style="background:var(--teal); color:var(--paper);" data-i18n="auth_signin">Sign in with email</button>
@@ -208,7 +208,7 @@
     </div>
     <div class="flex gap-3">
       <button id="btn-confused" class="thumb-btn thumb-confused">
-        <span data-i18n="btn_confused">Confused</span>
+        <span data-i18n="btn_confused">Need help</span>
       </button>
       <button id="btn-got" class="thumb-btn thumb-got">
         <span data-i18n="btn_got">Got it</span>
@@ -367,10 +367,10 @@ const UI_STRINGS = {
   history_cleared: 'Lesson history cleared.',
   tab_study: 'Study', tab_back: 'Class', study_title: 'Study tools',
   btn_hold: 'Hold', btn_catchup: 'Catch up', btn_read: 'Listen mode', btn_replay: 'Replay',
-  btn_confused: 'Confused', btn_got: 'Got it', btn_sent: 'Sent', btn_unmute: 'Tap to enable sound',
+  btn_confused: 'Need help', btn_got: 'Got it', btn_sent: 'Sent', btn_unmute: 'Tap to enable sound',
   card_notes: 'Class notes', notes_hint: 'AI study notes from this class, in your language.',
   notes_btn: 'Generate notes', notes_regen: 'Regenerate', notes_loading: 'Generating…',
-  notes_empty: 'No lesson content yet — try again after the instructor starts.',
+  notes_empty: 'No lesson content is available yet.',
   notes_failed: 'Could not generate notes.', notes_copy: 'Copy', notes_share: 'Share',
   notes_copied: 'Copied', notes_listen: 'Listen', notes_stop: 'Stop',
   notes_coverage: 'Summary of {count} sentences over {min} min',
@@ -387,7 +387,7 @@ const UI_STRINGS = {
   teacher_label: 'INSTRUCTOR',
   doc_show_en: 'Show English', doc_hide_en: 'Hide English', doc_page: 'Page {n} / {total}',
   auth_title: 'Your account',
-  auth_hint: 'Sign in to keep your name, language, and phrasebook on any device — or just join as a guest.',
+  auth_hint: 'Sign in to keep your name, language, and phrasebook on any device, or continue as a guest.',
   auth_guest: 'Join as guest', auth_signin: 'Sign in with email',
   auth_login: 'Sign in', auth_signup: 'Create account', auth_cancel: 'Cancel',
   auth_signout: 'Sign out', auth_signed: 'Signed in',
