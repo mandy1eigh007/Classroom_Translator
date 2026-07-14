@@ -265,7 +265,7 @@
       <!-- ===== Settings ===== -->
       <div class="tab-page" id="tab-settings">
         <h2 class="page-title">Settings</h2>
-        <p class="page-sub">App-wide defaults. Stored in Supabase (app_settings).</p>
+        <p class="page-sub">Workspace-wide defaults for live translation.</p>
         <div class="panel">
           <h3>Default languages offered</h3>
           <div id="set-langs"></div>
@@ -281,8 +281,7 @@
             <option value="gpt-4o">gpt-4o (higher quality)</option>
             <option value="gpt-4.1-mini">gpt-4.1-mini</option>
           </select>
-          <p class="hint">Model selection is stored here for reference and future server wiring; the Cloudflare Functions
-            currently use gpt-4o-mini.</p>
+          <p class="hint">Model selection controls the default translation profile for this workspace.</p>
         </div>
         <button id="set-save" class="btn btn-primary">Save settings</button>
         <div id="set-status" class="ok-msg"></div>
@@ -309,8 +308,7 @@
               <tr><td>Enterprise</td><td>Unlimited</td><td>Unlimited</td><td>All + custom vocab</td><td>Full history + API</td></tr>
             </tbody>
           </table>
-          <p class="hint">Usage limits are not enforced yet — enforcement lands with the service-role key wiring in
-            Cloudflare Functions.</p>
+          <p class="hint">Usage limits are prepared for enforcement in a later release.</p>
         </div>
       </div>
     </main>

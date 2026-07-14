@@ -194,7 +194,7 @@
       <button class="btn btn-primary" id="setup-go" disabled>Connect</button>
     </div>
 
-    <p class="hint">Share worker link: <span id="setup-link" style="color:var(--red); word-break:break-all;"></span></p>
+    <p class="hint" id="setup-link-wrap" style="display:none;">Worker link: <span id="setup-link" style="color:var(--red); word-break:break-all;"></span></p>
   </div>
 
   <!-- ============ DISPATCHER ============ -->
@@ -327,9 +327,9 @@ if (paramLang) {
 
 function updateLinkPreview() {
   const code = $('setup-code').value.trim().toUpperCase();
-  $('setup-link').textContent = code
-    ? `${location.origin}/dispatch?role=worker&code=${code}`
-    : '';
+  const link = code ? `${location.origin}/dispatch?role=worker&code=${code}` : '';
+  $('setup-link').textContent = link;
+  $('setup-link-wrap').style.display = link ? '' : 'none';
 }
 
 $('gen-code').addEventListener('click', () => {
