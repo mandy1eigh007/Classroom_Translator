@@ -1,5 +1,11 @@
 // /api/teacher/sessions — GET list, POST create (new lobby session).
-import { requireTeacher, envelope, errResponse, corsPreflight, sb, readBody, isUuid, genSessionCode } from './_auth.js';
+//
+// POST rotates the shared /teach room in SESSION_KV (same semantics as
+// POST /api/session {action:"new"}) and stores THAT code in
+// cl_sessions.session_code, so the dashboard record and the live class
+// share one join code and can never diverge.
+import { requireTeacher, envelope, errResponse, corsPreflight, sb, readBody, isUuid } from './_auth.js';
+import { getOrCreateSession, putSession, genRoomCode, readTranscript, SNAPSHOT_TTL } from '../_lib.js';
 
 export function onRequestOptions() { return corsPreflight(); }
 
@@ -26,29 +32,64 @@ export async function onRequestGet(context) {
   }
 }
 
-// Body: { class_id? } — creates a lobby session with a fresh join code.
+// Body: { class_id? } — creates a lobby session whose join code IS the live
+// /teach room code (the dashboard redirects to /teach, which reads the same
+// code back from GET /api/session).
 export async function onRequestPost(context) {
   const auth = await requireTeacher(context);
   if (auth.response) return auth.response;
+  const { env } = context;
   const body = await readBody(context.request);
   const classId = body && body.class_id ? body.class_id : null;
   if (classId && !isUuid(classId)) return errResponse('Invalid class id.');
   try {
     if (classId) {
-      const owned = await sb(context.env, `cl_classes?id=eq.${classId}&teacher_id=eq.${auth.user.id}&select=id`);
+      const owned = await sb(env, `cl_classes?id=eq.${classId}&teacher_id=eq.${auth.user.id}&select=id`);
       if (!owned || !owned[0]) return errResponse('Class not found.', 404);
     }
-    // Retry on the (unlikely) chance a random code collides with the unique index.
+
+    // Snapshot the outgoing room's transcript first (parity with
+    // /api/session {action:"new"}) so students still on the old link can
+    // generate final notes for a few minutes.
+    const prev = await getOrCreateSession(env);
+    try {
+      const { transcript, count, durationMs } = await readTranscript(env, prev.epoch);
+      if (transcript.length >= 40) {
+        await env.SESSION_KV.put('snapshot:' + prev.code, JSON.stringify({
+          transcript: transcript.slice(-60000), count, durationMs, endedAt: Date.now(),
+        }), { expirationTtl: SNAPSHOT_TTL });
+      }
+    } catch (_) { /* snapshot is best-effort */ }
+
+    const room = {
+      code: genRoomCode(),
+      epoch: prev.epoch + 1,          // hides all old msg/tr keys instantly
+      latestTs: 0,
+      lastPublishTs: 0,
+      videoV: (prev.videoV || 0) + 1,
+      docV: (prev.docV || 0) + 1,
+      replyV: (prev.replyV || 0) + 1,
+      startedAt: Date.now(),
+      // The vocabulary mode is a teacher preference — keep it across classes.
+      mode: prev.mode || 'general',
+      modePrompt: prev.modePrompt || '',
+      modeTerms: prev.modeTerms || [],
+    };
+
+    // Insert the Supabase record with the SAME code. session_code is unique;
+    // on the (unlikely) collision, re-roll and try again — the room is only
+    // published to KV after the record exists, so they stay in sync.
     let session = null;
     let lastErr = null;
     for (let i = 0; i < 3 && !session; i++) {
+      if (i > 0) room.code = genRoomCode();
       try {
-        const rows = await sb(context.env, 'cl_sessions', {
+        const rows = await sb(env, 'cl_sessions', {
           method: 'POST',
           body: {
             teacher_id: auth.user.id,
             class_id: classId,
-            session_code: genSessionCode(),
+            session_code: room.code,
             status: 'lobby',
             started_at: new Date().toISOString(),
           },
@@ -57,6 +98,15 @@ export async function onRequestPost(context) {
       } catch (e) { lastErr = e; }
     }
     if (!session) return errResponse((lastErr && lastErr.message) || 'Failed to create the session.', 502);
+
+    // Publish the rotated room to KV — /teach and /student pick it up from
+    // GET /api/session. Clear shared media state from the previous room.
+    await putSession(env, room);
+    await Promise.all([
+      env.SESSION_KV.delete('video:state'),
+      env.SESSION_KV.delete('video:cues'),
+      env.SESSION_KV.delete('doc:meta'),
+    ]).catch(() => {});
 
     await sb(context.env, 'cl_session_events', {
       method: 'POST',

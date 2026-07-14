@@ -213,6 +213,7 @@
     .lang-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 2px 14px; }
 
     #splash { min-height: 100dvh; display: flex; align-items: center; justify-content: center; }
+    #signin { min-height: 100dvh; display: none; align-items: center; justify-content: center; padding: 24px; }
     #app { display: none; }
     .event-line { padding: 6px 0; border-bottom: 1px dashed rgba(42,26,15,0.3); font-size: 13px; }
     .event-line .e-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink2); }
@@ -224,6 +225,23 @@
   <div class="retro-card" style="padding: 28px 36px; text-align: center;">
     <div class="h-display" style="font-size: 24px;"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
     <div class="label-mono ink2" style="margin-top: 8px;" id="splash-msg">Checking your session</div>
+  </div>
+</div>
+
+<div id="signin">
+  <div class="retro-card" style="padding: 32px 36px; width: 100%; max-width: 420px;">
+    <div class="h-display" style="font-size: 24px;"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
+    <div class="label-mono ink2" style="margin-top: 6px;">Teacher Sign In</div>
+    <label>Email</label>
+    <input id="si-email" type="email" autocomplete="email" placeholder="you@school.org" />
+    <label>Password</label>
+    <input id="si-password" type="password" autocomplete="current-password" />
+    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="retro-btn" id="si-submit">Sign In</button>
+      <button class="retro-btn ghost" id="si-signout" style="display: none;">Sign Out</button>
+    </div>
+    <div id="si-err" class="err-text"></div>
+    <p class="hint">Instructor accounts only. Sign in with the account your program admin set up for you.</p>
   </div>
 </div>
 
@@ -495,6 +513,7 @@
   let selectedClassId = null;
   let selectedMaterialId = null; // null = editor closed, 'new' = creating
   let settings = { defaultClassId: '', defaultLang: 'en', notifyHelp: true };
+  let pollTimer = null;
   try { Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')); } catch (_) {}
 
   // ---------------- helpers ----------------
@@ -514,7 +533,7 @@
 
   async function api(path, opts = {}) {
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) { location.href = '/admin'; throw new Error('Signed out.'); }
+    if (!session) { showSignin('Your session expired. Sign in again.'); throw new Error('Signed out.'); }
     const r = await fetch(path, {
       method: opts.method || 'GET',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
@@ -546,15 +565,54 @@
   }
 
   // ---------------- auth ----------------
+  // All auth lives here: no session -> inline sign-in form; wrong role ->
+  // error + sign-out button. Never redirects to /admin (that page is admin-only).
+  function showSignin(errMsg, canSignOut) {
+    $('splash').style.display = 'none';
+    $('app').style.display = 'none';
+    $('signin').style.display = 'flex';
+    $('si-err').textContent = errMsg || '';
+    $('si-signout').style.display = canSignOut ? '' : 'none';
+    setTimeout(() => $('si-email').focus(), 50);
+  }
+  async function teacherProfile(user) {
+    const { data: prof } = await sb.from('cl_profiles').select('*').eq('id', user.id).single();
+    if (!prof || (prof.role !== 'teacher' && prof.role !== 'admin') || prof.active === false) return null;
+    return prof;
+  }
   async function init() {
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) { location.href = '/admin'; return; }
-    const { data: prof } = await sb.from('cl_profiles').select('*').eq('id', session.user.id).single();
-    if (!prof || (prof.role !== 'teacher' && prof.role !== 'admin') || prof.active === false) {
-      $('splash-msg').textContent = 'This account is not an instructor. Redirecting.';
-      setTimeout(() => { location.href = '/admin'; }, 1800);
+    if (!session) { showSignin(); return; }
+    const prof = await teacherProfile(session.user);
+    if (!prof) { showSignin('This account does not have teacher access.', true); return; }
+    await enterDashboard(session, prof);
+  }
+  async function doSignin() {
+    const email = $('si-email').value.trim();
+    const password = $('si-password').value;
+    if (!email || !password) { $('si-err').textContent = 'Enter your email and password.'; return; }
+    $('si-submit').disabled = true;
+    $('si-err').textContent = '';
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    $('si-submit').disabled = false;
+    if (error) { $('si-err').textContent = error.message; return; }
+    const prof = await teacherProfile(data.user);
+    if (!prof) {
+      await sb.auth.signOut();
+      $('si-err').textContent = 'This account does not have teacher access.';
       return;
     }
+    $('si-password').value = '';
+    $('signin').style.display = 'none';
+    $('splash').style.display = '';
+    await enterDashboard(data.session, prof);
+  }
+  $('si-submit').addEventListener('click', doSignin);
+  ['si-email', 'si-password'].forEach(id =>
+    $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') doSignin(); }));
+  $('si-signout').addEventListener('click', async () => { await sb.auth.signOut(); showSignin(); });
+
+  async function enterDashboard(session, prof) {
     me = { id: session.user.id, email: session.user.email, display_name: prof.display_name };
     $('nav-who').textContent = me.display_name || me.email || '';
     $('splash-msg').textContent = 'Loading your classroom';
@@ -575,11 +633,13 @@
     $('splash').style.display = 'none';
     $('app').style.display = 'block';
     renderAll();
-    setInterval(async () => {
-      if (activeSession) { await refreshActiveDetail(); renderRail(); renderDashboard(); renderLive(); }
-    }, 15000);
+    if (!pollTimer) {
+      pollTimer = setInterval(async () => {
+        if (activeSession) { await refreshActiveDetail(); renderRail(); renderDashboard(); renderLive(); }
+      }, 15000);
+    }
   }
-  $('nav-logout').addEventListener('click', async () => { await sb.auth.signOut(); location.href = '/admin'; });
+  $('nav-logout').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
 
   async function loadAll() {
     const results = await Promise.allSettled([
@@ -853,6 +913,10 @@
   });
 
   async function startSession() {
+    // POST /api/teacher/sessions rotates the shared /teach room (SESSION_KV)
+    // server-side and stores that same code in cl_sessions.session_code, so
+    // the join code shown here and the live console's code are one and the
+    // same. /teach reads it back from GET /api/session on load.
     const btn = $('btn-start-session');
     if (btn) btn.disabled = true;
     try {
