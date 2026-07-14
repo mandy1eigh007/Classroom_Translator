@@ -214,6 +214,15 @@
 
     #splash { min-height: 100dvh; display: flex; align-items: center; justify-content: center; }
     #signin { min-height: 100dvh; display: none; align-items: center; justify-content: center; padding: 24px; }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 18px 0 4px; }
+    .auth-tab {
+      border: 2px solid var(--ink); border-radius: 8px; background: var(--paper); color: var(--ink);
+      padding: 9px 10px; font-family: 'Atkinson Hyperlegible', sans-serif; font-size: 12px;
+      letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    }
+    .auth-tab.active { background: var(--red); color: var(--paper); }
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
     #app { display: none; }
     .event-line { padding: 6px 0; border-bottom: 1px dashed rgba(42,26,15,0.3); font-size: 13px; }
     .event-line .e-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink2); }
@@ -229,19 +238,41 @@
 </div>
 
 <div id="signin">
-  <div class="retro-card" style="padding: 32px 36px; width: 100%; max-width: 420px;">
+  <div class="retro-card" style="padding: 32px 36px; width: 100%; max-width: 460px;">
     <div class="h-display" style="font-size: 24px;"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
-    <div class="label-mono ink2" style="margin-top: 6px;">Teacher Sign In</div>
-    <label>Email</label>
-    <input id="si-email" type="email" autocomplete="email" placeholder="you@school.org" />
-    <label>Password</label>
-    <input id="si-password" type="password" autocomplete="current-password" />
-    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-      <button class="retro-btn" id="si-submit">Sign In</button>
-      <button class="retro-btn ghost" id="si-signout" style="display: none;">Sign Out</button>
+    <div class="label-mono ink2" style="margin-top: 6px;">Instructor Access</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="auth-tab-signin">Sign In</button>
+      <button class="auth-tab" id="auth-tab-signup">Create Account</button>
     </div>
+
+    <div class="auth-panel active" id="auth-panel-signin">
+      <label>Email</label>
+      <input id="si-email" type="email" autocomplete="email" placeholder="you@school.org" />
+      <label>Password</label>
+      <input id="si-password" type="password" autocomplete="current-password" />
+      <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="retro-btn" id="si-submit">Sign In</button>
+        <button class="retro-btn ghost" id="si-signout" style="display: none;">Sign Out</button>
+      </div>
+    </div>
+
+    <div class="auth-panel" id="auth-panel-signup">
+      <label>Name</label>
+      <input id="su-name" type="text" autocomplete="name" placeholder="Instructor name" />
+      <label>Email</label>
+      <input id="su-email" type="email" autocomplete="email" placeholder="you@school.org" />
+      <label>Password</label>
+      <input id="su-password" type="password" autocomplete="new-password" />
+      <label>Invite Code</label>
+      <input id="su-code" type="password" autocomplete="off" />
+      <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="retro-btn" id="su-submit">Create Account</button>
+      </div>
+    </div>
+
     <div id="si-err" class="err-text"></div>
-    <p class="hint">Instructor accounts only. Sign in with the account your program admin set up for you.</p>
+    <p class="hint">Instructor access is invite-only while ClassLingo is in pilot.</p>
   </div>
 </div>
 
@@ -573,7 +604,19 @@
     $('signin').style.display = 'flex';
     $('si-err').textContent = errMsg || '';
     $('si-signout').style.display = canSignOut ? '' : 'none';
-    setTimeout(() => $('si-email').focus(), 50);
+    setTimeout(() => {
+      const signupOpen = $('auth-panel-signup').classList.contains('active');
+      $(signupOpen ? 'su-name' : 'si-email').focus();
+    }, 50);
+  }
+  function setAuthMode(mode) {
+    const signup = mode === 'signup';
+    $('auth-tab-signin').classList.toggle('active', !signup);
+    $('auth-tab-signup').classList.toggle('active', signup);
+    $('auth-panel-signin').classList.toggle('active', !signup);
+    $('auth-panel-signup').classList.toggle('active', signup);
+    $('si-err').textContent = '';
+    setTimeout(() => $(signup ? 'su-name' : 'si-email').focus(), 50);
   }
   async function teacherProfile(user) {
     const { data: prof } = await sb.from('cl_profiles').select('*').eq('id', user.id).single();
@@ -607,9 +650,52 @@
     $('splash').style.display = '';
     await enterDashboard(data.session, prof);
   }
+  async function doSignup() {
+    const display_name = $('su-name').value.trim();
+    const email = $('su-email').value.trim();
+    const password = $('su-password').value;
+    const invite_code = $('su-code').value.trim();
+    if (!email || !password || !invite_code) {
+      $('si-err').textContent = 'Enter email, password, and invite code.';
+      return;
+    }
+    if (password.length < 8) {
+      $('si-err').textContent = 'Password must be at least 8 characters.';
+      return;
+    }
+    $('su-submit').disabled = true;
+    $('si-err').textContent = '';
+    try {
+      const r = await fetch('/api/teacher/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ display_name, email, password, invite_code }),
+      });
+      const j = await r.json();
+      if (!r.ok || j.error) throw new Error((j && j.error) || 'Could not create account.');
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      const prof = await teacherProfile(data.user);
+      if (!prof) throw new Error('Account created, but teacher access was not enabled.');
+      $('su-password').value = '';
+      $('su-code').value = '';
+      $('signin').style.display = 'none';
+      $('splash').style.display = '';
+      await enterDashboard(data.session, prof);
+    } catch (e) {
+      $('si-err').textContent = e.message || 'Could not create account.';
+    } finally {
+      $('su-submit').disabled = false;
+    }
+  }
+  $('auth-tab-signin').addEventListener('click', () => setAuthMode('signin'));
+  $('auth-tab-signup').addEventListener('click', () => setAuthMode('signup'));
   $('si-submit').addEventListener('click', doSignin);
   ['si-email', 'si-password'].forEach(id =>
     $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') doSignin(); }));
+  $('su-submit').addEventListener('click', doSignup);
+  ['su-name', 'su-email', 'su-password', 'su-code'].forEach(id =>
+    $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') doSignup(); }));
   $('si-signout').addEventListener('click', async () => { await sb.auth.signOut(); showSignin(); });
 
   async function enterDashboard(session, prof) {
