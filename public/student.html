@@ -196,7 +196,7 @@
 
   <!-- THE FEED — dominates the screen -->
   <div id="feed" class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-2" style="min-height:46vh;">
-    <div class="utter latest" id="feed-placeholder"><div class="tr" style="color:var(--ink2); font-style:italic;" data-i18n="feed_placeholder">Translations appear here when your instructor speaks.</div></div>
+    <div class="utter" id="feed-placeholder"><div class="tr" style="color:var(--ink2); font-style:italic;" data-i18n="feed_placeholder">Translations appear here when your instructor speaks.</div></div>
   </div>
 
   <!-- bottom thumb zone -->
@@ -1205,7 +1205,7 @@ $('sheet-btn').addEventListener('click', () => {
   window.open('/api/studysheet?lang=' + encodeURIComponent(currentLang) + '&c=' + encodeURIComponent(roomCode), '_blank', 'noopener');
 });
 
-// ---------- message the teacher ----------
+// ---------- message the instructor ----------
 let msgCooldown = 0;
 $('msg-send').addEventListener('click', async () => {
   if (!currentLang || Date.now() < msgCooldown) return;
