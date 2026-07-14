@@ -646,7 +646,7 @@
       api('/api/teacher/classes'),
       api('/api/teacher/students'),
       api('/api/teacher/materials'),
-      api('/api/teacher/sessions'),
+      api('/api/teacher/sessions/'),
       api('/api/teacher/vocab'),
     ]);
     classes   = results[0].status === 'fulfilled' ? (results[0].value || []) : classes;
@@ -920,7 +920,7 @@
     const btn = $('btn-start-session');
     if (btn) btn.disabled = true;
     try {
-      const s = await api('/api/teacher/sessions', { method: 'POST', body: { class_id: selectedClassId } });
+      const s = await api('/api/teacher/sessions/', { method: 'POST', body: { class_id: selectedClassId } });
       activeSession = s;
       location.href = '/teach';
     } catch (e) {
