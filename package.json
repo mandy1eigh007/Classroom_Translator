@@ -4,6 +4,7 @@
   "description": "ClassLingo — trade-aware workforce translation on Cloudflare Pages + Workers KV",
   "private": true,
   "scripts": {
+    "build": "npm run build:css",
     "build:css": "tailwindcss -i ./tailwind.input.css -o ./public/tailwind.css --minify",
     "dev": "wrangler pages dev",
     "deploy": "wrangler pages deploy"
