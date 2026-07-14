@@ -1,5 +1,5 @@
 // POST /api/teacher/signup — invite-only teacher account creation.
-import { envelope, errResponse, corsPreflight, sb, readBody } from './_auth.js';
+import { envelope, errResponse, corsPreflight, sb, readBody } from '../_auth.js';
 
 function cleanEmail(v) {
   return String(v || '').trim().toLowerCase();
