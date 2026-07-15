@@ -57,6 +57,7 @@ async function run() {
     ['/teach', 'id="main-ui"'],
     ['/dispatch', 'dispatch'],
     ['/admin', 'ClassLingo'],
+    ['/reset-password.html', 'Secure account recovery'],
     ['/help.html', 'ClassLingo field guide'],
     ['/kids?c=RELEASE', 'Redirecting to ClassLingo learner view', 100],
   ];
@@ -65,6 +66,11 @@ async function run() {
   const landing = await request('/');
   assert.match(landing.body, /href="\/admin\.html"/, 'landing page is missing the admin link');
   record('landing admin link', '/admin.html');
+
+  const adminPage = await request('/admin.html');
+  assert.match(adminPage.body, /resetPasswordForEmail/, 'admin sign-in is missing password recovery');
+  assert.match(adminPage.body, /\/reset-password\.html/, 'admin recovery is missing its production path');
+  record('admin password recovery', '/reset-password.html');
 
   await expectAsset('/site-rollout.css', /text\/css/i, 1_000);
   await expectAsset('/assets/teacher-blueprint-bg.jpg', /image\/jpeg/i, 10_000);
@@ -173,7 +179,7 @@ async function run() {
     assert.match(filteredHelp.visibleRows[0], /Import Roster/);
     await helpPage.click('#search-clear');
     const restoredHelpRows = await helpPage.locator('.guide-row:not([hidden])').count();
-    assert.equal(restoredHelpRows, 63);
+    assert.equal(restoredHelpRows, 64);
     await helpPage.close();
     record('help search', 'Import Roster filter + clear');
   } finally {

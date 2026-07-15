@@ -139,7 +139,11 @@
     <div style="margin-top:18px;">
       <button id="gate-submit" class="btn btn-primary" style="width:100%;">Sign in</button>
     </div>
+    <div style="margin-top:10px;">
+      <button id="gate-reset" class="btn" style="width:100%;" type="button">Forgot password</button>
+    </div>
     <div id="gate-err" class="err"></div>
+    <div id="gate-ok" class="ok-msg"></div>
     <p class="hint">Authorized administrator accounts only.</p>
   </div>
 </div>
@@ -376,6 +380,10 @@
     $('gate').style.display = 'flex';
     $('app').style.display = 'none';
     $('gate-err').textContent = err || '';
+    if (new URLSearchParams(location.search).get('reset') === 'complete') {
+      $('gate-ok').textContent = 'Password updated. Sign in with your new password.';
+      history.replaceState({}, '', '/admin.html');
+    }
   }
   function enterApp() {
     $('gate').style.display = 'none';
@@ -388,6 +396,26 @@
   }
   $('gate-submit').addEventListener('click', doLogin);
   $('gate-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+  $('gate-reset').addEventListener('click', async () => {
+    const email = $('gate-email').value.trim();
+    $('gate-err').textContent = '';
+    $('gate-ok').textContent = '';
+    if (!email) {
+      $('gate-err').textContent = 'Enter your admin email first.';
+      $('gate-email').focus();
+      return;
+    }
+    $('gate-reset').disabled = true;
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: location.origin + '/reset-password.html',
+    });
+    $('gate-reset').disabled = false;
+    if (error) {
+      $('gate-err').textContent = error.message;
+      return;
+    }
+    $('gate-ok').textContent = 'Recovery email sent. Use the newest email.';
+  });
   async function doLogin() {
     const email = $('gate-email').value.trim();
     const password = $('gate-pass').value;
