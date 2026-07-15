@@ -62,6 +62,10 @@ async function run() {
   ];
   for (const [path, marker, minimumBytes] of pages) await expectPage(path, marker, minimumBytes);
 
+  const landing = await request('/');
+  assert.match(landing.body, /href="\/admin\.html"/, 'landing page is missing the admin link');
+  record('landing admin link', '/admin.html');
+
   await expectAsset('/site-rollout.css', /text\/css/i, 1_000);
   await expectAsset('/assets/teacher-blueprint-bg.jpg', /image\/jpeg/i, 10_000);
   await expectAsset('/supabase-config.js', /javascript|text\/plain/i, 100);
