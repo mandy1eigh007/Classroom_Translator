@@ -62,7 +62,7 @@ ClassLingo is a sharp, visual, mobile-first tool for adults in the trades. It sh
 - Shell: dark technical grid at low opacity; one full-width cyan-to-yellow rail near the top.
 - Card: smoked glass, 3px corners, cyan rim, teal left spine only when it is a major task panel.
 - Tile: same glass, rim, lower bevel, and inner highlight as a card; use a short state rail only when it clarifies a choice.
-- Divider: `4px` high, `126px` maximum or `36%` of its container, centered, cyan-to-yellow. It separates hierarchy; it never carries orange/red.
+- Divider: `4px` to `5px` high and full usable width, cyan-to-yellow. Center the section title above it; never use a short floating breaker line.
 - Input: dark inset surface with cyan edge and yellow focus outline. Labels are small uppercase mono text.
 - Primary button: white fill with cyan edge. Secondary button: teal fill with cyan edge. Selected, destructive, error, or alert action: orange/red.
 - Status: cyan for neutral/success; orange/red for warning/critical. Do not introduce extra semantic colors.
@@ -87,7 +87,8 @@ ClassLingo is a sharp, visual, mobile-first tool for adults in the trades. It sh
 
 ## Accent System
 
-- Use cyan-to-yellow rails and short linework as structural markers, not decoration everywhere. Keep short divider rules centered unless they intentionally label a left-aligned item.
+- Use cyan-to-yellow rails as complete structural breaks, not decoration everywhere. Rails span the usable width of their section or card; section titles are centered above them while supporting text remains left aligned.
+- The top orientation rail belongs to the page flow and scrolls away. Text must never run behind a fixed or floating rail.
 - Thin technical-grid or contour detail may live quietly in the background at very low opacity.
 - Cyan edges establish the shared system. Cyan-to-yellow rails differentiate structure; orange/red remain reserved for selected, critical, or alert states.
 
@@ -107,6 +108,7 @@ Before a page is approved, check it at a 390px mobile width. The first screen mu
 - Check 390px mobile, 768px tablet, and a desktop width before approval.
 - Confirm every interactive block has the cyan rim and a 44px minimum touch target where relevant.
 - Confirm every structural divider is centered and cyan-to-yellow; orange/red appears only for selection, critical actions, errors, or alerts.
+- Confirm no short or incomplete breaker lines remain, and no text can scroll behind the top rail.
 - Confirm headings are uppercase/high contrast, support text is lighter weight, and no secondary text crowds the primary task.
 - Confirm no cream, pastel, pill, white-fog glass, fuzzy white shadow, rainbow accent system, or nested-card layout remains.
 - Put eyes on screenshots and check the browser console before each page is presented. Do not commit or deploy until Mandy approves the page.

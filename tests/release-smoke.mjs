@@ -57,6 +57,7 @@ async function run() {
     ['/teach', 'id="main-ui"'],
     ['/dispatch', 'dispatch'],
     ['/admin', 'ClassLingo'],
+    ['/help.html', 'ClassLingo field guide'],
     ['/kids?c=RELEASE', 'Redirecting to ClassLingo learner view', 100],
   ];
   for (const [path, marker, minimumBytes] of pages) await expectPage(path, marker, minimumBytes);
@@ -153,6 +154,24 @@ async function run() {
       record(`responsive ${path}`, `${viewport.width}x${viewport.height} + accessibility`);
       }
     }
+
+    const helpPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await helpPage.goto(baseUrl + '/help.html', { waitUntil: 'domcontentloaded' });
+    await helpPage.fill('#guide-search', 'Import Roster');
+    const filteredHelp = await helpPage.evaluate(() => ({
+      status: document.querySelector('#search-status').textContent.trim(),
+      visibleSections: [...document.querySelectorAll('.guide-section')].filter(section => !section.hidden).map(section => section.id),
+      visibleRows: [...document.querySelectorAll('.guide-row')].filter(row => !row.hidden).map(row => row.textContent.trim()),
+    }));
+    assert.equal(filteredHelp.status, '1 match for "Import Roster"');
+    assert.deepEqual(filteredHelp.visibleSections, ['teacher']);
+    assert.equal(filteredHelp.visibleRows.length, 1);
+    assert.match(filteredHelp.visibleRows[0], /Import Roster/);
+    await helpPage.click('#search-clear');
+    const restoredHelpRows = await helpPage.locator('.guide-row:not([hidden])').count();
+    assert.equal(restoredHelpRows, 63);
+    await helpPage.close();
+    record('help search', 'Import Roster filter + clear');
   } finally {
     await browser.close();
   }

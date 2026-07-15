@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ClassLingo field guide for instructors, learners, dispatchers, and administrators." />
+  <title>Field Guide - ClassLingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=DM+Mono:wght@400;500&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --canvas: #06131d;
+      --deep: #020a11;
+      --glass: rgba(12, 34, 51, .88);
+      --glass-deep: rgba(3, 12, 23, .96);
+      --cyan: #13d6d1;
+      --lime: #c6ee35;
+      --teal: #0fa9a8;
+      --orange: #fb694a;
+      --white: #f5f7f4;
+      --muted: #b7c7c8;
+      --line: rgba(119, 239, 250, .78);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background-color: var(--canvas);
+      background-image:
+        linear-gradient(rgba(65, 179, 192, .08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(65, 179, 192, .08) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(2, 12, 23, .74), rgba(2, 11, 21, .9)),
+        url("/assets/teacher-blueprint-bg.jpg");
+      background-size: 28px 28px, 28px 28px, 100% 100%, cover;
+      background-position: center top;
+      background-attachment: fixed;
+      color: var(--white);
+      font-family: Inter, Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      z-index: 10;
+      top: 18px;
+      left: 16px;
+      right: 16px;
+      height: 6px;
+      background: linear-gradient(90deg, var(--cyan), var(--lime));
+      box-shadow: 0 0 11px rgba(0, 211, 237, .4);
+      pointer-events: none;
+    }
+
+    a { color: inherit; }
+    button, a { font: inherit; letter-spacing: 0; }
+    :focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+
+    .shell {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 58px 16px 80px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(119, 239, 250, .5);
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+    .brand span { color: var(--orange); }
+    .context {
+      color: var(--muted);
+      font: 500 11px DM Mono, monospace;
+      text-transform: uppercase;
+    }
+
+    .text-button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: linear-gradient(120deg, rgba(87, 232, 245, .13), transparent 34%), rgba(1, 12, 22, .82);
+      box-shadow: inset 0 1px 0 rgba(194, 255, 255, .28), inset 0 -2px 0 rgba(0, 5, 12, .76);
+      color: var(--white);
+      font: 800 12px Inter, Arial, sans-serif;
+      text-decoration: none;
+      text-transform: uppercase;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .hero {
+      max-width: 780px;
+      padding: 72px 0 54px;
+    }
+    .eyebrow, .section-code, .row-name {
+      margin: 0;
+      color: var(--cyan);
+      font: 500 12px DM Mono, monospace;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { margin: 0; text-transform: uppercase; }
+    h1 {
+      margin-top: 14px;
+      font-size: 48px;
+      line-height: 1.03;
+      font-weight: 800;
+    }
+    h1 span { display: block; color: var(--orange); }
+    .hero-copy {
+      max-width: 670px;
+      margin: 18px 0 0;
+      color: #d8e5e5;
+      font-family: Atkinson Hyperlegible, Arial, sans-serif;
+      font-size: 19px;
+      line-height: 1.55;
+    }
+
+    .guide-tools { margin-bottom: 48px; }
+    .search-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 34px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--teal);
+      border-radius: 3px;
+      background: linear-gradient(to left, rgba(25, 56, 79, .76), rgba(7, 23, 38, .91) 56%, var(--glass-deep));
+      box-shadow: 0 4px 0 var(--deep), 0 8px 14px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(165, 249, 255, .26);
+    }
+    .search-field { min-width: 0; }
+    .search-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--cyan);
+      font: 500 12px DM Mono, monospace;
+      text-transform: uppercase;
+    }
+    .search-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 11px 13px;
+      border: 1px solid rgba(126, 246, 255, .9);
+      border-radius: 3px;
+      background: linear-gradient(120deg, rgba(87, 232, 245, .12), transparent 34%), rgba(1, 12, 22, .88);
+      box-shadow: inset 0 1px 0 rgba(194, 255, 255, .25), inset 0 -2px 0 rgba(0, 5, 12, .76);
+      color: var(--white);
+      font-family: Atkinson Hyperlegible, Arial, sans-serif;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+    .search-input::placeholder { color: #91a5a7; opacity: 1; }
+    .search-input::-webkit-search-cancel-button { display: none; appearance: none; }
+    .search-status {
+      grid-column: 1 / -1;
+      min-height: 18px;
+      margin: 0;
+      color: var(--muted);
+      font: 500 12px DM Mono, monospace;
+      text-transform: uppercase;
+    }
+    .search-status.no-results { color: #ff8d73; font-weight: 700; }
+    .index-heading { margin-bottom: 14px; }
+    .index-heading h2 { margin-top: 7px; font-size: 24px; }
+    .guide-nav {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(119, 239, 250, .28);
+    }
+    .guide-nav a { width: 100%; }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 68px;
+    }
+    .path-card, .guide-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: linear-gradient(to left, rgba(25, 56, 79, .76), rgba(7, 23, 38, .91) 56%, var(--glass-deep));
+      box-shadow: 0 4px 0 var(--deep), 0 8px 14px rgba(0, 0, 0, .4), 0 0 13px rgba(0, 210, 236, .13), inset 0 1px 0 rgba(165, 249, 255, .26);
+    }
+    .path-card::after, .guide-card::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--teal), var(--cyan) 54%, var(--lime));
+    }
+    .path-card { min-height: 220px; padding: 25px 24px 31px; }
+    .path-number {
+      color: var(--orange);
+      font: 500 13px DM Mono, monospace;
+    }
+    .path-card h2 { margin-top: 24px; font-size: 22px; line-height: 1.12; }
+    .path-card p {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-family: Atkinson Hyperlegible, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .guide-section { scroll-margin-top: 28px; margin-top: 74px; }
+    .section-heading { display: block; margin-bottom: 20px; text-align: center; }
+    .section-heading h2 { margin-top: 8px; font-size: 31px; line-height: 1.08; }
+    .section-rail {
+      display: block;
+      width: 100%;
+      height: 4px;
+      margin-top: 18px;
+      background: linear-gradient(90deg, var(--cyan), var(--lime));
+    }
+    .section-intro {
+      max-width: 760px;
+      margin: -5px 0 22px;
+      color: var(--muted);
+      font-family: Atkinson Hyperlegible, Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.5;
+    }
+
+    .guide-card { padding: 8px 24px 16px; }
+    .guide-row {
+      display: grid;
+      grid-template-columns: minmax(150px, .72fr) minmax(0, 2fr);
+      gap: 24px;
+      padding: 17px 0;
+      border-bottom: 1px solid rgba(119, 239, 250, .22);
+    }
+    .guide-row:last-child { border-bottom: 0; }
+    .row-name { color: var(--white); line-height: 1.4; }
+    .row-copy {
+      margin: 0;
+      color: #cbd9da;
+      font-family: Atkinson Hyperlegible, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .row-copy strong { color: var(--cyan); }
+
+    .callout {
+      margin-top: 18px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--orange);
+      background: rgba(3, 12, 23, .82);
+      color: #e7eeee;
+      font-family: Atkinson Hyperlegible, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .callout strong { color: var(--orange); text-transform: uppercase; }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 84px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(119, 239, 250, .42);
+      color: var(--muted);
+      font: 500 12px DM Mono, monospace;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 760px) {
+      body::before { top: 14px; height: 5px; }
+      .shell { padding: 46px 16px 60px; }
+      .context { display: none; }
+      .hero { padding: 48px 0 36px; }
+      h1 { font-size: 38px; }
+      .hero-copy { font-size: 18px; }
+      .guide-tools { margin-bottom: 40px; }
+      .search-panel { grid-template-columns: 1fr; padding: 16px; }
+      .search-panel .text-button { width: 100%; }
+      .search-status { grid-column: 1; }
+      .guide-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .quick-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 58px; }
+      .path-card { min-height: 0; padding: 21px 20px 27px; }
+      .path-card h2 { margin-top: 14px; }
+      .guide-section { margin-top: 62px; }
+      .section-heading h2 { font-size: 27px; }
+      .section-rail { margin-top: 14px; }
+      .guide-card { padding: 6px 18px 13px; }
+      .guide-row { grid-template-columns: 1fr; gap: 7px; padding: 16px 0; }
+      .footer { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (max-width: 390px) {
+      .topbar { align-items: flex-start; }
+      .brand { font-size: 22px; }
+      .text-button { padding-right: 11px; padding-left: 11px; }
+      h1 { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell" id="top">
+    <header class="topbar">
+      <a class="brand" href="/">Class<span>Lingo</span></a>
+      <span class="context">Field guide / Live testing</span>
+      <a class="text-button" href="/">Back to site</a>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">ClassLingo field guide</p>
+      <h1>Know the tool.<span>Run the room.</span></h1>
+      <p class="hero-copy">A plain-language guide to every ClassLingo workspace. Start with your role, then use the page guide when you need the meaning of a control or status.</p>
+    </section>
+
+    <section class="guide-tools" aria-labelledby="index-heading">
+      <div class="search-panel" role="search">
+        <div class="search-field">
+          <label class="search-label" for="guide-search">Search the guide</label>
+          <input class="search-input" id="guide-search" type="search" placeholder="Try: Import Roster, Hold, microphone" autocomplete="off" />
+        </div>
+        <button class="text-button" id="search-clear" type="button">Clear</button>
+        <p class="search-status" id="search-status" aria-live="polite">63 topics</p>
+      </div>
+
+      <div class="index-heading">
+        <p class="section-code">Guide index</p>
+        <h2 id="index-heading">Jump to a section</h2>
+      </div>
+      <nav class="guide-nav" aria-label="Guide index">
+        <a class="text-button" href="#start">Start here</a>
+        <a class="text-button" href="#learner">Learner</a>
+        <a class="text-button" href="#study">Study</a>
+        <a class="text-button" href="#teacher">Instructor</a>
+        <a class="text-button" href="#live-console">Live console</a>
+        <a class="text-button" href="#dispatch">Dispatch</a>
+        <a class="text-button" href="#admin">Admin</a>
+        <a class="text-button" href="#support">Troubleshooting</a>
+      </nav>
+    </section>
+
+    <section id="start" aria-labelledby="start-heading">
+      <div class="section-heading">
+        <div>
+          <p class="section-code">Start here</p>
+          <h2 id="start-heading">Choose your path</h2>
+        </div>
+        <span class="section-rail" aria-hidden="true"></span>
+      </div>
+      <div class="quick-grid">
+        <article class="path-card">
+          <span class="path-number">01</span>
+          <h2>Learner</h2>
+          <p>Pick a language, join the room, read live translation, ask for help, and build study materials.</p>
+        </article>
+        <article class="path-card">
+          <span class="path-number">02</span>
+          <h2>Instructor</h2>
+          <p>Set up classes and rosters in the dashboard, then run the live classroom from the instructor console.</p>
+        </article>
+        <article class="path-card">
+          <span class="path-number">03</span>
+          <h2>Dispatch</h2>
+          <p>Connect a dispatcher and field workers with the same code, then send translated jobsite messages.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="guide-section" id="learner" aria-labelledby="learner-heading">
+      <div class="section-heading">
+        <div>
+          <p class="section-code">Learner view</p>
+          <h2 id="learner-heading">Follow the class</h2>
+        </div>
+        <span class="section-rail" aria-hidden="true"></span>
+      </div>
+      <p class="section-intro">Learners can join as a guest or use an account. The room link usually already contains the class code.</p>
+      <div class="guide-card">
+        <div class="guide-row"><h3 class="row-name">Language tiles</h3><p class="row-copy">Choose the language used for translations, buttons, class notes, and study tools.</p></div>
+        <div class="guide-row"><h3 class="row-name">Join as guest</h3><p class="row-copy">Enter the live class without creating an account. Saved work stays on that device unless it is synced later.</p></div>
+        <div class="guide-row"><h3 class="row-name">Sign in with email</h3><p class="row-copy">Uses a learner account so saved phrasebook items and study work can follow the learner across supported devices.</p></div>
+        <div class="guide-row"><h3 class="row-name">A- / A+</h3><p class="row-copy">Makes the live translated class text smaller or larger.</p></div>
+        <div class="guide-row"><h3 class="row-name">Lang</h3><p class="row-copy">Changes the translation language without leaving the live class.</p></div>
+        <div class="guide-row"><h3 class="row-name">Study</h3><p class="row-copy">Opens class notes, the printable study sheet, saved phrasebook, instructor messaging, and voice settings.</p></div>
+        <div class="guide-row"><h3 class="row-name">Live message block</h3><p class="row-copy">Shows the instructor's English statement and the translated statement. Tap an English word to open its trade-aware definition, example, audio, and save controls.</p></div>
+        <div class="guide-row"><h3 class="row-name">Hold / Catch up</h3><p class="row-copy"><strong>Hold</strong> pauses new statements on screen while the learner reads. The badge counts waiting statements. <strong>Catch up</strong> releases them in order.</p></div>
+        <div class="guide-row"><h3 class="row-name">Listen mode</h3><p class="row-copy">Turns automatic read-aloud on or off for incoming translations.</p></div>
+        <div class="guide-row"><h3 class="row-name">Replay</h3><p class="row-copy">Reads the newest translated statement again.</p></div>
+        <div class="guide-row"><h3 class="row-name">Need help</h3><p class="row-copy">Sends a short help alert to the instructor without interrupting the class. The instructor sees the language and current learner signal.</p></div>
+        <div class="guide-row"><h3 class="row-name">Got it</h3><p class="row-copy">Confirms that the latest statement was understood.</p></div>
+        <div class="guide-row"><h3 class="row-name">Shared video or document</h3><p class="row-copy">Appears only when the instructor shares media. Video captions and document text follow the selected learner language.</p></div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="study" aria-labelledby="study-heading">
+      <div class="section-heading">
+        <div>
+          <p class="section-code">Study tools</p>
+          <h2 id="study-heading">Keep what matters</h2>
+        </div>
+        <span class="section-rail" aria-hidden="true"></span>
+      </div>
+      <div class="guide-card">
+        <div class="guide-row"><h3 class="row-name">Generate notes</h3><p class="row-copy">Builds a translated summary from the current class transcript. Copy, share, or listen when those controls appear.</p></div>
+        <div class="guide-row"><h3 class="row-name">Open study sheet</h3><p class="row-copy">Creates a printable review sheet from the day's class language and vocabulary.</p></div>
+        <div class="guide-row"><h3 class="row-name">Phrasebook</h3><p class="row-copy">Stores words saved from live definitions. <strong>Speak</strong> reads a saved term. <strong>Delete</strong> removes it. <strong>Sync</strong> connects local items to a signed-in learner account.</p></div>
+        <div class="guide-row"><h3 class="row-name">Message instructor</h3><p class="row-copy">Learners write in their own language. The instructor receives the message in English and can send a direct reply.</p></div>
+        <div class="guide-row"><h3 class="row-name">Slow / Natural voice</h3><p class="row-copy">Controls the speed and available voice style used for read-aloud.</p></div>
+        <div class="guide-row"><h3 class="row-name">Change language</h3><p class="row-copy">Leaves the current live view and returns to the full language picker.</p></div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="teacher" aria-labelledby="teacher-heading">
+      <div class="section-heading">
+        <div>
+          <p class="section-code">Instructor dashboard</p>
+          <h2 id="teacher-heading">Prepare the work</h2>
+        </div>
+        <span class="section-rail" aria-hidden="true"></span>
+      </div>
+      <p class="section-intro">The dashboard holds long-term class records. The live console handles the room happening right now.</p>
+      <div class="guide-card">
+        <div class="guide-row"><h3 class="row-name">Dashboard</h3><p class="row-copy">Shows today's class, session control, learner lobby, help alerts, recent materials, translation queue, and the last session summary.</p></div>
+        <div class="guide-row"><h3 class="row-name">Classes</h3><p class="row-copy">Creates and manages class records, trade focus, schedule details, and assigned languages.</p></div>
+        <div class="guide-row"><h3 class="row-name">Students</h3><p class="row-copy"><strong>Add Student</strong> creates one learner. <strong>Import Roster</strong> adds multiple names at once. The roster shows preferred language, enrolled classes, last activity, and live status during a session.</p></div>
+        <div class="guide-row"><h3 class="row-name">Materials</h3><p class="row-copy">Stores class source material, connects it to a class and subject, and shows translation coverage by language.</p></div>
+        <div class="guide-row"><h3 class="row-name">Pre-translate</h3><p class="row-copy">Prepares material in selected class languages before learners need it.</p></div>
+        <div class="guide-row"><h3 class="row-name">Live sessions</h3><p class="row-copy">Starts a new room, shows the active room, and lists past sessions with duration, learner count, languages, and status.</p></div>
+        <div class="guide-row"><h3 class="row-name">Translations</h3><p class="row-copy">Tracks source material, completed languages, missing languages, update time, and available actions.</p></div>
+        <div class="guide-row"><h3 class="row-name">Vocab bank</h3><p class="row-copy">Stores trade terms with context, category, language, translation, and verification status. This is where the trade vocabulary library will grow.</p></div>
+        <div class="guide-row"><h3 class="row-name">Reports</h3><p class="row-copy">Summarizes sessions, learners, languages used, and translated material.</p></div>
+        <div class="guide-row"><h3 class="row-name">Settings</h3><p class="row-copy">Manages account information, default class, default session language, and notification preferences.</p></div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="live-console" aria-labelledby="console-heading">
+      <div class="section-heading">
+        <div>
+          <p class="section-code">Live instructor console</p>
+          <h2 id="console-heading">Run the room</h2>
+        </div>
+        <span class="section-rail" aria-hidden="true"></span>
+      </div>
+      <div class="guide-card">
+        <div class="guide-row"><h3 class="row-name">New class / End class</h3><p class="row-copy"><strong>New class</strong> creates a fresh room code and transcript. <strong>End class</strong> closes the active room for learners.</p></div>
+        <div class="guide-row"><h3 class="row-name">Pause mic</h3><p class="row-copy">Stops microphone transcription without ending the room. Resume when instruction continues.</p></div>
+        <div class="guide-row"><h3 class="row-name">Mode</h3><p class="row-copy">Applies vocabulary context such as General, OSHA / Safety, Construction / Trades, Forklift / BFET, or Flagging so ambiguous words translate correctly.</p></div>
+        <div class="guide-row"><h3 class="row-name">Send</h3><p class="row-copy">Publishes typed English to every learner when speaking is not practical.</p></div>
+        <div class="guide-row"><h3 class="row-name">Classroom</h3><p class="row-copy">Shows connected learners grouped by language. Select a learner to send a direct message.</p></div>
+        <div class="guide-row"><h3 class="row-name">Share a video</h3><p class="row-copy">Loads a YouTube link into learner screens. The transport bar controls play, pause, seek, and close for the shared class view.</p></div>
+        <div class="guide-row"><h3 class="row-name">Share a document</h3><p class="row-copy">Uploads text or a clear page image. Previous and Next move the learner view through prepared pages; Clear removes it.</p></div>
+        <div class="guide-row"><h3 class="row-name">Live transcript</h3><p class="row-copy">Shows the current English speech recognized from the instructor microphone.</p></div>
+        <div class="guide-row"><h3 class="row-name">Learner messages</h3><p class="row-copy">Collects translated learner questions and direct-message replies.</p></div>
+        <div class="guide-row"><h3 class="row-name">Recently sent</h3><p class="row-copy">Shows published class statements. Export transcript downloads a class record; Clear history starts the visible feed over.</p></div>
+        <div class="guide-row"><h3 class="row-name">Preview class notes</h3><p class="row-copy">Shows the English version of the AI study notes learners can generate, including coverage information.</p></div>
+        <div class="guide-row"><h3 class="row-name">Share with learners</h3><p class="row-copy">Copies or sends the room link by the available phone options. QR opens a scannable code for learners in the room.</p></div>
+      </div>
+      <div class="callout"><strong>Room rule:</strong> the teacher dashboard and live console use the same signed-in instructor session. Open the live console from the dashboard so the room is authorized automatically.</div>
+    </section>
+
+    <section class="guide-section" id="dispatch" aria-labelledby="dispatch-heading">
+      <div class="section-heading">
+        <div>
+          <p class="section-code">Dispatch</p>
+          <h2 id="dispatch-heading">Connect the field</h2>
+        </div>
+        <span class="section-rail" aria-hidden="true"></span>
+      </div>
+      <div class="guide-card">
+        <div class="guide-row"><h3 class="row-name">Dispatch code</h3><p class="row-copy">Connects one dispatcher and field workers to the same temporary communication room. Generate creates a code when setting up a new room.</p></div>
+        <div class="guide-row"><h3 class="row-name">Dispatcher / Field worker</h3><p class="row-copy">Selects the correct workspace. Workers also enter their name and language.</p></div>
+        <div class="guide-row"><h3 class="row-name">Dispatcher access</h3><p class="row-copy">Confirms the dispatcher is authorized to send jobsite messages.</p></div>
+        <div class="guide-row"><h3 class="row-name">Copy link</h3><p class="row-copy">Copies the connected dispatch room link so workers can open the same code directly.</p></div>
+        <div class="guide-row"><h3 class="row-name">Mic / Send</h3><p class="row-copy">Captures or types the dispatcher's English message, then sends it in each worker's selected language.</p></div>
+        <div class="guide-row"><h3 class="row-name">Quick commands</h3><p class="row-copy">Sends common field instructions such as Head to site, Stop and wait, Call me, Return to base, Hazard ahead, and Confirm receipt.</p></div>
+        <div class="guide-row"><h3 class="row-name">Worker replay</h3><p class="row-copy">Reads the newest translated dispatch message again.</p></div>
+        <div class="guide-row"><h3 class="row-name">Got it / On my way / Need help</h3><p class="row-copy">Sends a fast status response back to the dispatcher.</p></div>
+        <div class="guide-row"><h3 class="row-name">Leave dispatch</h3><p class="row-copy">Disconnects the current screen from the dispatch room.</p></div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="admin" aria-labelledby="admin-heading">
+      <div class="section-heading">
+        <div>
+          <p class="section-code">Admin console</p>
+          <h2 id="admin-heading">Manage the workspace</h2>
+        </div>
+        <span class="section-rail" aria-hidden="true"></span>
+      </div>
+      <p class="section-intro">The admin console is for authorized workspace administrators, not daily classroom instruction.</p>
+      <div class="guide-card">
+        <div class="guide-row"><h3 class="row-name">Dashboard</h3><p class="row-copy">Shows workspace totals, language use, and currently active sessions.</p></div>
+        <div class="guide-row"><h3 class="row-name">Instructors</h3><p class="row-copy">Creates instructor access, assigns organizations, activates or deactivates accounts, and starts password resets.</p></div>
+        <div class="guide-row"><h3 class="row-name">Sessions</h3><p class="row-copy">Reviews class sessions and opens available transcript detail.</p></div>
+        <div class="guide-row"><h3 class="row-name">Organizations</h3><p class="row-copy">Creates and manages the organizations represented inside the workspace.</p></div>
+        <div class="guide-row"><h3 class="row-name">Settings</h3><p class="row-copy">Sets offered languages, enabled trade modes, and the configured translation model.</p></div>
+        <div class="guide-row"><h3 class="row-name">Subscription</h3><p class="row-copy">Shows plan reference and workspace subscription status.</p></div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="support" aria-labelledby="support-heading">
+      <div class="section-heading">
+        <div>
+          <p class="section-code">Troubleshooting</p>
+          <h2 id="support-heading">Check this first</h2>
+        </div>
+        <span class="section-rail" aria-hidden="true"></span>
+      </div>
+      <div class="guide-card">
+        <div class="guide-row"><h3 class="row-name">No live translation</h3><p class="row-copy">Confirm the learner opened the current room link, chose a language, and still shows a connected status. The instructor should confirm the microphone is not paused.</p></div>
+        <div class="guide-row"><h3 class="row-name">Microphone unavailable</h3><p class="row-copy">Allow microphone access for the site, then reload the live console. Current Chrome, Edge, or Firefox works best for classroom testing.</p></div>
+        <div class="guide-row"><h3 class="row-name">Wrong language</h3><p class="row-copy">Use <strong>Lang</strong> during class for a quick switch, or <strong>Change language</strong> in Study to return to the full picker.</p></div>
+        <div class="guide-row"><h3 class="row-name">Text is hard to read</h3><p class="row-copy">Use A- or A+ in the learner header. The setting stays on that device.</p></div>
+        <div class="guide-row"><h3 class="row-name">Instructor access screen</h3><p class="row-copy">Sign in through the teacher dashboard first, then open the live console from the same browser.</p></div>
+        <div class="guide-row"><h3 class="row-name">Room code fails</h3><p class="row-copy">Ask for the newest link or code. Starting a new class creates a new room and makes older links inactive.</p></div>
+        <div class="guide-row"><h3 class="row-name">Translation needs correction</h3><p class="row-copy">Record the English phrase, translated phrase, selected language, and trade mode. Trade vocabulary corrections belong in the Vocab Bank.</p></div>
+      </div>
+      <div class="callout"><strong>Testing note:</strong> report the page, control, device, language, and what happened. Do not include passwords or private learner information in a bug report.</div>
+    </section>
+
+    <footer class="footer">
+      <span>ClassLingo / Trade-aware live translation</span>
+      <a class="text-button" href="#top">Back to top</a>
+    </footer>
+  </main>
+  <script>
+    (() => {
+      const input = document.getElementById('guide-search');
+      const clear = document.getElementById('search-clear');
+      const status = document.getElementById('search-status');
+      const sections = [...document.querySelectorAll('.guide-section')];
+      const rows = [...document.querySelectorAll('.guide-row')];
+
+      function filterGuide() {
+        const query = input.value.trim().toLocaleLowerCase();
+        let visibleRows = 0;
+
+        for (const section of sections) {
+          const heading = section.querySelector('.section-heading');
+          const intro = section.querySelector('.section-intro');
+          const sectionText = `${heading ? heading.textContent : ''} ${intro ? intro.textContent : ''}`.toLocaleLowerCase();
+          const sectionMatches = !!query && sectionText.includes(query);
+          let matchingRows = 0;
+
+          for (const row of section.querySelectorAll('.guide-row')) {
+            const matches = !query || sectionMatches || row.textContent.toLocaleLowerCase().includes(query);
+            row.hidden = !matches;
+            if (matches) matchingRows++;
+          }
+
+          section.hidden = !!query && !sectionMatches && matchingRows === 0;
+          if (!section.hidden) visibleRows += matchingRows;
+        }
+
+        if (!query) {
+          status.textContent = `${rows.length} topics`;
+          status.classList.remove('no-results');
+        } else if (visibleRows) {
+          status.textContent = `${visibleRows} ${visibleRows === 1 ? 'match' : 'matches'} for "${input.value.trim()}"`;
+          status.classList.remove('no-results');
+        } else {
+          status.textContent = `No matches for "${input.value.trim()}"`;
+          status.classList.add('no-results');
+        }
+      }
+
+      input.addEventListener('input', filterGuide);
+      clear.addEventListener('click', () => {
+        input.value = '';
+        filterGuide();
+        input.focus();
+      });
+    })();
+  </script>
+</body>
+</html>
