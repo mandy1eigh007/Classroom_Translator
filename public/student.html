@@ -6,6 +6,7 @@
   <title>Learner — ClassLingo</title>
   <link rel="stylesheet" href="/tailwind.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <script src="/supabase-config.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -191,6 +192,212 @@
       #screen-join { padding-top: 42px; }
       #lang-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
+
+    /* Jobsite learner sample: a dark deck with hard working surfaces. */
+    :root {
+      --cream: #10141c; --paper: #f5f7f4; --ink: #f7f8f5; --ink2: #aeb9b7;
+      --red: #ee5b3d; --mustard: #c9f12f; --teal: #0d9e9a; --orange: #f36b37;
+      --line: #34424b; --soft: rgba(0,0,0,0.34); --soft2: rgba(0,0,0,0.22);
+    }
+    html, body { background: #10141c; color: var(--ink); }
+    body {
+      background:
+        linear-gradient(rgba(82,160,185,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(82,160,185,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, transparent 0 92%, rgba(69,84,93,0.20) 92% 92.3%, transparent 92.3%),
+        linear-gradient(180deg, #131e2c 0%, #0c1521 48%, #070c13 100%);
+      background-size: 38px 38px, 38px 38px, auto, auto;
+    }
+    body::before {
+      background:
+        linear-gradient(116deg, transparent 0 22%, rgba(0,206,231,0.055) 22.1% 22.25%, transparent 22.35% 74%, rgba(197,241,32,0.045) 74.1% 74.25%, transparent 74.35%),
+        linear-gradient(180deg, rgba(95,185,207,0.06), transparent 20rem);
+    }
+    .display { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; letter-spacing: 0; }
+    .label-mono, .mono { color: var(--ink2); }
+    .retro-card, .join-mini-tile, .utter {
+      background: #19222d; border: 1px solid #34424b; border-radius: 4px;
+      box-shadow: 5px 5px 0 rgba(0,0,0,0.26) !important;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+    }
+    .retro-btn, .chipbtn {
+      background: #f5f7f4; border: 1px solid #f5f7f4; border-radius: 3px; color: #10141c;
+      box-shadow: none !important; backdrop-filter: none; -webkit-backdrop-filter: none;
+    }
+    #auth-buttons .retro-btn, #auth-form .retro-btn, #join-btn {
+      border-color: rgba(115,239,247,0.90) !important;
+      box-shadow: 0 0 0 1px rgba(0,209,236,0.28), 0 0 10px rgba(0,211,237,0.16), inset 0 1px 0 rgba(203,255,255,0.48), inset 0 -2px 0 rgba(0,43,55,0.20) !important;
+    }
+    .retro-btn:active, .chipbtn:active { transform: translate(1px, 1px); }
+    .chipbtn { min-height: 36px; padding: 7px 10px; }
+    input, textarea {
+      background: #10141c; border: 1px solid #52616a; border-radius: 3px; color: var(--ink);
+      box-shadow: none; backdrop-filter: none;
+    }
+    input:focus, textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(13,158,154,0.28); }
+    #screen-join { max-width: 480px; padding-top: 24px; }
+    #join-hero-glass {
+      position: relative; margin: 0 0 18px; padding: 0; border: 0; border-radius: 0;
+      background: transparent; box-shadow: none; backdrop-filter: none;
+    }
+    #join-hero-glass::before {
+      content: ''; display: block; height: 11px; margin-bottom: 16px;
+      background: linear-gradient(90deg, #0d9e9a 0%, #20d6d1 50%, #c9f12f 100%);
+      box-shadow: 0 0 9px rgba(25,217,218,0.34);
+    }
+    #brand-tile, #prompt-tile {
+      background: transparent; border: 0; box-shadow: none !important; border-radius: 0; padding: 0;
+    }
+    #brand-tile { margin: 0 0 24px; }
+    #brand-tile .display { font-size: 2rem; line-height: 1; text-transform: uppercase; }
+    #brand-tile .label-mono { border-left: 1px solid #52616a; padding-left: 10px; }
+    #prompt-tile { position: relative; border-top: 1px solid rgba(93,203,222,0.36); padding-top: 18px; }
+    #prompt-tile::before {
+      content: ''; position: absolute; top: -2px; left: 32%; width: 36%; height: 4px;
+      background: linear-gradient(90deg, #0d9e9a, #c9f12f); box-shadow: 0 0 7px rgba(77,230,215,0.45);
+    }
+    .picker-globe {
+      position: absolute; z-index: 2; top: -18px; left: 50%; width: 34px; height: 34px; display: grid; place-items: center;
+      transform: translateX(-50%); color: #20d4cf; background: #101923; border: 1px solid rgba(74,228,236,0.58); border-radius: 50%; box-shadow: 0 0 12px rgba(1,209,231,0.24);
+    }
+    .picker-globe svg { width: 18px; height: 18px; stroke-width: 1.8; }
+    #prompt-tile .display { font-size: 1.7rem; text-transform: uppercase; line-height: 1.05; }
+    #join-hero-copy { margin: 0 0 26px; text-align: center; }
+    #join-hero-copy h1 { margin: 0; color: #f7f8f5; font-size: 1.8rem; line-height: 1.06; text-transform: uppercase; }
+    #join-hero-copy h1 span { display: block; color: #58dfaa; }
+    #join-hero-copy::after { content: ''; display: block; width: 126px; height: 6px; margin: 18px auto 0; background: linear-gradient(90deg, #0d9e9a, #c9f12f); box-shadow: 0 0 9px rgba(79,229,212,0.46); }
+    #auth-card {
+      margin-top: 0; margin-bottom: 22px; padding: 16px !important; border-left: 4px solid var(--teal);
+      background: linear-gradient(142deg, rgba(20,48,69,0.76) 0%, rgba(5,17,30,0.90) 57%, rgba(3,12,23,0.94) 100%) !important;
+      border-color: rgba(119,239,250,0.78); border-left-color: var(--teal); border-radius: 3px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.42), 0 0 0 1px rgba(0,209,236,0.22), 0 0 14px rgba(0,211,237,0.18), inset 0 0 0 1px rgba(2,21,34,0.92), inset 0 1px 0 rgba(150,248,255,0.28), inset 0 -2px 0 rgba(0,4,9,0.74) !important;
+      backdrop-filter: blur(10px) saturate(1.3); -webkit-backdrop-filter: blur(10px) saturate(1.3);
+    }
+    #auth-card::before {
+      content: ''; display: block; position: absolute; inset: 0 0 auto; height: 4px;
+      background: linear-gradient(90deg, #13d6d1, #c9f12f);
+      box-shadow: 0 0 7px rgba(23,222,238,0.55);
+    }
+    #auth-card::after {
+      content: ''; display: block; position: absolute; inset: 2px 0 auto; height: 32%; pointer-events: none;
+      background: linear-gradient(118deg, rgba(90,234,255,0.10), transparent 22%, transparent 76%, rgba(0,224,246,0.04));
+    }
+    #auth-card .display { text-transform: uppercase; }
+    #auth-card p, .utter .tr, .utter .en { color: var(--ink2) !important; }
+    .account-head { display: grid; grid-template-columns: 50px minmax(0, 1fr); gap: 12px; align-items: center; margin-bottom: 14px; }
+    .account-mark { width: 50px; height: 50px; display: grid; place-items: center; border: 1px solid rgba(111,230,242,0.62); border-radius: 50%; color: #24d5cf; box-shadow: 0 0 12px rgba(0,211,237,0.20), inset 0 0 0 4px rgba(4,22,35,0.82); }
+    .account-mark svg { width: 26px; height: 26px; stroke-width: 1.7; }
+    #auth-buttons .retro-btn svg { width: 17px; height: 17px; stroke-width: 2.1; }
+    .account-head h2 { margin: 0 0 4px; }
+    .account-head p { margin: 0; }
+    #auth-show, #auth-login, #notes-btn { background: var(--teal) !important; color: #071112 !important; }
+    #lang-grid { gap: 10px; }
+    .lang-tile {
+      min-height: 64px; padding: 9px 10px 8px; background: linear-gradient(142deg, rgba(25,56,79,0.77) 0%, rgba(7,23,38,0.90) 56%, rgba(3,13,24,0.94) 100%); color: #f7f8f5;
+      border: 1px solid rgba(128,232,246,0.80); border-radius: 3px;
+      box-shadow: 0 4px 0 #02070c, 0 8px 14px rgba(0,0,0,0.42), 0 0 0 1px rgba(0,215,242,0.20), 0 0 13px rgba(0,210,236,0.15), inset 0 0 0 1px rgba(3,20,32,0.92), inset 0 1px 0 rgba(165,249,255,0.27), inset 0 -2px 0 rgba(0,4,9,0.76);
+      backdrop-filter: blur(9px) saturate(1.3); -webkit-backdrop-filter: blur(9px) saturate(1.3);
+      flex-direction: row; align-items: center; gap: 8px;
+    }
+    .lang-tile::before { inset: auto 0 0; height: 5px; background: var(--tile-accent, #0d9e9a); }
+    .lang-tile::after {
+      display: block; content: ''; position: absolute; inset: 1px; pointer-events: none;
+      background: linear-gradient(112deg, rgba(128,240,255,0.19), transparent 13%, transparent 80%, rgba(1,211,238,0.08) 100%);
+    }
+    .lang-tile:active { transform: translateY(3px); box-shadow: 0 1px 0 #071018, 0 3px 7px rgba(0,0,0,0.26); }
+    .lang-tile.selected {
+      background: var(--orange); color: #10141c; border-color: var(--orange);
+      box-shadow: 0 4px 0 #bc422e, 0 8px 14px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.30);
+    }
+    .lang-tile.selected::before { background: #c9f12f; }
+    .lang-tile .native { font-size: 10px; font-weight: 500; color: #aeb9b7; margin-top: 2px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lang-tile .en-name, .lang-tile.selected .en-name { color: #f7f8f5; margin: 0; font-family: 'Inter', system-ui, sans-serif; font-weight: 500; font-size: 14px; letter-spacing: 0; text-transform: none; }
+    .lang-tile.selected .native { color: #402218; }
+    .lang-tile.selected .en-name { color: #10141c; }
+    .lang-tile-copy { position: relative; z-index: 1; min-width: 0; flex: 1; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+    .lang-flag {
+      position: relative; z-index: 1; width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; object-fit: cover;
+      box-shadow: 0 0 0 2px var(--tile-accent, #0d9e9a), 0 3px 7px rgba(0,0,0,0.44);
+    }
+    #join-action { background: linear-gradient(180deg, transparent, #10141c 34%) !important; }
+    #join-btn { background: var(--orange) !important; border-color: var(--orange) !important; color: #10141c !important; border-radius: 3px; box-shadow: 5px 5px 0 #bd412e !important; }
+    #screen-live, #screen-study { background: #10141c; }
+    .utter { border-left: 4px solid var(--teal); }
+    .utter.latest { border-color: var(--orange); border-left-width: 4px; }
+    .thumb-btn { border-radius: 3px; box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
+    .thumb-confused { background: var(--orange); color: #10141c; }
+    .thumb-got { background: var(--teal); color: #061414; }
+    .watermark { opacity: 0.018; }
+
+    /* The live class and study states use the same cut-glass contract. */
+    #screen-live, #screen-study { background: transparent; }
+    .live-topbar {
+      position:relative; min-height:52px; padding:8px 0 10px; border:0 !important;
+    }
+    .live-topbar::after {
+      content:""; position:absolute; inset:auto 0 0; height:3px;
+      background:linear-gradient(90deg,#13d6d1,#c9f12f);
+      box-shadow:0 0 8px rgba(23,222,238,.45);
+    }
+    .live-topbar .chipbtn, .live-dock .chipbtn, #screen-study .chipbtn {
+      min-height:44px; padding:8px 11px; color:#f7f8f5;
+      background:linear-gradient(120deg,rgba(87,232,245,.12),transparent 34%),rgba(1,12,22,.86) !important;
+      border:1px solid rgba(126,246,255,.88); border-radius:3px;
+      box-shadow:inset 0 1px 0 rgba(194,255,255,.27),inset 0 -2px 0 rgba(0,5,12,.76) !important;
+    }
+    #screen-live .retro-card, #screen-study .retro-card, #define-overlay .retro-card, #screen-live .utter {
+      position:relative; overflow:hidden; color:#f7f8f5;
+      background:linear-gradient(to left,rgba(25,56,79,.78),rgba(7,23,38,.91) 56%,rgba(3,13,24,.95)) !important;
+      border:1px solid rgba(128,232,246,.84); border-radius:3px;
+      box-shadow:0 4px 0 #02070c,0 8px 14px rgba(0,0,0,.42),0 0 0 1px rgba(0,215,242,.20),0 0 13px rgba(0,210,236,.15),inset 0 0 0 1px rgba(3,20,32,.92),inset 0 1px 0 rgba(165,249,255,.27),inset 0 -2px 0 rgba(0,4,9,.76) !important;
+      backdrop-filter:blur(9px) saturate(1.3); -webkit-backdrop-filter:blur(9px) saturate(1.3);
+    }
+    #screen-live .retro-card::before, #screen-study .retro-card::before, #screen-live .utter::before {
+      content:""; position:absolute; z-index:0; inset:auto 0 0; height:4px; pointer-events:none;
+      background:linear-gradient(90deg,#0d9e9a,#20d6d1 52%,#c9f12f);
+    }
+    #screen-live .retro-card > *, #screen-study .retro-card > *, #screen-live .utter > * { position:relative; z-index:1; }
+    #screen-live .utter { padding:14px 16px 17px; border-left:3px solid #13d6d1; }
+    #screen-live .utter.latest { padding:18px 18px 21px; border-color:rgba(128,232,246,.90); border-left:3px solid #13d6d1; }
+    #screen-live .utter .en { color:#9eb8bc !important; font-weight:500; }
+    #screen-live .utter .tr { color:#f7f8f5 !important; font-weight:500; }
+    #screen-live .utter.latest .tr { color:#f7f8f5 !important; font-weight:600; }
+    #screen-live .utter.err { border-color:#ff6d4d; }
+    #screen-live .utter.err::before { background:#ff6d4d; }
+    .live-dock {
+      position:sticky; overflow:hidden; border:0 !important;
+      background:linear-gradient(to left,rgba(25,56,79,.94),rgba(3,13,24,.98) 70%) !important;
+      box-shadow:0 -10px 24px rgba(0,0,0,.44); backdrop-filter:blur(12px) saturate(1.25);
+    }
+    .live-dock::before {
+      content:""; position:absolute; inset:0 0 auto; height:4px;
+      background:linear-gradient(90deg,#13d6d1,#c9f12f); box-shadow:0 0 8px rgba(23,222,238,.45);
+    }
+    .live-dock > * { position:relative; z-index:1; }
+    .live-dock .thumb-btn {
+      min-height:64px; border:1px solid rgba(126,246,255,.88); border-radius:3px;
+      box-shadow:0 4px 0 #02070c,inset 0 1px 0 rgba(255,255,255,.22) !important;
+    }
+    #screen-study > div > div:first-child {
+      position:relative; border:0 !important; padding-bottom:12px;
+    }
+    #screen-study > div > div:first-child::after {
+      content:""; position:absolute; inset:auto 0 0; height:4px;
+      background:linear-gradient(90deg,#13d6d1,#c9f12f);
+    }
+    #screen-study .retro-card { padding-bottom:20px !important; }
+    #screen-study .retro-card h3, #screen-study .display, #define-overlay .display { color:#f7f8f5; }
+    #notes-out, #define-overlay .retro-card { background:rgba(1,12,22,.92) !important; color:#f7f8f5; border-color:rgba(128,232,246,.84) !important; border-radius:3px !important; }
+    #toast { border:1px solid rgba(128,232,246,.84); border-radius:3px !important; background:rgba(1,12,22,.96) !important; }
+    @media (max-width: 430px) {
+      #screen-join { padding-top: 20px; }
+      #join-hero-glass { margin-bottom: 16px; }
+      #brand-tile .display { font-size: 1.85rem; }
+      #join-hero-copy { margin-bottom: 22px; }
+      #join-hero-copy h1 { font-size: 1.58rem; }
+      #prompt-tile .display { font-size: 1.55rem; }
+      .lang-tile { min-height: 64px; padding: 9px 10px 8px; border-radius: 7px; }
+    }
   </style>
 </head>
 <body data-fs="md" class="min-h-screen">
@@ -204,16 +411,25 @@
       <span class="label-mono">Learner</span>
     </div>
 
+    <div id="join-hero-copy">
+      <h1 class="display">Learn in your language.<span>Understand everything.</span></h1>
+    </div>
+
     <!-- optional account (guest is the default path) -->
     <div id="auth-card" class="retro-card mb-3 p-4" style="box-shadow:4px 4px 0 var(--teal);">
-      <div class="mb-1 flex items-center justify-between gap-2">
-        <h2 class="display text-lg" data-i18n="auth_title">Your account</h2>
-        <span id="auth-state" class="label-mono"></span>
+      <div class="account-head">
+        <span class="account-mark" aria-hidden="true"><i data-lucide="user-round"></i></span>
+        <div>
+          <div class="flex items-center justify-between gap-2">
+            <h2 class="display text-lg" data-i18n="auth_title">Your account</h2>
+            <span id="auth-state" class="label-mono"></span>
+          </div>
+          <p class="text-sm" data-i18n="auth_hint">Sign in to keep your name, language, and phrasebook on any device, or continue as a guest.</p>
+        </div>
       </div>
-      <p class="mb-3 text-sm" style="color:var(--ink2)" data-i18n="auth_hint">Sign in to keep your name, language, and phrasebook on any device, or continue as a guest.</p>
       <div id="auth-buttons" class="flex flex-wrap gap-2">
-        <button id="auth-guest" class="retro-btn px-4 py-2 text-sm" data-i18n="auth_guest">Join as guest</button>
-        <button id="auth-show" class="retro-btn px-4 py-2 text-sm" style="background:var(--teal); color:var(--paper);" data-i18n="auth_signin">Sign in with email</button>
+        <button id="auth-guest" class="retro-btn px-4 py-2 text-sm"><i data-lucide="user-round" aria-hidden="true"></i><span data-i18n="auth_guest">Join as guest</span></button>
+        <button id="auth-show" class="retro-btn px-4 py-2 text-sm" style="background:var(--teal); color:var(--paper);"><i data-lucide="mail" aria-hidden="true"></i><span data-i18n="auth_signin">Sign in with email</span></button>
       </div>
       <div id="auth-form" class="mt-3 hidden">
         <input id="auth-email" type="email" class="mb-2 w-full px-3 py-2 text-sm" placeholder="Email" autocomplete="username" />
@@ -232,6 +448,7 @@
     </div>
 
     <div id="prompt-tile" class="join-mini-tile">
+      <span class="picker-globe" aria-hidden="true"><i data-lucide="globe-2"></i></span>
       <h1 class="display mb-1 text-2xl" data-i18n="join_title">Pick your language</h1>
       <p class="label-mono" data-i18n="join_sub">Tap one, then join</p>
     </div>
@@ -252,7 +469,7 @@
 <!-- ============ SCREEN 2: LIVE ============ -->
 <div id="screen-live" class="relative z-10 mx-auto hidden min-h-[100dvh] max-w-2xl flex-col px-4 pt-3">
   <!-- slim top bar -->
-  <div class="mb-2 flex items-center gap-2 border-b-2 pb-2" style="border-color:var(--ink);">
+  <div class="live-topbar mb-2 flex items-center gap-2 border-b-2 pb-2" style="border-color:var(--ink);">
     <span class="display text-lg leading-none">C<span style="color:var(--red)">L</span></span>
     <span id="live-lang" class="label-mono truncate"></span>
     <span class="status-dot" id="status-dot"></span>
@@ -293,7 +510,7 @@
   </div>
 
   <!-- bottom thumb zone -->
-  <div class="sticky bottom-0 z-20 -mx-4 border-t-[3px] px-4 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2" style="border-color:var(--ink); background:var(--paper);">
+  <div class="live-dock sticky bottom-0 z-20 -mx-4 border-t-[3px] px-4 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2" style="border-color:var(--ink); background:var(--paper);">
     <div class="mb-2 flex justify-center gap-2">
       <button id="btn-hold" class="chipbtn"><span data-i18n="btn_hold">Hold</span><span id="hold-badge" class="hidden rounded px-1 font-bold" style="background:var(--mustard);"></span></button>
       <button id="btn-tts" class="chipbtn"><span data-i18n="btn_read">Read aloud</span></button>
@@ -400,6 +617,7 @@
 
 <script>
 // =============================================================
+window.lucide?.createIcons();
 // ClassLingo student — Cloudflare Pages edition.
 // SSE is gone; we poll /api/poll every 2 seconds (Workers are stateless,
 // so the server can't hold a connection open per student).
@@ -535,14 +753,28 @@ async function loadI18n(lang) {
 // ---------- Screen 1: language picker ----------
 const langGrid = $('lang-grid');
 let roomVerified = false;
+const LANG_VISUALS = {
+  'English': ['us', '#17c9c2'], 'Spanish': ['mx', '#ff8b23'], 'Dari': ['af', '#22c7ea'],
+  'Somali': ['so', '#6edf4d'], 'Vietnamese': ['vn', '#b779ff'], 'Amharic': ['et', '#ecd331'],
+  'Arabic': ['sa', '#22d1c8'], 'Simplified Chinese': ['cn', '#ff6348'], 'Tagalog': ['ph', '#45a7ff'],
+  'Swahili': ['ke', '#75df40'], 'French': ['fr', '#4f9dff'], 'Portuguese': ['br', '#b7df3e'],
+  'Korean': ['kr', '#e26a85'], 'Hindi': ['in', '#ff9d40'], 'Punjabi': ['in', '#e9c146'],
+  'Russian': ['ru', '#6a8eff'], 'Ukrainian': ['ua', '#59b8ff'], 'Haitian Creole': ['ht', '#3b9dff'],
+  'Pashto': ['af', '#ffaf2e'], 'Burmese': ['mm', '#efbd3d'], 'Khmer': ['kh', '#517cff'],
+  'Hmong': ['la', '#ca6cf1'], 'Tigrinya': ['er', '#e94e4e'], 'Karen (Sgaw)': ['mm', '#f1983d'],
+  'Nepali': ['np', '#eb5652'], 'Malay': ['my', '#eaaf43'], 'Turkish': ['tr', '#ee6254'],
+};
 function renderLangGrid() {
   langGrid.innerHTML = '';
   for (const [idx, L] of LANGS.entries()) {
     const b = document.createElement('button');
+    const [flag, accent] = LANG_VISUALS[L.name] || ['un', '#17c9c2'];
     b.className = 'lang-tile' + (pendingLang === L.name ? ' selected' : '');
-    b.innerHTML = '<span class="native"></span><span class="en-name"></span>';
-    b.querySelector('.native').textContent = L.native;
+    b.style.setProperty('--tile-accent', accent);
+    b.innerHTML = '<span class="lang-tile-copy"><span class="en-name"></span><span class="native"></span></span><img class="lang-flag" alt="" loading="lazy">';
+    b.querySelector('.lang-flag').src = 'https://flagcdn.com/w80/' + flag + '.png';
     b.querySelector('.en-name').textContent = L.enName;
+    b.querySelector('.native').textContent = L.native;
     b.addEventListener('click', () => {
       pendingLang = L.name;
       renderLangGrid();

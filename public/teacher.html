@@ -226,21 +226,93 @@
     #app { display: none; }
     .event-line { padding: 6px 0; border-bottom: 1px dashed rgba(42,26,15,0.3); font-size: 13px; }
     .event-line .e-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink2); }
+
+    /* Learner-approved visual system, scoped to the instructor entry flow. */
+    #splash, #signin {
+      position: relative; isolation: isolate; overflow: hidden;
+      background-color: #06131d;
+      background-image:
+        linear-gradient(rgba(65, 179, 192, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(65, 179, 192, 0.08) 1px, transparent 1px),
+        radial-gradient(circle at 50% 0%, rgba(0, 209, 236, 0.16), transparent 44%);
+      background-size: 28px 28px, 28px 28px, auto;
+    }
+    #splash::before, #signin::before {
+      content: ""; position: absolute; z-index: -1; top: 20px; left: 16px; right: 16px; height: 8px;
+      background: linear-gradient(90deg, #00aeb9 0%, #16d2dc 52%, #c6ee35 100%);
+      box-shadow: 0 0 11px rgba(0, 211, 237, 0.42);
+    }
+    #signin { align-items: flex-start; padding: 82px 16px 36px; }
+    #signin .teacher-auth-card, #splash .teacher-auth-card {
+      position: relative; width: 100%; max-width: 460px; padding: 22px 18px 20px !important;
+      background: linear-gradient(142deg, rgba(20,48,69,0.76) 0%, rgba(5,17,30,0.90) 57%, rgba(3,12,23,0.94) 100%);
+      border: 1px solid rgba(119,239,250,0.78); border-left: 4px solid #0fa9a8; border-radius: 3px;
+      color: #f5f7f4;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.42), 0 0 0 1px rgba(0,209,236,0.22), 0 0 14px rgba(0,211,237,0.18), inset 0 0 0 1px rgba(2,21,34,0.92), inset 0 1px 0 rgba(150,248,255,0.28), inset 0 -2px 0 rgba(0,4,9,0.74), 6px 7px 0 rgba(0, 6, 13, 0.88);
+      backdrop-filter: blur(10px) saturate(1.3); -webkit-backdrop-filter: blur(10px) saturate(1.3);
+    }
+    #signin .teacher-auth-card::before {
+      content: ""; position: absolute; inset: 0 0 auto; height: 4px;
+      background: linear-gradient(90deg, #13d6d1, #c6ee35); box-shadow: 0 0 7px rgba(23,222,238,0.55);
+    }
+    #signin .teacher-auth-card::after {
+      content: ""; display: block; width: 116px; height: 4px; margin: 18px auto 0;
+      background: linear-gradient(90deg, #00b8c3, #c6ee35);
+    }
+    .teacher-auth-brand { display: flex; align-items: baseline; gap: 10px; }
+    #signin .teacher-auth-brand .h-display { color: #f5f7f4; font-size: 25px !important; letter-spacing: 0.02em; }
+    #signin .teacher-auth-brand .h-display span:first-child { color: #f5f7f4 !important; }
+    #signin .teacher-auth-brand .h-display span:last-child { color: #fb694a !important; }
+    .teacher-auth-role { color: rgba(220, 249, 250, 0.68) !important; font-size: 10px !important; }
+    .teacher-auth-title {
+      margin: 22px 0 18px; color: #f5f7f4; font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 28px; font-weight: 700; line-height: 0.98; letter-spacing: 0.02em; text-transform: uppercase;
+    }
+    .teacher-auth-title span { display: block; color: #61e8de; }
+    #signin .auth-tabs { gap: 8px; margin: 0 0 16px; }
+    #signin .auth-tab {
+      border: 1px solid rgba(115, 239, 247, 0.8); border-radius: 3px; background: rgba(2, 14, 25, 0.68); color: #dff8f7;
+      padding: 10px 8px; box-shadow: inset 0 1px 0 rgba(203, 255, 255, 0.22), inset 0 -2px 0 rgba(0, 15, 26, 0.65);
+    }
+    #signin .auth-tab.active { background: #fb694a; border-color: #fb694a; color: #071112; }
+    #signin label { color: rgba(220, 249, 250, 0.72); margin: 13px 0 6px; }
+    #signin input {
+      border: 1px solid rgba(115, 239, 247, 0.82); border-radius: 3px; background: rgba(1, 12, 22, 0.74); color: #f5f7f4;
+      padding: 12px; box-shadow: inset 0 1px 0 rgba(203, 255, 255, 0.18), inset 0 -2px 0 rgba(0, 15, 26, 0.64);
+    }
+    #signin input::placeholder { color: rgba(220, 249, 250, 0.4); }
+    #signin input:focus { outline: 2px solid #c6ee35; outline-offset: 2px; }
+    #signin .retro-btn {
+      width: 100%; justify-content: center; border: 1px solid rgba(115, 239, 247, 0.94); border-radius: 3px;
+      background: #f5f7f4; color: #071112; box-shadow: 0 0 0 1px rgba(0, 209, 236, 0.25), inset 0 1px 0 rgba(203, 255, 255, 0.55), inset 0 -2px 0 rgba(0, 43, 55, 0.2);
+    }
+    #signin .retro-btn:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(0, 209, 236, 0.38), 0 0 11px rgba(0, 211, 237, 0.22), inset 0 1px 0 rgba(203, 255, 255, 0.55), inset 0 -2px 0 rgba(0, 43, 55, 0.2); }
+    #signin #su-submit { background: #0fa9a8; }
+    #signin .hint { color: rgba(220, 249, 250, 0.63); font-size: 12px; line-height: 1.5; }
+    #signin .err-text { color: #ff9e89; }
+    @media (min-width: 640px) {
+      #signin { align-items: center; padding: 52px 24px; }
+    #signin .teacher-auth-card { padding: 28px 30px 24px !important; }
+    }
   </style>
+  <link rel="stylesheet" href="/site-rollout.css" />
 </head>
-<body>
+<body class="teacher-body">
 
 <div id="splash">
-  <div class="retro-card" style="padding: 28px 36px; text-align: center;">
+  <div class="retro-card teacher-auth-card" style="text-align: center;">
     <div class="h-display" style="font-size: 24px;"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
     <div class="label-mono ink2" style="margin-top: 8px;" id="splash-msg">Checking your session</div>
   </div>
 </div>
 
 <div id="signin">
-  <div class="retro-card" style="padding: 32px 36px; width: 100%; max-width: 460px;">
-    <div class="h-display" style="font-size: 24px;"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
-    <div class="label-mono ink2" style="margin-top: 6px;">Instructor Access</div>
+  <div class="retro-card teacher-auth-card">
+    <div class="teacher-auth-brand">
+      <div class="h-display"><span class="ink">Class</span><span style="color: var(--red);">Lingo</span></div>
+      <div class="label-mono teacher-auth-role">Instructor</div>
+    </div>
+    <h1 class="teacher-auth-title">Teach in English.<span>Keep the class with you.</span></h1>
     <div class="auth-tabs">
       <button class="auth-tab active" id="auth-tab-signin">Sign In</button>
       <button class="auth-tab" id="auth-tab-signup">Create Account</button>

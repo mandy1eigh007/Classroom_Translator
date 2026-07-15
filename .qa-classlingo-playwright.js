@@ -56,7 +56,7 @@ async function getMaybeJson(path) {
 
   const desktop = { width: 1440, height: 1000 };
   const mobile = { width: 390, height: 844 };
-  for (const path of ['/', '/teach', '/student', '/dispatch', '/admin', '/kids?c=QA123']) {
+  for (const path of ['/', '/teacher', '/teach', '/student', '/dispatch', '/admin', '/kids?c=QA123']) {
     const name = path === '/' ? 'home' : path.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
     for (const size of [desktop, mobile]) {
       const page = await browser.newPage();
@@ -88,8 +88,8 @@ async function getMaybeJson(path) {
   report.workflow.teacherUnlocked = await teach.evaluate(() => ({
     visibleText: document.body.innerText.slice(0, 1200),
     manualVisible: !!document.querySelector('#manual-text') && getComputedStyle(document.querySelector('#manual-text')).display !== 'none',
-    code: document.querySelector('#class-code')?.innerText || '',
-    share: document.querySelector('#share-url')?.value || '',
+    code: (() => { try { return new URL(document.querySelector('#student-url')?.innerText || '', location.href).searchParams.get('c') || ''; } catch (_) { return ''; } })(),
+    share: document.querySelector('#student-url')?.innerText || '',
     overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
   }));
   await teach.screenshot({ path: '.qa/workflow-teacher.png', fullPage: true });
@@ -139,6 +139,14 @@ async function getMaybeJson(path) {
     clientWidth: document.documentElement.clientWidth,
   }));
   await student.screenshot({ path: '.qa/workflow-student-390.png', fullPage: true });
+  await student.click('#open-study');
+  report.workflow.studentStudy = await student.evaluate(() => ({
+    visible: !document.querySelector('#screen-study')?.classList.contains('hidden'),
+    heading: document.querySelector('#screen-study .display')?.innerText || '',
+    overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    cards: document.querySelectorAll('#screen-study .retro-card').length,
+  }));
+  await student.screenshot({ path: '.qa/workflow-student-study-390.png' });
   await studentContext.close();
 
   await browser.close();

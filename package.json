@@ -7,7 +7,8 @@
     "build": "npm run build:css",
     "build:css": "tailwindcss -i ./tailwind.input.css -o ./public/tailwind.css --minify",
     "dev": "wrangler pages dev",
-    "deploy": "wrangler pages deploy"
+    "deploy": "wrangler pages deploy",
+    "test:smoke": "node tests/release-smoke.mjs"
   },
   "devDependencies": {
     "playwright": "^1.61.1",
