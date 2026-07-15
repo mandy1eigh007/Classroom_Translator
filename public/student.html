@@ -45,12 +45,22 @@
     .lang-tile {
       display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
       min-height: 66px; padding: 13px 15px; width: 100%; text-align: left;
-      background: rgba(255,253,248,0.96); border: 1px solid var(--line); border-radius: 18px;
+      background: #fff8ea; border: 1px solid rgba(36,26,20,0.10); border-radius: 18px;
       box-shadow: 0 8px 20px var(--soft2);
       transition: transform 0.08s, box-shadow 0.08s;
     }
     .lang-tile:active { transform: translateY(1px); box-shadow: 0 4px 12px var(--soft2); }
     .lang-tile.selected { background: #fff4d6; border-color: var(--mustard); box-shadow: 0 12px 28px rgba(223,170,50,0.26); }
+    .lang-tile.tone-teal { background: #e7f4f1; border-color: rgba(38,125,120,0.20); }
+    .lang-tile.tone-gold { background: #fff3d6; border-color: rgba(223,170,50,0.24); }
+    .lang-tile.tone-red { background: #fdebe8; border-color: rgba(201,58,50,0.18); }
+    .lang-tile.tone-blue { background: #eaf1fb; border-color: rgba(72,104,156,0.18); }
+    .lang-tile.tone-green { background: #edf5e8; border-color: rgba(84,130,78,0.18); }
+    .lang-tile.selected.tone-teal,
+    .lang-tile.selected.tone-gold,
+    .lang-tile.selected.tone-red,
+    .lang-tile.selected.tone-blue,
+    .lang-tile.selected.tone-green { background: #fff4d6; border-color: var(--mustard); }
     .lang-tile .native { font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700; font-size: 18px; line-height: 1.15; }
     .lang-tile .en-name { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink2); margin-top: 4px; }
     /* Live feed */
@@ -467,9 +477,10 @@ const langGrid = $('lang-grid');
 let roomVerified = false;
 function renderLangGrid() {
   langGrid.innerHTML = '';
-  for (const L of LANGS) {
+  const tones = ['tone-teal', 'tone-gold', 'tone-red', 'tone-blue', 'tone-green'];
+  for (const [idx, L] of LANGS.entries()) {
     const b = document.createElement('button');
-    b.className = 'lang-tile' + (pendingLang === L.name ? ' selected' : '');
+    b.className = 'lang-tile ' + tones[idx % tones.length] + (pendingLang === L.name ? ' selected' : '');
     b.innerHTML = '<span class="native"></span><span class="en-name"></span>';
     b.querySelector('.native').textContent = L.native;
     b.querySelector('.en-name').textContent = L.enName;
