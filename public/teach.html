@@ -273,7 +273,17 @@
   //   /qr.png            -> client-side QR (qrcode.min.js)
   // ============================================================
 
-  // ---------- passcode auth ----------
+  // ---------- instructor auth ----------
+  // Prefer the Supabase teacher session established on /teacher. The shared
+  // passcode remains available as a local/legacy fallback.
+  let sbClient = null;
+  try {
+    if (window.supabase && window.CLASSLINGO_SUPABASE) {
+      sbClient = window.supabase.createClient(
+        window.CLASSLINGO_SUPABASE.url, window.CLASSLINGO_SUPABASE.anonKey);
+    }
+  } catch (_) { /* CDN blocked — shared-key auth is still available */ }
+
   let passcode = sessionStorage.getItem('teach_pass') || localStorage.getItem('teach_pass') || '';
   const gate = document.getElementById('auth-gate');
   const mainUI = document.getElementById('main-ui');
@@ -294,6 +304,14 @@
       const d = await r.json().catch(() => ({}));
       return !!d.ok;
     } catch (_) { return false; }
+  }
+  async function supabaseTeacherToken() {
+    if (!sbClient) return '';
+    try {
+      const { data } = await sbClient.auth.getSession();
+      const token = data && data.session && data.session.access_token;
+      return token && await checkPass(token) ? token : '';
+    } catch (_) { return ''; }
   }
   function dropAuth() {
     passcode = '';
@@ -338,8 +356,19 @@
   }
 
   (async () => {
-    if (passcode && await checkPass(passcode)) showMain();
-    else { dropAuth(); showGate(); }
+    if (passcode && await checkPass(passcode)) {
+      showMain();
+      return;
+    }
+    dropAuth();
+    const teacherToken = await supabaseTeacherToken();
+    if (teacherToken) {
+      passcode = teacherToken;
+      sessionStorage.setItem('teach_pass', teacherToken);
+      showMain();
+    } else {
+      showGate();
+    }
   })();
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1260,14 +1289,6 @@
   // Supabase archive (optional): if the instructor is signed in to Supabase
   // in this browser (e.g. via /admin), the export also writes the session +
   // messages to class_sessions / session_messages. Guests just get the file.
-  let sbClient = null;
-  try {
-    if (window.supabase && window.CLASSLINGO_SUPABASE) {
-      sbClient = window.supabase.createClient(
-        window.CLASSLINGO_SUPABASE.url, window.CLASSLINGO_SUPABASE.anonKey);
-    }
-  } catch (_) { /* CDN blocked — export still works, archive is skipped */ }
-
   const exportBtn = document.getElementById('export-transcript');
   const MAX_EXPORT_TRANSLATE_CALLS = 300;
   function fmtClock(ts) {

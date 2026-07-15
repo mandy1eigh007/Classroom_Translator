@@ -13,7 +13,7 @@
 //   messages: [...],                  // student->teacher messages, teacher auth only
 //   roster: [{sid, name, lang, ts, seen}]  // classroom grid, teacher auth only
 // }
-import { json, getOrCreateSession, teacherPassword, providedPasscode } from './_lib.js';
+import { json, getOrCreateSession, checkTeacher } from './_lib.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -83,8 +83,9 @@ export async function onRequest(context) {
   const payload = { students, byLang, confused, confusedKids, understood, code: s.code, mode: s.mode || 'general' };
 
   // Student identities and message contents are teacher-only.
-  const expect = teacherPassword(env);
-  if (expect && providedPasscode(request) === expect) {
+  const hasAuthorization = request.headers.has('Authorization');
+  const auth = hasAuthorization ? await checkTeacher(context) : { ok: false };
+  if (auth.ok) {
     payload.roster = roster;
     const msgs = [];
     const sm = await env.SESSION_KV.list({ prefix: 'smsg:', limit: 100 });

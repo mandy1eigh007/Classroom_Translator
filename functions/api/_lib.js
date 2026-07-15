@@ -31,6 +31,8 @@
 // self-cleans. Live feed content is TTL-based; phrasebook, local settings,
 // and optional admin/reporting records are separate.
 
+import { requireTeacher } from './teacher/_auth.js';
+
 export const LANG_CODES = {
   'English': 'en',
   'Spanish': 'es',
@@ -121,7 +123,7 @@ export async function getOrCreateSession(env) {
 }
 
 // ---------- instructor auth ----------
-// Bearer token compared against TEACHER_PASSWORD (or legacy TEACHER_PASSCODE).
+// Accept either a verified Supabase teacher session or the legacy shared key.
 // Per-IP brute-force lockout: 5 failures in 10 min -> locked 10 min. Stored
 // in KV with a TTL so it self-expires.
 const AUTH_MAX_FAILS = 5;
@@ -142,8 +144,26 @@ export function providedPasscode(request, body) {
 export async function checkTeacher(context, body) {
   const { request, env } = context;
   const expect = teacherPassword(env);
+  const provided = providedPasscode(request, body);
+
+  // Preserve the shared-key path for local QA and existing deployments.
+  if (expect && provided === expect) return { ok: true };
+
+  // The teacher dashboard and live console share the same Supabase browser
+  // session. Verify that JWT server-side before allowing instructor writes.
+  const hasSupabase = !!(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
+  const looksLikeJwt = provided.length > 40 && provided.split('.').length === 3;
+  if (hasSupabase && looksLikeJwt) {
+    const auth = await requireTeacher(context);
+    if (auth.response) return { ok: false, response: auth.response };
+    return { ok: true, user: auth.user, profile: auth.profile };
+  }
+
   if (!expect) {
-    return { ok: false, response: json({ error: 'TEACHER_PASSWORD is not configured on the server.' }, 503) };
+    if (hasSupabase) {
+      return { ok: false, response: json({ error: provided ? 'Invalid instructor authorization' : 'Missing instructor authorization' }, 401) };
+    }
+    return { ok: false, response: json({ error: 'Instructor authorization is not configured on the server.' }, 503) };
   }
   const ip = clientIp(request);
   const failKey = 'authfail:' + ip;
@@ -151,7 +171,6 @@ export async function checkTeacher(context, body) {
   if (rec && rec.count >= AUTH_MAX_FAILS) {
     return { ok: false, response: json({ error: 'Too many attempts. Try again later.', locked: true }, 429, { 'Retry-After': String(AUTH_WINDOW_S) }) };
   }
-  const provided = providedPasscode(request, body);
   if (!provided || provided !== expect) {
     const next = { count: ((rec && rec.count) || 0) + 1 };
     await env.SESSION_KV.put(failKey, JSON.stringify(next), { expirationTtl: AUTH_WINDOW_S });
