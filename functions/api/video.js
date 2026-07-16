@@ -15,6 +15,7 @@
 // Students compute the current cue locally from (positionSec, updatedAt)
 // and translate it through /api/translate (KV-cached per language).
 import { json, getOrCreateSession, putSession, checkTeacher } from './_lib.js';
+import { fetchCaptions, parseYouTubeId } from './_youtube.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -84,67 +85,4 @@ export async function onRequest(context) {
   }
 
   return json({ error: 'Unknown action' }, 400);
-}
-
-function parseYouTubeId(url) {
-  if (typeof url !== 'string') return null;
-  const str = url.trim();
-  if (/^[A-Za-z0-9_-]{11}$/.test(str)) return str;
-  try {
-    const u = new URL(str);
-    const host = u.hostname.replace(/^www\./, '');
-    if (host === 'youtu.be') {
-      const id = u.pathname.replace(/^\//, '').split('/')[0];
-      return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null;
-    }
-    if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtube-nocookie.com') {
-      if (u.pathname === '/watch') {
-        const v = u.searchParams.get('v');
-        return v && /^[A-Za-z0-9_-]{11}$/.test(v) ? v : null;
-      }
-      const m = u.pathname.match(/^\/(?:embed|shorts|live|v)\/([A-Za-z0-9_-]{11})/);
-      if (m) return m[1];
-    }
-  } catch (_) {}
-  return null;
-}
-
-// Best-effort caption scrape: load the watch page, find captionTracks,
-// prefer English, fetch the XML track, and parse cues. YouTube changes
-// this markup and rate-limits datacenter IPs, so every failure path is a
-// clean "no captions" rather than a crash.
-async function fetchCaptions(videoId) {
-  const CAPTION_TIMEOUT = 8000;
-  const page = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-    signal: AbortSignal.timeout(CAPTION_TIMEOUT),
-  });
-  const htmlText = await page.text();
-  const m = htmlText.match(/"captionTracks":(\[.*?\])/);
-  if (!m) throw new Error('No captions for this video');
-  let tracks;
-  try { tracks = JSON.parse(m[1]); } catch (_) { throw new Error('Could not read caption data'); }
-  if (!Array.isArray(tracks) || !tracks.length) throw new Error('No captions for this video');
-  const track = tracks.find(t => (t.languageCode || '').startsWith('en')) || tracks[0];
-  if (!track || !track.baseUrl) throw new Error('No usable caption track');
-  const xmlRes = await fetch(track.baseUrl, { signal: AbortSignal.timeout(CAPTION_TIMEOUT) });
-  const xml = await xmlRes.text();
-  const cues = [];
-  const re = /<text start="([\d.]+)" dur="([\d.]+)"[^>]*>([\s\S]*?)<\/text>/g;
-  let t;
-  while ((t = re.exec(xml))) {
-    const text = decodeXml(t[3]).replace(/\s+/g, ' ').trim();
-    if (text) cues.push({ start: parseFloat(t[1]), dur: parseFloat(t[2]), text });
-  }
-  if (!cues.length) throw new Error('Caption track was empty');
-  return cues;
-}
-
-function decodeXml(sIn) {
-  return sIn
-    .replace(/&amp;#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
-    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'")
-    .replace(/<[^>]+>/g, '');
 }

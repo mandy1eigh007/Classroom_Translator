@@ -71,6 +71,14 @@ async function run() {
   assert.match(adminPage.body, /resetPasswordForEmail/, 'admin sign-in is missing password recovery');
   assert.match(adminPage.body, /\/reset-password\.html/, 'admin recovery is missing its production path');
   record('admin password recovery', '/reset-password.html');
+  assert.match(adminPage.body, /data-tab="vocabulary"/, 'admin is missing vocabulary control');
+  assert.match(adminPage.body, /data-tab="ai-review"/, 'admin is missing AI review control');
+  assert.match(adminPage.body, /data-tab="video-mining"/, 'admin is missing video mining control');
+  assert.match(adminPage.body, /id="vocab-rows"/, 'admin vocabulary table is missing');
+  assert.match(adminPage.body, /id="ai-rows"/, 'admin AI review table is missing');
+  assert.match(adminPage.body, /id="mine-review-rows"/, 'admin video mining review queue is missing');
+  assert.match(adminPage.body, /3 independent sources and 90% confidence/, 'admin video mining guardrail is missing');
+  record('admin control hub', 'vocabulary + AI review + video mining');
 
   await expectAsset('/site-rollout.css', /text\/css/i, 1_000);
   await expectAsset('/assets/teacher-blueprint-bg.jpg', /image\/jpeg/i, 10_000);
@@ -118,6 +126,8 @@ async function run() {
     assert.ok(allowed.includes(response.status), `${path} should reject anonymous access, got ${response.status}: ${body.slice(0, 160)}`);
     record(`protected ${path}`, String(response.status));
   }
+  await expectStatus('protected /api/admin/video-mining', '/api/admin/video-mining', requireBackendConfig ? [401] : [401, 503]);
+  await expectStatus('protected scheduled video mining', '/api/admin/video-mining-scheduled', [401, 503], { method: 'POST' });
 
   await expectStatus('cors /api/teacher', '/api/teacher', 204, { method: 'OPTIONS' });
 

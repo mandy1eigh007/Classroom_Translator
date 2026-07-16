@@ -161,6 +161,37 @@
 .admin-body #gate { position:relative; z-index:1; padding-top:60px; }.admin-body .gate-card, .admin-body .panel, .admin-body .stat, .admin-body .modal { background:linear-gradient(142deg,rgba(20,48,69,.78),rgba(5,17,30,.91) 57%,rgba(3,12,23,.95)) !important; border:1px solid rgba(119,239,250,.8) !important; border-radius:3px !important; color:#f5f7f4 !important; box-shadow:0 4px 0 #02070c,0 8px 14px rgba(0,0,0,.42),inset 0 1px 0 rgba(165,249,255,.27),inset 0 -2px 0 rgba(0,4,9,.76) !important; }
 .admin-body input, .admin-body select, .admin-body textarea, .admin-body .btn { background:rgba(1,12,22,.74) !important; color:#f5f7f4 !important; border:1px solid rgba(119,239,250,.82) !important; border-radius:3px !important; }
 .admin-body .btn-primary { background:#f5f7f4 !important; color:#071112 !important; }.admin-body .sidebar { background:rgba(3,12,23,.94) !important; border-color:rgba(115,239,247,.44) !important; }.admin-body .nav-btn.active { border-left-color:#13d6d1 !important; background:rgba(15,169,168,.18) !important; }.admin-body .brand span, .admin-body .gate-card h1 span, .admin-body a { color:#61e8de !important; }.admin-body .page-sub, .admin-body .lbl, .admin-body label, .admin-body .hint, .admin-body .empty { color:rgba(220,249,250,.68) !important; }
+.admin-body .panel, .admin-body .stat {
+  position:relative;
+  background:linear-gradient(to left,rgba(25,56,79,.77) 0%,rgba(7,23,38,.90) 56%,rgba(3,13,24,.94) 100%) !important;
+  box-shadow:0 4px 0 #02070c,0 8px 14px rgba(0,0,0,.42),0 0 0 1px rgba(0,215,242,.20),0 0 13px rgba(0,210,236,.15),inset 0 0 0 1px rgba(3,20,32,.92),inset 0 1px 0 rgba(165,249,255,.27),inset 0 -2px 0 rgba(0,4,9,.76) !important;
+  backdrop-filter:blur(9px) saturate(1.3);
+}
+.admin-body .stat { overflow:hidden; }
+.admin-body .panel { overflow-x:auto; }
+.admin-body .panel::before, .admin-body .stat::before {
+  content:""; position:absolute; inset:auto 0 0; height:5px; pointer-events:none;
+  background:linear-gradient(90deg,#0d9e9a,#20d6d1 52%,#c9f12f);
+}
+.admin-body .stat .num, .admin-body .stat .lbl, .admin-body .panel h3, .admin-body .pill, .admin-body td {
+  max-width:100%; overflow-wrap:break-word; word-break:normal;
+}
+.admin-body .mining-input-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.admin-body .mining-input-grid .panel { min-width:0; }
+.admin-body .rule-readout {
+  min-height:38px; display:flex; align-items:center; padding:9px 12px;
+  color:#f5f7f4; background:rgba(1,12,22,.74); border:1px solid rgba(119,239,250,.82); border-radius:3px;
+}
+.admin-body .decision-row { display:flex; gap:6px; flex-wrap:wrap; }
+.admin-body #tab-video-mining .panel h3 { text-transform:uppercase; letter-spacing:0; }
+.admin-body #mine-status { color:#ff8d73; font-weight:700; text-shadow:0 0 9px rgba(255,105,74,.34); }
+.admin-body #tab-video-mining th { color:#c9f12f; font-weight:700; }
+@media (max-width:760px) {
+  .admin-body .mining-input-grid { grid-template-columns:1fr; gap:0; }
+  .admin-body #tab-video-mining .row > div { min-width:100%; }
+  .admin-body #tab-video-mining .row > div[style*="flex:0"] { min-width:0; flex:1 1 calc(50% - 5px) !important; }
+  .admin-body #tab-video-mining .row > div[style*="flex:0"] .btn { width:100%; }
+}
 
 /* Teacher dashboard after sign-in. Auth entry is styled in teacher.html. */
 .teacher-body #app { background:transparent; color:#f5f7f4; }.teacher-body .topnav { background:rgba(6,19,29,.95) !important; border-color:rgba(115,239,247,.58) !important; }.teacher-body .rail-card, .teacher-body .panel, .teacher-body .stat, .teacher-body .class-card, .teacher-body .modal { background:linear-gradient(142deg,rgba(20,48,69,.78),rgba(5,17,30,.91) 57%,rgba(3,12,23,.95)) !important; border:1px solid rgba(119,239,250,.8) !important; border-radius:3px !important; color:#f5f7f4 !important; box-shadow:0 4px 0 #02070c,0 8px 14px rgba(0,0,0,.42),inset 0 1px 0 rgba(165,249,255,.27),inset 0 -2px 0 rgba(0,4,9,.76) !important; }.teacher-body .tab-btn, .teacher-body .nav-link, .teacher-body .retro-btn, .teacher-body input, .teacher-body select, .teacher-body textarea { background:rgba(1,12,22,.74) !important; color:#f5f7f4 !important; border:1px solid rgba(119,239,250,.82) !important; border-radius:3px !important; box-shadow:none !important; }.teacher-body .tab-btn.active, .teacher-body .nav-link.primary, .teacher-body .retro-btn { background:#f5f7f4 !important; color:#071112 !important; }.teacher-body .label-mono, .teacher-body label, .teacher-body .hint, .teacher-body .empty, .teacher-body .ink2 { color:rgba(220,249,250,.68) !important; }.teacher-body .ink { color:#f5f7f4 !important; }

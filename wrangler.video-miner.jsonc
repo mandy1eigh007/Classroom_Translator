@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "classlingo-video-miner",
+  "main": "workers/video-miner.js",
+  "compatibility_date": "2026-07-16",
+  "observability": { "enabled": true },
+  "vars": {
+    "MINER_API_URL": "https://classroom-translator.pages.dev/api/admin/video-mining-scheduled"
+  },
+  "triggers": { "crons": ["15 9 * * *"] },
+  "kv_namespaces": [
+    { "binding": "SESSION_KV", "id": "3b3706c8f3114a91a887186cb34db1c7" }
+  ]
+}

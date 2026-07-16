@@ -84,6 +84,17 @@ export async function requireTeacher(context) {
   return { user, profile };
 }
 
+// Same verification path as requireTeacher, but never permits an instructor
+// account. Use this for controls that can change shared system behavior.
+export async function requireAdmin(context) {
+  const auth = await requireTeacher(context);
+  if (auth.response) return auth;
+  if (auth.profile.role !== 'admin') {
+    return { response: errResponse('Administrator access is required.', 403) };
+  }
+  return auth;
+}
+
 // Minimal PostgREST client (service role; no SDK, no new dependencies).
 // path example: "cl_classes?teacher_id=eq.<uuid>&order=created_at"
 export async function sb(env, path, { method = 'GET', body, prefer } = {}) {

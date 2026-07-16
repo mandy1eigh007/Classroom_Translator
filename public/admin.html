@@ -86,10 +86,10 @@
     p.page-sub { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
     .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
     .panel h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
-    .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
-    .stat .num { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; }
-    .stat .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat { min-width: 0; max-width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; overflow: hidden; }
+    .stat .num { max-width: 100%; font-size: 28px; line-height: 1.1; font-weight: 700; font-family: 'DM Mono', monospace; overflow-wrap: anywhere; }
+    .stat .lbl { max-width: 100%; font-size: 12px; line-height: 1.4; color: var(--muted); margin-top: 4px; overflow-wrap: anywhere; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th { text-align: left; color: var(--muted); font-weight: 500; font-size: 12px; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
     td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
@@ -114,13 +114,38 @@
     .check-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
     .check-row input[type="checkbox"] { width: auto; }
     .hint { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+    .panel, .panel h3, .nav-btn, td, .pill { min-width: 0; max-width: 100%; overflow-wrap: break-word; word-break: normal; }
+    .table-scroll { width: 100%; max-width: 100%; overflow-x: auto; }
+    .table-scroll table { min-width: 720px; }
+    .hub-table th:nth-child(2), .hub-table td:nth-child(2) { min-width: 110px; }
+    .hub-table .pill { white-space: normal; }
+    .hub-toolbar { display: grid; grid-template-columns: minmax(180px, 2fr) repeat(2, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .hub-toolbar label { margin-top: 0; }
+    .cell-main { color: var(--text); font-weight: 600; line-height: 1.35; }
+    .cell-sub { color: var(--muted); font-size: 11px; line-height: 1.4; margin-top: 3px; }
+    .preview-text { max-width: 360px; line-height: 1.45; white-space: normal; overflow-wrap: anywhere; }
+    .hub-error { color: var(--red); font-size: 12px; margin-top: 10px; }
     @media (max-width: 760px) {
       .shell { flex-direction: column; }
       .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 2px; padding: 10px; }
       .sidebar .brand-sub, .sidebar .who { display: none; }
-      .nav-btn { width: auto; padding: 8px 10px; margin: 0; }
+      .nav-btn { flex: 1 1 112px; width: auto; padding: 8px 10px; margin: 0; text-align: center; white-space: normal; line-height: 1.25; }
       .nav-btn.active { border-left: none; border-bottom: 2px solid var(--accent); border-radius: 4px 4px 0 0; padding-left: 10px; }
       main { padding: 18px 14px 50px; }
+      .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat { padding: 14px; }
+      .stat .num { font-size: 24px; }
+      .hub-toolbar { grid-template-columns: 1fr; }
+      .preview-text { max-width: 260px; }
+      .table-scroll:has(.hub-table) { overflow: visible; }
+      .table-scroll .hub-table { min-width: 0; }
+      .hub-table thead { display: none; }
+      .hub-table tbody, .hub-table tr, .hub-table td { display: block; width: 100%; max-width: none; }
+      .hub-table tr { padding: 12px 0; border-bottom: 1px solid var(--border); }
+      .hub-table tr:last-child { border-bottom: none; }
+      .hub-table td { min-width: 0 !important; padding: 4px 0; border: 0; white-space: normal !important; overflow-wrap: anywhere; }
+      .hub-table td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 10px; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
+      .hub-table .preview-text { max-width: none; }
     }
   </style>
   <link rel="stylesheet" href="/site-rollout.css" />
@@ -158,6 +183,9 @@
       <button class="nav-btn" data-tab="teachers">Instructors</button>
       <button class="nav-btn" data-tab="sessions">Sessions</button>
       <button class="nav-btn" data-tab="orgs">Organizations</button>
+      <button class="nav-btn" data-tab="vocabulary">Vocabulary</button>
+      <button class="nav-btn" data-tab="ai-review">AI Review</button>
+      <button class="nav-btn" data-tab="video-mining">Video Mining</button>
       <button class="nav-btn" data-tab="settings">Settings</button>
       <button class="nav-btn" data-tab="subscription">Subscription</button>
       <div class="spacer"></div>
@@ -267,6 +295,136 @@
         </div>
       </div>
 
+      <!-- ===== Vocabulary ===== -->
+      <div class="tab-page" id="tab-vocabulary">
+        <h2 class="page-title">Vocabulary</h2>
+        <p class="page-sub">Trade terminology saved across ClassLingo workspaces.</p>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" id="vocab-total">-</div><div class="lbl">Total terms</div></div>
+          <div class="stat"><div class="num" id="vocab-verified">-</div><div class="lbl">Verified</div></div>
+          <div class="stat"><div class="num" id="vocab-review">-</div><div class="lbl">Needs review</div></div>
+          <div class="stat"><div class="num" id="vocab-languages">-</div><div class="lbl">Target languages</div></div>
+        </div>
+        <div class="panel">
+          <div class="hub-toolbar">
+            <div><label for="vocab-search">Search</label><input id="vocab-search" type="search" placeholder="Term, translation, or instructor" /></div>
+            <div><label for="vocab-category">Category</label><select id="vocab-category"><option value="">All categories</option></select></div>
+            <div><label for="vocab-status">Review status</label><select id="vocab-status"><option value="">All terms</option><option value="verified">Verified</option><option value="review">Needs review</option></select></div>
+          </div>
+          <div class="table-scroll">
+            <table class="hub-table">
+              <thead><tr><th>Term</th><th>Category</th><th>Translation</th><th>Language</th><th>Instructor</th><th>Status</th></tr></thead>
+              <tbody id="vocab-rows"></tbody>
+            </table>
+          </div>
+          <div id="vocab-empty" class="empty" style="display:none;">No vocabulary terms match these filters.</div>
+          <div id="vocab-error" class="hub-error"></div>
+        </div>
+      </div>
+
+      <!-- ===== AI Review ===== -->
+      <div class="tab-page" id="tab-ai-review">
+        <h2 class="page-title">AI Review</h2>
+        <p class="page-sub">Saved translated output from live rooms and instructor materials.</p>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" id="ai-total">-</div><div class="lbl">Saved outputs</div></div>
+          <div class="stat"><div class="num" id="ai-live">-</div><div class="lbl">Live translations</div></div>
+          <div class="stat"><div class="num" id="ai-materials">-</div><div class="lbl">Material translations</div></div>
+          <div class="stat"><div class="num" id="ai-errors">-</div><div class="lbl">Translation errors</div></div>
+        </div>
+        <div class="panel">
+          <div class="hub-toolbar">
+            <div><label for="ai-search">Search</label><input id="ai-search" type="search" placeholder="Source text, output, or language" /></div>
+            <div><label for="ai-type">Output type</label><select id="ai-type"><option value="">All output</option><option value="live">Live translation</option><option value="material">Material translation</option></select></div>
+            <div><label for="ai-status">Status</label><select id="ai-status"><option value="">All statuses</option><option value="complete">Complete</option><option value="pending">Pending</option><option value="error">Error</option></select></div>
+          </div>
+          <div class="table-scroll">
+            <table class="hub-table">
+              <thead><tr><th>Created</th><th>Type</th><th>Source</th><th>Output</th><th>Language</th><th>Status</th></tr></thead>
+              <tbody id="ai-rows"></tbody>
+            </table>
+          </div>
+          <div id="ai-empty" class="empty" style="display:none;">No saved output matches these filters.</div>
+          <div id="ai-error" class="hub-error"></div>
+        </div>
+      </div>
+
+      <!-- ===== Video Mining ===== -->
+      <div class="tab-page" id="tab-video-mining">
+        <h2 class="page-title">Video Mining</h2>
+        <p class="page-sub">Autonomous shop-talk discovery from trade training transcripts.</p>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" id="mine-queued">-</div><div class="lbl">Sources queued</div></div>
+          <div class="stat"><div class="num" id="mine-published">-</div><div class="lbl">Phrases published</div></div>
+          <div class="stat"><div class="num" id="mine-attention">-</div><div class="lbl">Needs attention</div></div>
+          <div class="stat"><div class="num" id="mine-errors">-</div><div class="lbl">Source errors</div></div>
+        </div>
+
+        <div class="panel mining-control">
+          <h3>Automation</h3>
+          <div class="row">
+            <div><label for="mine-auto">Daily mining</label><select id="mine-auto"><option value="false">Off</option><option value="true">On</option></select></div>
+            <div><label for="mine-max">Videos per run</label><input id="mine-max" type="number" min="1" max="10" value="3" /></div>
+            <div><label>Publish rule</label><div class="rule-readout">3 independent sources and 90% confidence</div></div>
+            <div style="flex:0;"><button id="mine-save" class="btn">Save</button></div>
+            <div style="flex:0;"><button id="mine-run" class="btn btn-primary">Run now</button></div>
+          </div>
+          <label for="mine-terms">Daily search terms</label>
+          <textarea id="mine-terms" rows="3" placeholder="One trade search per line"></textarea>
+          <div id="mine-config" class="hint"></div>
+          <div id="mine-status" class="ok-msg"></div>
+        </div>
+
+        <div class="mining-input-grid">
+          <div class="panel">
+            <h3>Find trade videos</h3>
+            <label for="mine-search">YouTube search</label>
+            <input id="mine-search" type="search" placeholder="journeyman carpentry field tips" />
+            <button id="mine-search-btn" class="btn" style="margin-top:10px;">Search and queue</button>
+            <label for="mine-url">Add a YouTube video</label>
+            <input id="mine-url" type="url" placeholder="https://youtube.com/watch?v=..." />
+            <button id="mine-url-btn" class="btn" style="margin-top:10px;">Add video</button>
+          </div>
+          <div class="panel">
+            <h3>Paste a transcript</h3>
+            <div class="row">
+              <div><label for="mine-title">Source title</label><input id="mine-title" type="text" placeholder="Finish carpentry field lesson" /></div>
+              <div><label for="mine-channel">Speaker or channel</label><input id="mine-channel" type="text" placeholder="Training source" /></div>
+            </div>
+            <label for="mine-transcript">Transcript</label>
+            <textarea id="mine-transcript" rows="7" placeholder="Paste the complete transcript here"></textarea>
+            <button id="mine-paste-btn" class="btn" style="margin-top:10px;">Queue transcript</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Needs attention</h3>
+          <div class="table-scroll"><table class="hub-table">
+            <thead><tr><th>Phrase</th><th>Meaning</th><th>Evidence</th><th>Reason</th><th>Decision</th></tr></thead>
+            <tbody id="mine-review-rows"></tbody>
+          </table></div>
+          <div id="mine-review-empty" class="empty">No exceptions need review.</div>
+        </div>
+
+        <div class="panel">
+          <h3>Source queue</h3>
+          <div class="table-scroll"><table class="hub-table">
+            <thead><tr><th>Source</th><th>Origin</th><th>Transcript</th><th>Processing</th><th>Added</th><th>Open</th></tr></thead>
+            <tbody id="mine-source-rows"></tbody>
+          </table></div>
+          <div id="mine-source-empty" class="empty">No transcript sources yet.</div>
+        </div>
+
+        <div class="panel">
+          <h3>Published shop talk</h3>
+          <div class="table-scroll"><table class="hub-table">
+            <thead><tr><th>Phrase</th><th>Trade</th><th>Intended meaning</th><th>Warning</th><th>Evidence</th></tr></thead>
+            <tbody id="mine-published-rows"></tbody>
+          </table></div>
+          <div id="mine-published-empty" class="empty">No mined phrases have reached the publish rule yet.</div>
+        </div>
+      </div>
+
       <!-- ===== Settings ===== -->
       <div class="tab-page" id="tab-settings">
         <h2 class="page-title">Settings</h2>
@@ -325,6 +483,7 @@
   <div class="modal">
     <div style="display:flex; align-items:baseline; gap:10px;">
       <h3 id="tx-title" style="flex:1;">Transcript</h3>
+      <button class="btn btn-sm" id="tx-copy">Copy</button>
       <button class="btn btn-sm" id="tx-close">Close</button>
     </div>
     <p class="page-sub" id="tx-meta"></p>
@@ -357,6 +516,9 @@
   let me = null;           // { id, email, display_name }
   let orgsCache = [];
   let teachersCache = [];
+  let vocabCache = [];
+  let aiOutputCache = [];
+  let miningCache = null;
 
   // ---------------- auth gate ----------------
   async function verifyAdmin(user) {
@@ -393,6 +555,9 @@
     loadOrgs().then(() => { loadTeachers(); loadSubscription(); });
     loadSessions();
     loadSettings();
+    loadVocabulary();
+    loadAiReview();
+    loadVideoMining();
   }
   $('gate-submit').addEventListener('click', doLogin);
   $('gate-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
@@ -544,6 +709,7 @@
   async function loadTeachers() {
     const { data, error } = await sb.from('cl_profiles').select('*').eq('role', 'teacher').order('created_at');
     teachersCache = error ? [] : (data || []);
+    renderVocabulary();
     const orgName = Object.fromEntries(orgsCache.map(o => [o.id, o.name]));
     const tbody = $('teacher-rows');
     tbody.innerHTML = '';
@@ -689,7 +855,249 @@
     }).join('');
   }
   $('tx-close').addEventListener('click', () => { $('tx-overlay').style.display = 'none'; });
+  $('tx-copy').addEventListener('click', async () => {
+    await navigator.clipboard.writeText($('tx-body').innerText || '');
+    $('tx-copy').textContent = 'Copied';
+    setTimeout(() => { $('tx-copy').textContent = 'Copy'; }, 1500);
+  });
   $('tx-overlay').addEventListener('click', (e) => { if (e.target === $('tx-overlay')) $('tx-overlay').style.display = 'none'; });
+
+  // ---------------- vocabulary control ----------------
+  async function loadVocabulary() {
+    $('vocab-error').textContent = '';
+    const { data, error } = await sb.from('cl_vocab_terms')
+      .select('*').order('created_at', { ascending: false }).limit(500);
+    vocabCache = error ? [] : (data || []);
+    if (error) $('vocab-error').textContent = 'Vocabulary could not be loaded: ' + error.message;
+
+    const categories = [...new Set(vocabCache.map(v => v.category || 'General'))].sort();
+    const currentCategory = $('vocab-category').value;
+    $('vocab-category').innerHTML = '<option value="">All categories</option>' +
+      categories.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join('');
+    if (categories.includes(currentCategory)) $('vocab-category').value = currentCategory;
+
+    $('vocab-total').textContent = vocabCache.length;
+    $('vocab-verified').textContent = vocabCache.filter(v => v.is_verified).length;
+    $('vocab-review').textContent = vocabCache.filter(v => !v.is_verified).length;
+    $('vocab-languages').textContent = new Set(vocabCache.map(v => v.target_language).filter(Boolean)).size;
+    renderVocabulary();
+  }
+
+  function renderVocabulary() {
+    const search = $('vocab-search').value.trim().toLowerCase();
+    const category = $('vocab-category').value;
+    const status = $('vocab-status').value;
+    const teacherName = Object.fromEntries(teachersCache.map(t => [t.id, t.display_name || t.email || t.id]));
+    const rows = vocabCache.filter(v => {
+      if (category && (v.category || 'General') !== category) return false;
+      if (status === 'verified' && !v.is_verified) return false;
+      if (status === 'review' && v.is_verified) return false;
+      if (!search) return true;
+      const haystack = [v.term, v.translation, v.category, v.source_language, v.target_language, teacherName[v.teacher_id]]
+        .filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(search);
+    });
+    $('vocab-rows').innerHTML = rows.map(v =>
+      '<tr><td data-label="Term"><div class="cell-main">' + esc(v.term) + '</div><div class="cell-sub">Source: ' + esc(v.source_language || 'en') + '</div></td>' +
+      '<td data-label="Category">' + esc(v.category || 'General') + '</td>' +
+      '<td data-label="Translation" class="preview-text">' + esc(v.translation || 'Not translated') + '</td>' +
+      '<td data-label="Language">' + esc(v.target_language || '-') + '</td>' +
+      '<td data-label="Instructor">' + esc(teacherName[v.teacher_id] || 'Unknown') + '</td>' +
+      '<td data-label="Status"><span class="pill ' + (v.is_verified ? 'green' : 'muted') + '">' + (v.is_verified ? 'Verified' : 'Needs review') + '</span></td></tr>'
+    ).join('');
+    $('vocab-empty').style.display = rows.length ? 'none' : 'block';
+  }
+
+  ['vocab-search', 'vocab-category', 'vocab-status'].forEach(id => {
+    $(id).addEventListener(id === 'vocab-search' ? 'input' : 'change', renderVocabulary);
+  });
+
+  // ---------------- saved AI and translation output ----------------
+  async function loadAiReview() {
+    $('ai-error').textContent = '';
+    const [materialsResult, liveResult] = await Promise.all([
+      sb.from('cl_material_translations')
+        .select('id,created_at,target_language,translated_content,translation_status,cl_materials(title,content,teacher_id)')
+        .order('created_at', { ascending: false }).limit(250),
+      sb.from('cl_session_messages')
+        .select('id,created_at,original_text,translations,message_type')
+        .order('created_at', { ascending: false }).limit(250),
+    ]);
+
+    const outputs = [];
+    for (const row of (materialsResult.data || [])) {
+      const material = row.cl_materials || {};
+      outputs.push({
+        id: 'material-' + row.id,
+        created_at: row.created_at,
+        type: 'material',
+        source: material.content || material.title || 'Untitled material',
+        output: row.translated_content || '',
+        language: row.target_language || '-',
+        status: row.translation_status || 'complete',
+      });
+    }
+    for (const row of (liveResult.data || [])) {
+      const translations = row.translations && typeof row.translations === 'object' ? row.translations : {};
+      for (const [language, output] of Object.entries(translations)) {
+        outputs.push({
+          id: 'live-' + row.id + '-' + language,
+          created_at: row.created_at,
+          type: 'live',
+          source: row.original_text || '',
+          output: output || '',
+          language,
+          status: 'complete',
+        });
+      }
+    }
+    aiOutputCache = outputs.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+    const errors = [materialsResult.error, liveResult.error].filter(Boolean);
+    if (errors.length) $('ai-error').textContent = 'Some saved output could not be loaded: ' + errors.map(e => e.message).join(' ');
+
+    $('ai-total').textContent = aiOutputCache.length;
+    $('ai-live').textContent = aiOutputCache.filter(r => r.type === 'live').length;
+    $('ai-materials').textContent = aiOutputCache.filter(r => r.type === 'material').length;
+    $('ai-errors').textContent = aiOutputCache.filter(r => r.status === 'error').length;
+    renderAiReview();
+  }
+
+  function renderAiReview() {
+    const search = $('ai-search').value.trim().toLowerCase();
+    const type = $('ai-type').value;
+    const status = $('ai-status').value;
+    const rows = aiOutputCache.filter(row => {
+      if (type && row.type !== type) return false;
+      if (status && row.status !== status) return false;
+      if (!search) return true;
+      return [row.source, row.output, row.language, row.type, row.status]
+        .filter(Boolean).join(' ').toLowerCase().includes(search);
+    });
+    $('ai-rows').innerHTML = rows.map(row => {
+      const statusClass = row.status === 'error' ? 'red' : row.status === 'complete' ? 'green' : 'muted';
+      return '<tr><td data-label="Created" style="white-space:nowrap;">' + fmtDate(row.created_at) + '</td>' +
+        '<td data-label="Type">' + (row.type === 'material' ? 'Material' : 'Live') + '</td>' +
+        '<td data-label="Source"><div class="preview-text">' + esc(row.source) + '</div></td>' +
+        '<td data-label="Output"><div class="preview-text">' + esc(row.output) + '</div></td>' +
+        '<td data-label="Language">' + esc(row.language) + '</td>' +
+        '<td data-label="Status"><span class="pill ' + statusClass + '">' + esc(row.status) + '</span></td></tr>';
+    }).join('');
+    $('ai-empty').style.display = rows.length ? 'none' : 'block';
+  }
+
+  ['ai-search', 'ai-type', 'ai-status'].forEach(id => {
+    $(id).addEventListener(id === 'ai-search' ? 'input' : 'change', renderAiReview);
+  });
+
+  // ---------------- autonomous video mining ----------------
+  async function miningApi(action, payload = {}) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Your admin session expired. Sign in again.');
+    const options = action ? {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+      body: JSON.stringify({ action, ...payload }),
+    } : { headers: { Authorization: 'Bearer ' + session.access_token } };
+    const response = await fetch('/api/admin/video-mining', options);
+    const result = await response.json().catch(() => ({ error: 'The mining service returned an unreadable response.' }));
+    if (!response.ok || result.error) throw new Error(result.error || 'Video mining request failed.');
+    return result.data;
+  }
+
+  async function loadVideoMining() {
+    try {
+      miningCache = await miningApi();
+      renderVideoMining();
+    } catch (error) {
+      $('mine-config').textContent = error.message;
+      ['mine-queued','mine-published','mine-attention','mine-errors'].forEach(id => $(id).textContent = '-');
+    }
+  }
+
+  function renderVideoMining() {
+    const data = miningCache || { settings: {}, configured: {}, sources: [], candidates: [], phrases: [] };
+    const sources = data.sources || [], candidates = data.candidates || [], phrases = data.phrases || [];
+    $('mine-auto').value = String(!!data.settings.automation_enabled);
+    $('mine-max').value = data.settings.max_videos_per_run || 3;
+    $('mine-terms').value = (data.settings.search_terms || []).join('\n');
+    $('mine-config').textContent = 'YouTube search: ' + (data.configured.youtube ? 'ready' : 'needs API key') +
+      ' | AI extraction: ' + (data.configured.ai ? 'ready' : 'needs API key') +
+      ' | Captions and pasted transcripts stay inside the admin system.';
+    $('mine-queued').textContent = sources.filter(row => row.processing_status === 'queued').length;
+    $('mine-published').textContent = phrases.filter(row => row.active).length;
+    $('mine-attention').textContent = candidates.filter(row => row.status === 'needs_attention').length;
+    $('mine-errors').textContent = sources.filter(row => row.processing_status === 'error').length;
+
+    const review = candidates.filter(row => row.status === 'needs_attention');
+    $('mine-review-rows').innerHTML = review.map(row => '<tr>' +
+      '<td data-label="Phrase"><div class="cell-main">' + esc(row.phrase) + '</div><div class="cell-sub">' + esc(row.trade) + '</div></td>' +
+      '<td data-label="Meaning" class="preview-text">' + esc(row.plain_english_meaning) + '</td>' +
+      '<td data-label="Evidence">' + esc(row.independent_source_count) + ' sources<br>' + Math.round(Number(row.confidence || 0) * 100) + '% confidence</td>' +
+      '<td data-label="Reason" class="preview-text">' + esc(row.attention_reason || 'Meaning needs a decision.') + '</td>' +
+      '<td data-label="Decision"><div class="decision-row"><button class="btn btn-sm" data-mine-approve="' + row.id + '">Approve</button><button class="btn btn-sm btn-danger" data-mine-reject="' + row.id + '">Reject</button></div></td></tr>').join('');
+    $('mine-review-empty').style.display = review.length ? 'none' : 'block';
+
+    $('mine-source-rows').innerHTML = sources.map(row => '<tr>' +
+      '<td data-label="Source"><div class="cell-main">' + esc(row.title || 'Untitled source') + '</div><div class="cell-sub">' + esc(row.channel_name || 'Unknown channel') + '</div></td>' +
+      '<td data-label="Origin">' + esc(row.discovery_mode === 'manual_transcript' ? 'Pasted transcript' : 'YouTube') + '</td>' +
+      '<td data-label="Transcript"><span class="pill ' + (row.transcript_status === 'ready' ? 'green' : row.transcript_status === 'error' || row.transcript_status === 'no_captions' ? 'red' : 'muted') + '">' + esc(row.transcript_status) + '</span></td>' +
+      '<td data-label="Processing"><span class="pill ' + (row.processing_status === 'complete' ? 'green' : row.processing_status === 'error' ? 'red' : 'muted') + '">' + esc(row.processing_status) + '</span>' + (row.error_message ? '<div class="cell-sub">' + esc(row.error_message) + '</div>' : '') + '</td>' +
+      '<td data-label="Added">' + fmtDate(row.created_at) + '</td>' +
+      '<td data-label="Open"><button class="btn btn-sm" data-mine-transcript="' + row.id + '">View</button></td></tr>').join('');
+    $('mine-source-empty').style.display = sources.length ? 'none' : 'block';
+
+    $('mine-published-rows').innerHTML = phrases.map(row => '<tr>' +
+      '<td data-label="Phrase"><div class="cell-main">' + esc(row.phrase) + '</div></td>' +
+      '<td data-label="Trade">' + esc(row.trade) + '</td>' +
+      '<td data-label="Intended meaning" class="preview-text">' + esc(row.plain_english_meaning) + '</td>' +
+      '<td data-label="Warning" class="preview-text">' + esc(row.translation_warning || 'Translate the intended field meaning.') + '</td>' +
+      '<td data-label="Evidence">' + esc(row.independent_source_count) + ' sources<br>' + Math.round(Number(row.confidence || 0) * 100) + '%</td></tr>').join('');
+    $('mine-published-empty').style.display = phrases.length ? 'none' : 'block';
+  }
+
+  async function runMiningAction(button, action, payload, success) {
+    $('mine-status').textContent = 'Working...';
+    button.disabled = true;
+    try {
+      await miningApi(action, payload);
+      $('mine-status').textContent = success;
+      await loadVideoMining();
+    } catch (error) { $('mine-status').textContent = error.message; }
+    finally { button.disabled = false; }
+  }
+
+  $('mine-save').addEventListener('click', e => runMiningAction(e.currentTarget, 'save_settings', { settings: {
+    automation_enabled: $('mine-auto').value === 'true', max_videos_per_run: $('mine-max').value,
+    search_terms: $('mine-terms').value.split('\n'),
+    trades: miningCache && miningCache.settings.trades, trusted_channels: miningCache && miningCache.settings.trusted_channels,
+    blocked_channels: miningCache && miningCache.settings.blocked_channels,
+  } }, 'Automation settings saved.'));
+  $('mine-run').addEventListener('click', e => runMiningAction(e.currentTarget, 'run', { limit: $('mine-max').value }, 'Mining run finished.'));
+  $('mine-search-btn').addEventListener('click', e => runMiningAction(e.currentTarget, 'search', { query: $('mine-search').value }, 'Matching captioned videos were queued.'));
+  $('mine-url-btn').addEventListener('click', e => runMiningAction(e.currentTarget, 'add_url', { url: $('mine-url').value }, 'Video queued.'));
+  $('mine-paste-btn').addEventListener('click', e => runMiningAction(e.currentTarget, 'add_transcript', {
+    title: $('mine-title').value, channel_name: $('mine-channel').value, transcript: $('mine-transcript').value,
+  }, 'Transcript queued.'));
+  $('mine-review-rows').addEventListener('click', e => {
+    const approve = e.target.closest('[data-mine-approve]');
+    const reject = e.target.closest('[data-mine-reject]');
+    const button = approve || reject;
+    if (button) runMiningAction(button, 'review', { id: approve ? approve.dataset.mineApprove : reject.dataset.mineReject, decision: approve ? 'approve' : 'reject' }, approve ? 'Phrase published.' : 'Candidate rejected.');
+  });
+  $('mine-source-rows').addEventListener('click', async e => {
+    const button = e.target.closest('[data-mine-transcript]');
+    if (!button) return;
+    button.disabled = true;
+    try {
+      const source = await miningApi('transcript', { id: button.dataset.mineTranscript });
+      $('tx-title').textContent = source.title || 'Source transcript';
+      $('tx-meta').textContent = source.channel_name || 'Trade source';
+      $('tx-body').innerHTML = source.transcript_text
+        ? '<div class="transcript-line" style="white-space:pre-wrap; line-height:1.6;">' + esc(source.transcript_text) + '</div>'
+        : '<div class="empty">' + esc(source.error_message || 'Transcript has not been pulled yet.') + '</div>';
+      $('tx-overlay').style.display = 'flex';
+    } catch (error) { $('mine-status').textContent = error.message; }
+    finally { button.disabled = false; }
+  });
 
   // ---------------- settings ----------------
   function renderSettingChecks() {

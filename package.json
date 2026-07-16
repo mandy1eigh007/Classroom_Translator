@@ -7,8 +7,11 @@
     "build": "npm run build:css",
     "build:css": "tailwindcss -i ./tailwind.input.css -o ./public/tailwind.css --minify",
     "dev": "wrangler pages dev",
+    "dev:miner": "wrangler dev --config wrangler.video-miner.jsonc --test-scheduled",
+    "check:miner": "wrangler deploy --config wrangler.video-miner.jsonc --dry-run",
     "deploy": "wrangler pages deploy",
-    "test:smoke": "node tests/release-smoke.mjs"
+    "test:smoke": "node tests/release-smoke.mjs",
+    "test:mining": "node tests/video-mining.test.mjs"
   },
   "devDependencies": {
     "playwright": "^1.61.1",

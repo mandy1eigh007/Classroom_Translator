@@ -212,7 +212,20 @@ export function modeCtxFrom(session) {
   };
 }
 
+async function matchingTradePhrases(env, text) {
+  if (!env.SESSION_KV) return { version: 0, matches: [] };
+  const lexicon = await env.SESSION_KV.get('trade-lexicon:v1', 'json');
+  if (!lexicon || !Array.isArray(lexicon.phrases)) return { version: 0, matches: [] };
+  const input = String(text || '').toLowerCase().replace(/[\u2018\u2019]/g, "'");
+  const matches = lexicon.phrases.filter(item => {
+    const terms = [item.phrase, ...(Array.isArray(item.variants) ? item.variants : [])];
+    return terms.some(term => term && input.includes(String(term).toLowerCase()));
+  }).slice(0, 12);
+  return { version: Number(lexicon.version) || 0, matches };
+}
+
 export async function translateOpenAI(env, text, langName, timeoutMs = 15000, modeCtx = null) {
+  const tradeLexicon = await matchingTradePhrases(env, text);
   let system =
     `Translate the user's English text into ${langName}. ` +
     `Reply with ONLY the translated text — no quotes, no explanation, no language tags, no transliteration. ` +
@@ -224,6 +237,13 @@ export async function translateOpenAI(env, text, langName, timeoutMs = 15000, mo
       `Use accurate trade terminology in ${langName}.` +
       (modeCtx.terms.length ? ` Key terms: ${modeCtx.terms.join(', ')}.` : '') +
       ' ' + system;
+  }
+  if (tradeLexicon.matches.length) {
+    const guidance = tradeLexicon.matches.map(item =>
+      `${item.phrase}: means ${item.plain_english_meaning}` +
+      (item.translation_warning ? `; warning: ${item.translation_warning}` : '')
+    ).join('\n');
+    system = `Recognize these approved jobsite meanings and translate their intent, never their misleading literal wording:\n${guidance}\n\n${system}`;
   }
   const out = await openaiChat(env, {
     model: 'gpt-4o-mini',
@@ -306,7 +326,9 @@ export async function translateAll(env, text, langName, timeoutMs = 15000, modeC
 export async function cachedTranslate(env, text, langName, timeoutMs = 15000, modeCtx = null) {
   if (langName === 'English') return text;
   const modeSuffix = modeCtx && modeCtx.mode ? `:${modeCtx.mode}` : '';
-  const key = `trh:${await sha1(text)}:${langName}${modeSuffix}`;
+  const lexicon = await matchingTradePhrases(env, text);
+  const lexiconSuffix = lexicon.version ? `:lex${lexicon.version}` : '';
+  const key = `trh:${await sha1(text)}:${langName}${modeSuffix}${lexiconSuffix}`;
   const hit = await env.SESSION_KV.get(key);
   if (hit != null) return hit;
   const tr = await translateAll(env, text, langName, timeoutMs, modeCtx);
