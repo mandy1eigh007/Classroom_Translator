@@ -1024,10 +1024,10 @@
       ' | Captions and pasted transcripts stay inside the admin system.';
     $('mine-queued').textContent = sources.filter(row => row.processing_status === 'queued').length;
     $('mine-published').textContent = phrases.filter(row => row.active).length;
-    $('mine-attention').textContent = candidates.filter(row => row.status === 'needs_attention').length;
+    $('mine-attention').textContent = candidates.filter(row => row.status === 'needs_attention' || row.status === 'candidate').length;
     $('mine-errors').textContent = sources.filter(row => row.processing_status === 'error').length;
 
-    const review = candidates.filter(row => row.status === 'needs_attention');
+    const review = candidates.filter(row => row.status === 'needs_attention' || row.status === 'candidate');
     $('mine-review-rows').innerHTML = review.map(row => '<tr>' +
       '<td data-label="Phrase"><div class="cell-main">' + esc(row.phrase) + '</div><div class="cell-sub">' + esc(row.trade) + '</div></td>' +
       '<td data-label="Meaning" class="preview-text">' + esc(row.plain_english_meaning) + '</td>' +

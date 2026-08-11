@@ -25,3 +25,10 @@ Summary: Added pre-commit checklist and linked it from handoff index.
 Files: handoff/CHECKLIST.md, handoff/README.md, handoff/WORKLOG.md
 Validation: Created checklist file and updated references.
 Notes: Checklist should be used before each commit.
+
+Date: 2026-08-11
+Owner: Codex
+Summary: Adjusted video mining so high-confidence trade-language candidates can publish, uncertain terms route to admin review, queued videos process before discovery, and non-English caption tracks can be selected.
+Files: functions/api/_video_mining.js, functions/api/_youtube.js, public/admin.html, tests/video-mining.test.mjs, handoff/WORKLOG.md, handoff/DECISIONS.md
+Validation: `npm run test:mining`, `npm run build`, and `git diff --check` passed.
+Notes: Live database backfill was already completed separately: 65 active mined phrases and 302 review items.

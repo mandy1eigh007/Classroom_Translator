@@ -1,5 +1,9 @@
 const YOUTUBE_API = 'https://www.googleapis.com/youtube/v3';
 const CAPTION_TIMEOUT = 10000;
+const YOUTUBE_ANDROID_CLIENT = {
+  clientName: 'ANDROID', clientVersion: '20.10.38', androidSdkVersion: 30,
+  hl: 'en', gl: 'US',
+};
 
 export function parseYouTubeId(value) {
   if (typeof value !== 'string') return null;
@@ -43,7 +47,59 @@ async function readTextLimited(response, maxBytes) {
   return output + decoder.decode();
 }
 
-export async function fetchCaptions(videoId) {
+export async function fetchCaptions(videoId, preferredLanguages = ['en']) {
+  let tracks;
+  try { tracks = await fetchPlayerCaptionTracks(videoId); }
+  catch (playerError) {
+    try { tracks = await fetchPageCaptionTracks(videoId); }
+    catch (pageError) {
+      throw new Error(`Could not load YouTube captions: ${pageError.message || playerError.message}`);
+    }
+  }
+  if (!Array.isArray(tracks) || !tracks.length) throw new Error('No captions for this video');
+  const track = selectCaptionTrack(tracks, preferredLanguages);
+  if (!track || !track.baseUrl) throw new Error('No usable caption track');
+
+  const captionResponse = await fetch(track.baseUrl, { signal: AbortSignal.timeout(CAPTION_TIMEOUT) });
+  if (!captionResponse.ok) throw new Error(`Caption track returned ${captionResponse.status}`);
+  const xml = await readTextLimited(captionResponse, 2_000_000);
+  const cues = parseCaptionXml(xml);
+  if (!cues.length) throw new Error('Caption track was empty');
+  Object.defineProperty(cues, 'languageCode', { value: track.languageCode || 'unknown', enumerable: false });
+  return cues;
+}
+
+function selectCaptionTrack(tracks, preferredLanguages = ['en']) {
+  const wanted = (Array.isArray(preferredLanguages) ? preferredLanguages : String(preferredLanguages || '').split(','))
+    .map(value => String(value || '').toLowerCase().trim()).filter(Boolean);
+  for (const lang of wanted) {
+    const exact = tracks.find(item => String(item.languageCode || '').toLowerCase() === lang);
+    if (exact) return exact;
+    const prefix = tracks.find(item => String(item.languageCode || '').toLowerCase().startsWith(`${lang}-`));
+    if (prefix) return prefix;
+  }
+  return tracks.find(item => String(item.languageCode || '').startsWith('en')) || tracks[0];
+}
+
+async function fetchPlayerCaptionTracks(videoId) {
+  const response = await fetch('https://www.youtube.com/youtubei/v1/player?prettyPrint=false', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'User-Agent': 'com.google.android.youtube/20.10.38' },
+    body: JSON.stringify({
+      context: { client: YOUTUBE_ANDROID_CLIENT }, videoId,
+      contentCheckOk: true, racyCheckOk: true,
+    }),
+    signal: AbortSignal.timeout(CAPTION_TIMEOUT),
+  });
+  if (!response.ok) throw new Error(`YouTube player returned ${response.status}`);
+  const data = await response.json();
+  const tracks = data && data.captions && data.captions.playerCaptionsTracklistRenderer
+    && data.captions.playerCaptionsTracklistRenderer.captionTracks;
+  if (!Array.isArray(tracks) || !tracks.length) throw new Error('No captions for this video');
+  return tracks;
+}
+
+async function fetchPageCaptionTracks(videoId) {
   const page = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
     headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
     signal: AbortSignal.timeout(CAPTION_TIMEOUT),
@@ -56,34 +112,46 @@ export async function fetchCaptions(videoId) {
   try { tracks = JSON.parse(match[1]); }
   catch (_) { throw new Error('Could not read caption data'); }
   if (!Array.isArray(tracks) || !tracks.length) throw new Error('No captions for this video');
-  const track = tracks.find(item => String(item.languageCode || '').startsWith('en')) || tracks[0];
-  if (!track || !track.baseUrl) throw new Error('No usable caption track');
+  return tracks;
+}
 
-  const captionResponse = await fetch(track.baseUrl, { signal: AbortSignal.timeout(CAPTION_TIMEOUT) });
-  if (!captionResponse.ok) throw new Error(`Caption track returned ${captionResponse.status}`);
-  const xml = await readTextLimited(captionResponse, 2_000_000);
+export function parseCaptionXml(xml) {
   const cues = [];
-  const pattern = /<text start="([\d.]+)" dur="([\d.]+)"[^>]*>([\s\S]*?)<\/text>/g;
+  const legacyPattern = /<text start="([\d.]+)" dur="([\d.]+)"[^>]*>([\s\S]*?)<\/text>/g;
   let part;
-  while ((part = pattern.exec(xml))) {
+  while ((part = legacyPattern.exec(xml))) {
     const text = decodeXml(part[3]).replace(/\s+/g, ' ').trim();
     if (text) cues.push({ start: Number(part[1]), dur: Number(part[2]), text });
   }
-  if (!cues.length) throw new Error('Caption track was empty');
+  if (cues.length) return cues;
+
+  const srv3Pattern = /<p\b([^>]*)>([\s\S]*?)<\/p>/g;
+  while ((part = srv3Pattern.exec(String(xml || '')))) {
+    const start = Number(attributeValue(part[1], 't')) / 1000;
+    const dur = Number(attributeValue(part[1], 'd')) / 1000;
+    const text = decodeXml(part[2]).replace(/\s+/g, ' ').trim();
+    if (text && Number.isFinite(start)) cues.push({ start, dur: Number.isFinite(dur) ? dur : 0, text });
+  }
   return cues;
+}
+
+function attributeValue(value, name) {
+  const match = String(value || '').match(new RegExp(`(?:^|\\s)${name}="([\\d.]+)"`));
+  return match ? match[1] : '';
 }
 
 export function cuesToTranscript(cues) {
   return (Array.isArray(cues) ? cues : []).map(cue => String(cue.text || '').trim()).filter(Boolean).join(' ');
 }
 
-export async function searchYouTube(env, query, maxResults = 12) {
+export async function searchYouTube(env, query, maxResults = 12, relevanceLanguage = null) {
   if (!env.YOUTUBE_API_KEY) throw new Error('YouTube search is not configured');
   const size = Math.max(1, Math.min(25, Number(maxResults) || 12));
   const params = new URLSearchParams({
     part: 'snippet', type: 'video', videoCaption: 'closedCaption', safeSearch: 'moderate',
     maxResults: String(size), q: String(query || '').trim(), key: env.YOUTUBE_API_KEY,
   });
+  if (relevanceLanguage) params.set('relevanceLanguage', String(relevanceLanguage).slice(0, 8));
   const searchResponse = await fetch(`${YOUTUBE_API}/search?${params}`, {
     signal: AbortSignal.timeout(12000),
   });

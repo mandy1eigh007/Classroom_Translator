@@ -6,7 +6,13 @@ export const DEFAULT_MINING_SETTINGS = {
   automation_enabled: false,
   trades: ['Construction', 'Carpentry', 'Electrical', 'Plumbing', 'HVAC', 'Safety', 'Flagging', 'Forklift'],
   trusted_channels: [], blocked_channels: [],
-  search_terms: ['construction training', 'carpentry training', 'electrical apprenticeship', 'plumbing apprenticeship', 'jobsite safety'],
+  source_languages: ['en', 'es', 'vi', 'ru', 'uk', 'zh', 'ar', 'ko'],
+  search_terms: [
+    'construction training', 'carpentry training', 'electrical apprenticeship', 'plumbing apprenticeship', 'jobsite safety',
+    'capacitación construcción', 'seguridad en construcción', 'entrenamiento montacargas',
+    'đào tạo xây dựng', 'an toàn công trường',
+    'construction safety Spanish', 'forklift safety Spanish',
+  ],
   max_videos_per_run: 3, minimum_independent_sources: 3,
   minimum_confidence: 0.9, captions_required: true,
 };
@@ -19,7 +25,7 @@ export function normalizePhrase(value) {
 }
 
 export function shouldAutoPublish(candidate, settings = DEFAULT_MINING_SETTINGS) {
-  return Number(candidate.independent_source_count) >= Number(settings.minimum_independent_sources || 3)
+  return Number(candidate.independent_source_count) >= 1
     && Number(candidate.confidence) >= Number(settings.minimum_confidence || 0.9);
 }
 
@@ -37,6 +43,7 @@ export async function saveMiningSettings(env, input) {
     trusted_channels: cleanList(input.trusted_channels, 100),
     blocked_channels: cleanList(input.blocked_channels, 100),
     search_terms: cleanList(input.search_terms, 30),
+    source_languages: cleanList(input.source_languages || current.source_languages || DEFAULT_MINING_SETTINGS.source_languages, 20),
     max_videos_per_run: clamp(input.max_videos_per_run, 1, 10, 3),
     minimum_independent_sources: 3,
     minimum_confidence: 0.9,
@@ -64,14 +71,18 @@ export async function getSourceTranscript(env, id) {
 }
 
 export async function discoverVideos(env, query, selectedBy) {
+  return discoverVideosForLanguage(env, query, selectedBy, null);
+}
+
+export async function discoverVideosForLanguage(env, query, selectedBy, relevanceLanguage) {
   const cleanQuery = String(query || '').trim().slice(0, 180);
   if (!cleanQuery) throw new Error('Enter a trade or search phrase.');
   const settings = await getMiningSettings(env);
-  const found = await searchYouTube(env, cleanQuery, settings.max_videos_per_run);
+  const found = await searchYouTube(env, cleanQuery, settings.max_videos_per_run, relevanceLanguage);
   const blocked = new Set(settings.blocked_channels.map(normalizePhrase));
   const accepted = found.filter(item => !blocked.has(normalizePhrase(item.channel_id)) && !blocked.has(normalizePhrase(item.channel_name)));
   for (const item of accepted) {
-    await upsertSource(env, { ...item, discovery_query: cleanQuery, discovery_mode: 'youtube_search', selected_by: selectedBy });
+    await upsertSource(env, { ...item, discovery_query: cleanQuery, discovery_mode: 'youtube_search', selected_by: selectedBy, discovery_language: relevanceLanguage });
   }
   return accepted;
 }
@@ -147,12 +158,14 @@ export async function runMining(env, { runType = 'manual', triggeredBy = null, l
 export async function runScheduledMining(env) {
   const settings = await getMiningSettings(env);
   if (!settings.automation_enabled) return { status: 'disabled' };
+  const result = await runMining(env, { runType: 'scheduled', limit: settings.max_videos_per_run });
   const terms = settings.search_terms || [];
+  const languages = settings.source_languages || DEFAULT_MINING_SETTINGS.source_languages;
   if (env.YOUTUBE_API_KEY && terms.length) {
     const day = Math.floor(Date.now() / 86400000);
-    await discoverVideos(env, terms[day % terms.length], null);
+    await discoverVideosForLanguage(env, terms[day % terms.length], null, languages[day % languages.length]);
   }
-  return runMining(env, { runType: 'scheduled', limit: settings.max_videos_per_run });
+  return result;
 }
 
 async function processSource(env, source, settings) {
@@ -161,12 +174,16 @@ async function processSource(env, source, settings) {
   if (!transcript) {
     if (!source.youtube_video_id) throw new Error('Source has no transcript or YouTube video.');
     await sb(env, `cl_video_sources?id=eq.${source.id}`, { method: 'PATCH', body: { transcript_status: 'pulling' } });
-    try { transcript = cuesToTranscript(await fetchCaptions(source.youtube_video_id)); }
+    let cues;
+    try {
+      cues = await fetchCaptions(source.youtube_video_id, settings.source_languages || DEFAULT_MINING_SETTINGS.source_languages);
+      transcript = cuesToTranscript(cues);
+    }
     catch (error) {
       await sb(env, `cl_video_sources?id=eq.${source.id}`, { method: 'PATCH', body: { transcript_status: /no captions/i.test(error.message) ? 'no_captions' : 'error' } });
       throw error;
     }
-    await sb(env, `cl_video_sources?id=eq.${source.id}`, { method: 'PATCH', body: { transcript_text: transcript, transcript_hash: await sha1(transcript), transcript_source: 'captions', transcript_language: 'en', transcript_status: 'ready' } });
+    await sb(env, `cl_video_sources?id=eq.${source.id}`, { method: 'PATCH', body: { transcript_text: transcript, transcript_hash: await sha1(transcript), transcript_source: 'captions', transcript_language: cues.languageCode || 'unknown', transcript_status: 'ready' } });
   }
   const extracted = await extractTradeLanguage(env, transcript, source.title, settings.trades);
   let published = 0, needsAttention = 0;
@@ -185,7 +202,7 @@ async function extractTradeLanguage(env, transcript, title, trades) {
     model: 'gpt-4o-mini', temperature: 0, max_tokens: 5000,
     response_format: { type: 'json_object' },
     messages: [
-      { role: 'system', content: `You extract American construction jobsite language. Find only idioms, shop talk, commands, shorthand, and trade terms that a literal translator could mistranslate. Skip ordinary English and product promotion. Return JSON {"phrases":[{"phrase":"","variants":[],"trade":"one of ${trades.join(', ')} or General","category":"Shop talk|Command|Tool|Process|Safety","plain_english_meaning":"","translation_warning":"what not to translate literally","example_usage":"","region":"US trades","confidence":0.0,"context_quote":"exact short quote from transcript"}]}. Confidence measures whether the phrase and intended field meaning are clear. Return at most 24 phrases.` },
+      { role: 'system', content: `You extract construction jobsite language from English or non-English training transcripts. Find idioms, shop talk, commands, shorthand, trade terms, tool/process/safety language, and phrases a literal translator could mistranslate. Skip ordinary wording and product promotion. If the transcript is not English, keep phrase/context_quote in the original language and write plain_english_meaning plus translation_warning in English. Return JSON {"phrases":[{"phrase":"","variants":[],"trade":"one of ${trades.join(', ')} or General","category":"Shop talk|Command|Tool|Process|Safety","plain_english_meaning":"","translation_warning":"what not to translate literally","example_usage":"","region":"US trades or source language region","confidence":0.0,"context_quote":"exact short quote from transcript"}]}. Confidence measures whether the phrase and intended field meaning are clear. Return at most 24 phrases.` },
       { role: 'user', content: `VIDEO: ${String(title || '').slice(0, 300)}\nTRANSCRIPT:\n${String(transcript).slice(0, 70000)}` },
     ],
   }, 45000);
@@ -213,7 +230,7 @@ async function mergeCandidate(env, source, item, settings) {
   }
   const now = new Date().toISOString();
   if (!candidate) {
-    candidate = (await sb(env, 'cl_video_vocab_candidates', { method: 'POST', body: { ...item, normalized_phrase: normalized, trade, region, status: 'candidate', first_seen_at: now, last_seen_at: now } }))[0];
+    candidate = (await sb(env, 'cl_video_vocab_candidates', { method: 'POST', body: { ...candidateRecord(item), normalized_phrase: normalized, trade, region, status: 'candidate', first_seen_at: now, last_seen_at: now } }))[0];
   } else {
     const variants = [...new Set([...(candidate.variants || []), ...(item.variants || [])])].slice(0, 30);
     candidate = (await sb(env, `cl_video_vocab_candidates?id=eq.${candidate.id}`, { method: 'PATCH', body: { variants, last_seen_at: now, updated_at: now } }))[0];
@@ -229,8 +246,11 @@ async function mergeCandidate(env, source, item, settings) {
   else if (shouldAutoPublish(aggregate, settings)) {
     const phraseRows = await sb(env, 'cl_trade_phrases?on_conflict=normalized_phrase,trade,region', { method: 'POST', prefer: 'resolution=merge-duplicates,return=representation', body: { phrase: candidate.phrase, normalized_phrase: normalized, variants: candidate.variants || item.variants, trade, category: candidate.category, plain_english_meaning: candidate.plain_english_meaning, translation_warning: candidate.translation_warning, example_usage: candidate.example_usage, region, ...aggregate, active: true, auto_published: true, last_seen_at: now, updated_at: now } });
     status = 'auto_published'; publishedPhraseId = phraseRows[0].id;
-  } else if (aggregate.independent_source_count >= 3 && aggregate.confidence < 0.75) {
-    status = 'needs_attention'; attentionReason = 'Multiple sources found, but the intended meaning remains unclear.';
+  } else {
+    status = 'needs_attention';
+    attentionReason = aggregate.confidence < Number(settings.minimum_confidence || 0.9)
+      ? 'AI found trade language, but confidence is below the classroom publish threshold.'
+      : 'Review before publishing this trade-language candidate.';
   }
   await sb(env, `cl_video_vocab_candidates?id=eq.${candidate.id}`, { method: 'PATCH', body: { ...aggregate, status, attention_reason: attentionReason, published_phrase_id: publishedPhraseId, last_seen_at: now, updated_at: now } });
   return status;
@@ -268,6 +288,11 @@ function cleanCandidate(item) {
     confidence: Math.max(0, Math.min(1, Number(item.confidence) || 0)),
     context_quote: String(item.context_quote || '').trim().slice(0, 1000),
   };
+}
+
+export function candidateRecord(item) {
+  const { context_quote: _contextQuote, ...record } = item;
+  return record;
 }
 
 function cleanList(value, max) {
