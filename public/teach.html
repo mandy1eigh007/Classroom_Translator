@@ -10,6 +10,8 @@
   <!-- Client-side QR generation (the old server-side /qr.png is gone; this
        keeps the join QR working with zero server code and no third parties). -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <!-- Client-side PDF prep: Cloudflare Workers store prepared pages, but do not run Node PDF parsers. -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <!-- Supabase (transcript archiving when the instructor is signed in) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="/supabase-config.js"></script>
@@ -129,12 +131,12 @@
     <section class="card card--lime">
       <h3 class="card-title">Share a document</h3>
       <div class="input-row" style="margin-bottom:8px;">
-        <input id="doc-file" type="file" accept=".txt,.png,.jpg,.jpeg,.webp,.gif,text/plain,image/*"
+        <input id="doc-file" type="file" accept=".txt,.pdf,.png,.jpg,.jpeg,.webp,.gif,text/plain,application/pdf,image/*"
                style="font-size:12px;" />
         <button id="doc-upload" class="btn btn-primary" type="button">Upload</button>
         <button id="doc-clear" class="btn" type="button" style="display:none; width:auto;">Clear</button>
       </div>
-      <p class="hint" style="margin:0 0 8px;">TXT and image files are supported. For PDF or DOCX content, export the page as text or upload a clear image of the page.</p>
+      <p class="hint" style="margin:0 0 8px;">PDF, TXT, and image files are supported. DOCX/PPTX should be exported as PDF first.</p>
       <p id="doc-err" style="display:none; color:var(--red); font-size:12px; margin:0 0 8px;"></p>
       <div id="doc-nav" style="display:none; padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -462,7 +464,7 @@
     try {
       QRCode.toDataURL(url, {
         errorCorrectionLevel: 'M', margin: 2, width: 400,
-        color: { dark: '#2a1a0f', light: '#ffffff' },
+        color: { dark: '#06131d', light: '#ffffff' },
       }, (err, dataUrl) => { if (!err && dataUrl) imgEl.src = dataUrl; });
     } catch (_) {}
   }
@@ -1637,6 +1639,11 @@
   const docPageImgWrap = document.getElementById('doc-page-img-wrap');
   const docPageImgEl = document.getElementById('doc-page-img');
   let docInfo = null; // { docId, name, pageCount, currentPage, hasImage }
+  const MAX_PDF_PAGES = 20;
+
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  }
 
   docPageImgEl.addEventListener('load', () => { docPageImgWrap.style.display = 'block'; });
   docPageImgEl.addEventListener('error', () => { docPageImgWrap.style.display = 'none'; });
@@ -1685,20 +1692,71 @@
     }
   }
 
+  function isPdfFile(file) {
+    return file && (file.type === 'application/pdf' || /\.pdf$/i.test(file.name || ''));
+  }
+
+  async function preparePdfPages(file) {
+    if (!window.pdfjsLib) throw new Error('PDF reader did not load. Refresh and try again.');
+    const data = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data }).promise;
+    const pageTotal = Math.min(pdf.numPages || 0, MAX_PDF_PAGES);
+    if (!pageTotal) throw new Error('That PDF did not contain readable pages.');
+
+    const pages = [];
+    for (let pageNumber = 1; pageNumber <= pageTotal; pageNumber++) {
+      setDocBusy(true, 'Reading PDF ' + pageNumber + '/' + pageTotal);
+      const page = await pdf.getPage(pageNumber);
+      let text = '';
+      try {
+        const content = await page.getTextContent();
+        text = (content.items || []).map(item => item.str || '').join(' ').replace(/\s+/g, ' ').trim();
+      } catch (_) {
+        text = '';
+      }
+
+      const viewport = page.getViewport({ scale: 1.15 });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d', { alpha: false });
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      await page.render({ canvasContext: context, viewport }).promise;
+      pages.push({
+        text,
+        imageDataUrl: canvas.toDataURL('image/jpeg', 0.82),
+      });
+    }
+
+    if ((pdf.numPages || 0) > MAX_PDF_PAGES) {
+      showDocErr('Loaded the first ' + MAX_PDF_PAGES + ' pages. Split larger PDFs before sharing.');
+    }
+    return pages;
+  }
+
   docUploadBtn.addEventListener('click', async () => {
     showDocErr('');
     const f = docFileEl.files && docFileEl.files[0];
     if (!f) { showDocErr('Pick a file first.'); return; }
-    const fd = new FormData();
-    fd.append('file', f);
     const isImageLike = /^image\//.test(f.type) || /\.(png|jpe?g|webp|gif)$/i.test(f.name);
-    setDocBusy(true, isImageLike ? 'Reading…' : 'Uploading…');
+    setDocBusy(true, isPdfFile(f) ? 'Reading PDF…' : isImageLike ? 'Reading…' : 'Uploading…');
     try {
-      const r = await fetch('/api/document', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: fd
-      });
+      let r;
+      if (isPdfFile(f)) {
+        const pages = await preparePdfPages(f);
+        r = await fetch('/api/document', {
+          method: 'POST',
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ action: 'uploadParsed', sourceType: 'pdf', name: f.name, pages })
+        });
+      } else {
+        const fd = new FormData();
+        fd.append('file', f);
+        r = await fetch('/api/document', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: fd
+        });
+      }
       if (r.status === 401) { dropAuth(); showGate(); return; }
       const d = await r.json().catch(() => ({}));
       if (!d || !d.ok) { showDocErr((d && d.error) || 'Upload failed.'); return; }
@@ -1707,7 +1765,7 @@
       docPageTextEl.scrollTop = 0;
       renderDoc();
     } catch (e) {
-      showDocErr('Upload failed.');
+      showDocErr((e && e.message) || 'Upload failed.');
     } finally {
       setDocBusy(false);
     }

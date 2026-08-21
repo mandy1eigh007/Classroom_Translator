@@ -10,9 +10,10 @@
 // SUPPORTED UPLOADS on Workers:
 //   .txt        read as text (single page)
 //   images      (png/jpg/webp/gif) stored + OCR'd via OpenAI vision
+//   .pdf        prepared client-side by the teacher page, then stored here
 // STUBBED (Node parsing libs don't run in Workers):
-//   .pdf/.docx/.pptx -> 415 { error: "PDF/DOCX parsing coming soon —
-//                        please share as plain text or image for now" }
+//   .docx/.pptx -> 415 { error: "DOCX/PPTX parsing coming soon —
+//                        please share as PDF, plain text, or image for now" }
 //
 // Students see the page image (if any) + English text; translation happens
 // client-side through /api/translate (KV-cached once per language).
@@ -57,7 +58,9 @@ export async function onRequest(context) {
 
     if (isStubbed) {
       return json({
-        error: 'PDF/DOCX parsing coming soon — please share as plain text or image for now',
+        error: lower.endsWith('.pdf') || /pdf/.test(mime)
+          ? 'PDF uploads are prepared in the browser. Refresh this page and try the PDF again.'
+          : 'DOCX/PPTX parsing coming soon — please share as PDF, plain text, or image for now',
         stubbed: true,
       }, 415);
     }
@@ -81,7 +84,7 @@ export async function onRequest(context) {
         catch (_) { /* image-only page is still fine */ }
       }
     } else {
-      return json({ error: 'Unsupported file type. Use TXT or an image (JPG/PNG) — PDF/DOCX coming soon.' }, 415);
+      return json({ error: 'Unsupported file type. Use TXT, PDF, or an image (JPG/PNG).' }, 415);
     }
 
     const meta = { docId, name, type: isTxt ? 'txt' : 'image', pageCount: 1, currentPage: 0, hasImage };
@@ -106,6 +109,50 @@ export async function onRequest(context) {
     s.docV += 1;
     await putSession(env, s);
     return json({ ok: true });
+  }
+
+  if (action === 'uploadParsed') {
+    const name = String(body.name || 'document.pdf').slice(0, 120);
+    const pagesIn = Array.isArray(body.pages) ? body.pages.slice(0, 20) : [];
+    if (!pagesIn.length) return json({ error: 'No readable PDF pages found.' }, 400);
+
+    const docId = 'd' + Date.now().toString(36);
+    let hasImage = false;
+    const pages = [];
+
+    for (let i = 0; i < pagesIn.length; i++) {
+      const page = pagesIn[i] || {};
+      const text = String(page.text || '').trim().slice(0, 100000);
+      const imageDataUrl = String(page.imageDataUrl || '');
+      let imageStored = false;
+
+      if (imageDataUrl) {
+        const parsed = parseImageDataUrl(imageDataUrl);
+        if (!parsed) return json({ error: 'PDF page image could not be read.' }, 400);
+        await env.SESSION_KV.put(`doc:img:${docId}:${i}`, parsed.bytes, {
+          metadata: { mime: parsed.mime },
+          expirationTtl: DOC_TTL,
+        });
+        hasImage = true;
+        imageStored = true;
+      }
+
+      await env.SESSION_KV.put(`doc:page:${docId}:${i}`, text, { expirationTtl: DOC_TTL });
+      pages.push({ text, imageStored });
+    }
+
+    const meta = {
+      docId,
+      name,
+      type: body.sourceType === 'pdf' ? 'pdf' : 'prepared',
+      pageCount: pages.length,
+      currentPage: 0,
+      hasImage,
+    };
+    await env.SESSION_KV.put('doc:meta', JSON.stringify(meta));
+    s.docV += 1;
+    await putSession(env, s);
+    return json({ ok: true, ...meta, pageText: pages[0]?.text || '' });
   }
 
   if (action === 'page') {
@@ -169,4 +216,13 @@ function bufToBase64(buf) {
     bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
   }
   return btoa(bin);
+}
+
+function parseImageDataUrl(dataUrl) {
+  const match = /^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/i.exec(dataUrl);
+  if (!match) return null;
+  const bin = atob(match[2]);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return { mime: match[1].toLowerCase(), bytes: bytes.buffer };
 }

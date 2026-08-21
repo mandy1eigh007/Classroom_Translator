@@ -30,10 +30,31 @@
   background:rgba(1,12,22,.74) !important; color:#f5f7f4 !important; border:1px solid rgba(119,239,250,.82) !important; border-radius:3px !important;
   box-shadow:inset 0 1px 0 rgba(203,255,255,.18),inset 0 -2px 0 rgba(0,15,26,.64) !important;
 }
+.teach-body #student-url, .teach-body #kids-url {
+  background:rgba(1,12,22,.88) !important;
+  color:#eafffb !important;
+  border:1px solid rgba(119,239,250,.92) !important;
+  box-shadow:inset 0 1px 0 rgba(203,255,255,.18),0 0 0 1px rgba(0,215,242,.15) !important;
+}
 .teach-body .btn-primary, .dispatch-body .btn-primary, .dispatch-body .resp-got { background:#f5f7f4 !important; color:#071112 !important; }
 .dispatch-body .resp-otw, .dispatch-body .resp-help, .dispatch-body .worker-row.selected { background:#fb694a !important; color:#071112 !important; }
 .teach-body .card-title, .dispatch-body .card-title, .dispatch-body .worker-name, .dispatch-body .dispatch-msg .msg-text { color:#f5f7f4 !important; text-transform:uppercase; }
 .teach-body .section-label, .dispatch-body .section-label, .dispatch-body .worker-lang, .dispatch-body .worker-resp, .dispatch-body .dispatch-msg .msg-en { color:rgba(220,249,250,.68) !important; }
+.teach-body #msg-feed .utter, .teach-body #recent-feed .utter { color:#f5f7f4 !important; }
+.teach-body #msg-feed .utter .tr, .teach-body #recent-feed .utter .tr {
+  color:#f5f7f4 !important;
+  font-weight:650 !important;
+  text-shadow:0 1px 0 rgba(0,0,0,.65);
+}
+.teach-body #msg-feed .utter:not(.latest) .tr, .teach-body #recent-feed .utter:not(.latest) .tr {
+  color:#eefdfc !important;
+}
+.teach-body #msg-feed .utter [style*="var(--muted)"],
+.teach-body #recent-feed .utter [style*="var(--muted)"],
+.teach-body #msg-feed .utter .en,
+.teach-body #recent-feed .utter .en {
+  color:rgba(225,248,249,.82) !important;
+}
 .teach-body .card-title::after, .dispatch-body .card-title::after { content:""; display:block; width:86px; height:3px; margin:10px auto 0; background:linear-gradient(90deg,#13d6d1,#c6ee35); }
 .teach-body #auth-gate {
   background:linear-gradient(142deg,rgba(20,48,69,.78),rgba(5,17,30,.91) 57%,rgba(3,12,23,.95)) !important;

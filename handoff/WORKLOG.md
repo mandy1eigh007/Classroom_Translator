@@ -32,3 +32,10 @@ Summary: Adjusted video mining so high-confidence trade-language candidates can 
 Files: functions/api/_video_mining.js, functions/api/_youtube.js, public/admin.html, tests/video-mining.test.mjs, handoff/WORKLOG.md, handoff/DECISIONS.md
 Validation: `npm run test:mining`, `npm run build`, and `git diff --check` passed.
 Notes: Live database backfill was already completed separately: 65 active mined phrases and 302 review items.
+
+Date: 2026-08-21
+Owner: Codex
+Summary: Restored PDF sharing in the live instructor document flow and raised contrast for instructor share links, learner messages, and recently sent message text.
+Files: functions/api/document.js, public/teach.html, public/site-rollout.css, handoff/WORKLOG.md
+Validation: `node --check functions/api/document.js`, browser QA for PDF prep + mobile contrast, `npm run build`, and `git diff --check` passed.
+Notes: PDF pages are prepared client-side with PDF.js, then stored through the existing Cloudflare document API. DOCX/PPTX still need export to PDF first.
