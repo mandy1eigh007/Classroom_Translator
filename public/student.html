@@ -543,6 +543,7 @@
         <button id="notes-btn" class="retro-btn px-4 py-2 text-sm" style="background:var(--teal); color:var(--paper);" data-i18n="notes_btn">Generate notes</button>
         <button id="notes-copy" class="chipbtn hidden" data-i18n="notes_copy">Copy</button>
         <button id="notes-share" class="chipbtn hidden" data-i18n="notes_share">Share</button>
+        <button id="notes-save" class="chipbtn hidden">Save</button>
         <button id="notes-listen" class="chipbtn hidden" data-i18n="notes_listen">Listen</button>
         <span id="notes-status" class="text-xs" style="color:var(--ink2);"></span>
       </div>
@@ -1144,9 +1145,10 @@ function handleIncoming(msg) {
 // ---------- polling (replaces SSE) ----------
 let pollTimer = null;
 let lastTimestamp = 0;
-let lastState = { epoch: 0, videoV: -1, docV: -1, replyV: 0 };
+let lastState = { epoch: 0, videoV: -1, docV: -1, replyV: 0, notesV: 0 };
 let lastHeartbeat = 0;
 let ended = false;
+let seenNotesV = 0;
 
 function startPolling() {
   stopPolling();
@@ -1183,6 +1185,7 @@ async function pollOnce() {
     if (lastState.epoch && st.epoch !== lastState.epoch) {
       clearFeed(); heldQueue.length = 0; isHeld = false; updateHoldUI(); latestUtter = null;
       lastTimestamp = 0;
+      seenNotesV = 0;
       const note = document.createElement('div');
       note.className = 'utter';
       note.innerHTML = '<div class="tr" style="color:var(--ink2);font-style:italic;font-size:14px;"></div>';
@@ -1198,7 +1201,8 @@ async function pollOnce() {
     if (Array.isArray(data.replies)) for (const rp of data.replies) showReply(rp);
     if (st.videoV !== lastState.videoV) refreshVideo();
     if (st.docV !== lastState.docV) refreshDoc();
-    lastState = { epoch: st.epoch || 0, videoV: st.videoV, docV: st.docV, replyV: st.replyV || 0 };
+    if (data.notes && st.notesV && st.notesV !== seenNotesV) showNotesNotice(data.notes, st.notesV);
+    lastState = { epoch: st.epoch || 0, videoV: st.videoV, docV: st.docV, replyV: st.replyV || 0, notesV: st.notesV || 0 };
   } catch (_) { setStatus('err'); /* network blip — keep trying */ }
   pollBusy = false;
 }
@@ -1241,6 +1245,24 @@ function showReply(rp) {
   inbox.appendChild(el);
   while (inbox.children.length > 5) inbox.removeChild(inbox.firstChild);
   if (ttsOn && rp.tr) speak(rp.tr);
+}
+
+function showNotesNotice(note, version) {
+  seenNotesV = version;
+  const inbox = $('reply-inbox');
+  inbox.classList.remove('hidden'); inbox.classList.add('flex');
+  const el = document.createElement('div');
+  el.className = 'utter';
+  el.style.borderLeft = '5px solid var(--mustard)';
+  el.innerHTML = '<div class="en"></div><div class="tr" style="font-size:16px;color:var(--ink);"></div><div class="mt-2 flex gap-2"><button class="chipbtn notes-open">Open study notes</button></div>';
+  el.querySelector('.en').textContent = t('teacher_label') + ' · ' + new Date(note.ts || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  el.querySelector('.tr').textContent = note.title || 'Teacher posted study notes';
+  el.querySelector('.notes-open').addEventListener('click', () => {
+    $('screen-study').classList.remove('hidden');
+    if (!notesText) generateNotes('');
+  });
+  inbox.appendChild(el);
+  while (inbox.children.length > 5) inbox.removeChild(inbox.firstChild);
 }
 
 // ---------- confused / got it ----------
@@ -1450,6 +1472,7 @@ async function generateNotes(topic) {
       $('notes-out').textContent = notesText;
       $('notes-copy').classList.remove('hidden');
       if (navigator.share) $('notes-share').classList.remove('hidden');
+      $('notes-save').classList.remove('hidden');
       $('notes-listen').classList.remove('hidden');
       $('notes-btn').textContent = t('notes_regen');
       $('notes-status').textContent = '';
@@ -1502,6 +1525,16 @@ $('notes-copy').addEventListener('click', async () => {
 $('notes-share').addEventListener('click', async () => {
   if (!notesText || !navigator.share) return;
   try { await navigator.share({ title: 'Class notes', text: notesText }); } catch (_) {}
+});
+$('notes-save').addEventListener('click', () => {
+  if (!notesText) return;
+  const blob = new Blob([notesText], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'class-notes-' + (currentLang || 'notes').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
 });
 let notesSpeaking = false;
 $('notes-listen').addEventListener('click', () => {
@@ -1717,7 +1750,7 @@ feed.addEventListener('click', (e) => {
   if (word) openDefine(word);
 });
 function openDefine(word) {
-  if (!currentLang || currentLang === 'English') return;
+  if (!currentLang) return;
   currentDefine = null;
   $('define-word').textContent = word;
   $('define-tr').textContent = '…';

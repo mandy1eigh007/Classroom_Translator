@@ -39,3 +39,10 @@ Summary: Restored PDF sharing in the live instructor document flow and raised co
 Files: functions/api/document.js, public/teach.html, public/site-rollout.css, handoff/WORKLOG.md
 Validation: `node --check functions/api/document.js`, browser QA for PDF prep + mobile contrast, `npm run build`, and `git diff --check` passed.
 Notes: PDF pages are prepared client-side with PDF.js, then stored through the existing Cloudflare document API. DOCX/PPTX still need export to PDF first.
+
+Date: 2026-08-21
+Owner: Codex
+Summary: Fixed English-mode study tools and added a teacher-to-learner study-notes notice flow.
+Files: functions/api/_lib.js, functions/api/define.js, functions/api/notes.js, functions/api/poll.js, functions/api/session.js, functions/api/studysheet.js, public/student.html, public/teach.html, handoff/WORKLOG.md
+Validation: `node --check` on changed API functions, mocked notes publish/poll cycle, static Playwright visual checks for teacher/student study controls, `npm run build`, and `git diff --check` passed.
+Notes: English study sheets and tap-to-define now stay in English. Teacher preview can send a learner notice; learners still generate localized notes from their Study panel and can copy/share/save/listen.

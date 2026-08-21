@@ -115,6 +115,7 @@ export async function getOrCreateSession(env) {
       videoV: 0,
       docV: 0,
       replyV: 0,
+      notesV: 0,
       startedAt: Date.now(),
     };
     await putSession(env, s);

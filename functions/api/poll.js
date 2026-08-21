@@ -12,7 +12,8 @@
 //     active: true|false,        // false => class ended / link stale
 //     messages: [{ id, ts, en, tr, err? }],
 //     replies:  [{ id, en, tr, ts }],       // teacher replies to THIS sid
-//     state: { epoch, videoV, docV, replyV, lastPublishTs }
+//     notes:    { ts, title } | null,
+//     state: { epoch, videoV, docV, replyV, notesV, lastPublishTs }
 //   }
 //
 // Clients poll every 2 seconds. Design notes:
@@ -64,8 +65,14 @@ export async function onRequest(context) {
     videoV: s.videoV,
     docV: s.docV,
     replyV: s.replyV,
+    notesV: s.notesV || 0,
     lastPublishTs: s.lastPublishTs || 0,
   };
+  let notes = null;
+  if (state.notesV) {
+    const published = await env.SESSION_KV.get('notes:published:' + s.code, 'json');
+    if (published) notes = { ts: published.ts || 0, title: published.title || 'Teacher posted study notes' };
+  }
 
   // New utterances?
   let messages = [];
@@ -108,5 +115,5 @@ export async function onRequest(context) {
     }))).filter(Boolean);
   }
 
-  return json({ active: true, messages, replies, state });
+  return json({ active: true, messages, replies, notes, state });
 }

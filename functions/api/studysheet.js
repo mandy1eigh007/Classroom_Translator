@@ -40,6 +40,7 @@ export async function onRequest(context) {
   }
 
   const clipped = transcript.length > 50000 ? transcript.slice(-50000) : transcript;
+  const sameLanguage = lang === 'English';
   try {
     const raw = await openaiChat(env, {
       model: 'gpt-4o-mini',
@@ -50,6 +51,9 @@ export async function onRequest(context) {
             `You build a vocabulary study sheet for an adult ESL learner in a pre-apprentice construction class. ` +
             `Given a raw English transcript of what the instructor said, pick 10-20 of the MOST USEFUL English terms or short phrases the student should learn (priority: tools, materials, jobsite verbs, safety terms, key processes). ` +
             `Skip generic vocabulary they already know (the, and, today). Skip filler. ` +
+            (sameLanguage
+              ? `The learner selected English. Every field must be written in English only. For tr, repeat the English term or use a plain-English equivalent. For defTr and exTr, use plain English; do not translate into any other language. `
+              : `Translate learner-language fields into ${lang}. `) +
             `Return ONLY a JSON object: {"items": [{"en": "...", "tr": "translation into ${lang}", "defEn": "short plain English definition (10-15 words)", "defTr": "that definition in ${lang}", "exEn": "one short example sentence in English using the word, jobsite-relevant", "exTr": "that example in ${lang}"}]}` +
             ` No markdown. No commentary.`,
         },
@@ -60,7 +64,15 @@ export async function onRequest(context) {
       response_format: { type: 'json_object' },
     }, 60000);
     let parsed; try { parsed = JSON.parse(raw); } catch (_) { parsed = { items: [] }; }
-    const items = Array.isArray(parsed.items) ? parsed.items.slice(0, 25) : [];
+    let items = Array.isArray(parsed.items) ? parsed.items.slice(0, 25) : [];
+    if (sameLanguage) {
+      items = items.map((it) => ({
+        ...it,
+        tr: it.en || it.tr || '',
+        defTr: it.defEn || it.defTr || '',
+        exTr: it.exEn || it.exTr || '',
+      }));
+    }
     return html(renderStudySheet(lang, items));
   } catch (_) {
     return plain('Could not generate study sheet.', 502);

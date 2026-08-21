@@ -10,7 +10,7 @@
 // Env vars: OPENAI_API_KEY.
 import {
   json, getOrCreateSession, LANG_CODES, openaiChat, readTranscript,
-  cooldownOk, clientIp, NOTES_PER_CLASS_CAP,
+  cooldownOk, clientIp, NOTES_PER_CLASS_CAP, checkTeacher, putSession,
 } from './_lib.js';
 
 export async function onRequest(context) {
@@ -21,6 +21,28 @@ export async function onRequest(context) {
   const room = String(body.c || '');
   if (lang !== 'English' && !LANG_CODES[lang]) return json({ error: 'Unsupported language' }, 400);
   if (!env.OPENAI_API_KEY) return json({ error: 'Notes are not available right now.' }, 503);
+
+  if (body.action === 'publish') {
+    const auth = await checkTeacher(context, body);
+    if (!auth.ok) return auth.response;
+    const notes = String(body.notes || '').trim().slice(0, 12000);
+    if (!notes) return json({ error: 'Missing notes.' }, 400);
+    const s = await getOrCreateSession(env);
+    if (room !== s.code) return json({ error: 'No active class.' }, 403);
+    const published = {
+      ts: Date.now(),
+      lang: 'English',
+      title: 'Teacher posted study notes',
+      notes,
+      coverage: body.coverage || null,
+    };
+    await env.SESSION_KV.put('notes:published:' + s.code, JSON.stringify(published), {
+      expirationTtl: 60 * 60 * 12,
+    });
+    s.notesV = (s.notesV || 0) + 1;
+    await putSession(env, s);
+    return json({ ok: true, notesV: s.notesV });
+  }
 
   // The topics scan uses its own cooldown key so picking a topic right after
   // doesn't trip the notes cooldown.

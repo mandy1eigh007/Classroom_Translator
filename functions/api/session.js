@@ -76,6 +76,7 @@ export async function onRequest(context) {
       videoV: s.videoV + 1,
       docV: s.docV + 1,
       replyV: s.replyV + 1,
+      notesV: (s.notesV || 0) + 1,
       startedAt: Date.now(),
       // The vocabulary mode is a teacher preference — keep it across classes.
       mode: s.mode || 'general',
@@ -88,6 +89,7 @@ export async function onRequest(context) {
       env.SESSION_KV.delete('video:state'),
       env.SESSION_KV.delete('video:cues'),
       env.SESSION_KV.delete('doc:meta'),
+      env.SESSION_KV.delete('notes:published:' + s.code),
     ]);
     return json({ code: next.code });
   }

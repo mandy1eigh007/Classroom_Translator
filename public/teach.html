@@ -202,6 +202,10 @@
               style="width:auto; padding:8px 14px;">
         Generate preview
       </button>
+      <button id="notes-publish-btn" class="btn" type="button"
+              style="display:none; width:auto; padding:8px 14px;">
+        Send to learners
+      </button>
     </div>
     <p class="hint" style="margin:0 0 8px;">
       See what AI study notes learners get for this class (in English, for QA).
@@ -411,7 +415,10 @@
   const notesPreviewStatus = document.getElementById('notes-preview-status');
   const notesPreviewOut = document.getElementById('notes-preview-out');
   const notesPreviewCoverage = document.getElementById('notes-preview-coverage');
+  const notesPublishBtn = document.getElementById('notes-publish-btn');
   let notesPreviewCooldown = 0;
+  let notesPreviewText = '';
+  let notesPreviewMeta = null;
   notesPreviewBtn.addEventListener('click', async () => {
     if (Date.now() < notesPreviewCooldown) return;
     notesPreviewCooldown = Date.now() + 20000;
@@ -425,13 +432,19 @@
       });
       const d = await r.json().catch(() => ({}));
       if (r.ok && d.empty) {
+        notesPreviewText = '';
+        notesPreviewMeta = null;
+        notesPublishBtn.style.display = 'none';
         notesPreviewOut.style.display = 'block';
         notesPreviewOut.textContent = 'No lesson content yet — start the class first.';
         notesPreviewStatus.textContent = '';
         notesPreviewCoverage.style.display = 'none';
       } else if (r.ok && d.notes) {
+        notesPreviewText = d.notes;
+        notesPreviewMeta = d.coverage || null;
         notesPreviewOut.style.display = 'block';
         notesPreviewOut.textContent = d.notes;
+        notesPublishBtn.style.display = 'inline-flex';
         notesPreviewStatus.textContent = '';
         if (d.coverage && d.coverage.count) {
           notesPreviewCoverage.style.display = 'block';
@@ -445,6 +458,31 @@
       notesPreviewStatus.textContent = 'Could not generate preview.';
     }
     setTimeout(() => { notesPreviewBtn.disabled = false; }, 2000);
+  });
+  notesPublishBtn.addEventListener('click', async () => {
+    if (!notesPreviewText) return;
+    notesPublishBtn.disabled = true;
+    notesPreviewStatus.textContent = 'Sending note notice to learners…';
+    try {
+      const r = await fetch('/api/notes', {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          action: 'publish',
+          c: currentClassCode,
+          lang: 'English',
+          notes: notesPreviewText,
+          coverage: notesPreviewMeta,
+        })
+      });
+      const d = await r.json().catch(() => ({}));
+      notesPreviewStatus.textContent = r.ok && d.ok
+        ? 'Learners will see a study-notes notice.'
+        : ((d && d.error) || 'Could not send notes notice.');
+    } catch (_) {
+      notesPreviewStatus.textContent = 'Could not send notes notice.';
+    }
+    setTimeout(() => { notesPublishBtn.disabled = false; }, 2000);
   });
 
   // ---------- share buttons + client-side QR ----------
