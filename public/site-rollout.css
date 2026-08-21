@@ -55,6 +55,26 @@
 .teach-body #recent-feed .utter .en {
   color:rgba(225,248,249,.82) !important;
 }
+.teach-body .panel-text,
+.teach-body .panel-text.filled,
+.teach-body #live-text,
+.teach-body #notes-preview-out,
+.teach-body #notes-preview-status,
+.teach-body #notes-preview-coverage,
+.teach-body [style*="color:var(--text)"],
+.teach-body [style*="color:var(--muted)"] {
+  color:#f5f7f4 !important;
+}
+.teach-body .hint,
+.teach-body #notes-preview-status,
+.teach-body #notes-preview-coverage {
+  color:rgba(225,248,249,.82) !important;
+}
+.teach-body #notes-preview-out,
+.teach-body #live-text {
+  background:rgba(1,12,22,.76) !important;
+  text-shadow:0 1px 0 rgba(0,0,0,.62);
+}
 .teach-body .card-title::after, .dispatch-body .card-title::after { content:""; display:block; width:86px; height:3px; margin:10px auto 0; background:linear-gradient(90deg,#13d6d1,#c6ee35); }
 .teach-body #auth-gate {
   background:linear-gradient(142deg,rgba(20,48,69,.78),rgba(5,17,30,.91) 57%,rgba(3,12,23,.95)) !important;

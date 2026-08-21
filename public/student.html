@@ -98,7 +98,7 @@
     body[data-fs="lg"] .utter.latest .tr { font-size: 36px; line-height: 1.3; }
     body[data-fs="xl"] .utter.latest .tr { font-size: 44px; line-height: 1.25; }
     body[data-fs="lg"] .utter .tr, body[data-fs="xl"] .utter .tr { font-size: 19px; }
-    .word { cursor: pointer; border-radius: 3px; }
+    .word { cursor: pointer; border-radius: 3px; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
     .word:active { background: rgba(194,54,46,0.2); }
     /* Big thumb buttons */
     .thumb-btn {
@@ -362,6 +362,7 @@
     #screen-live .utter .en { color:#9eb8bc !important; font-weight:500; }
     #screen-live .utter .tr { color:#f7f8f5 !important; font-weight:500; }
     #screen-live .utter.latest .tr { color:#f7f8f5 !important; font-weight:600; }
+    #screen-live .utter .word { color:#eafffb; text-decoration-color:#13d6d1; }
     #screen-live .utter.err { border-color:#ff6d4d; }
     #screen-live .utter.err::before { background:#ff6d4d; }
     .live-dock {
@@ -554,9 +555,9 @@
 
     <!-- Study sheet -->
     <section class="retro-card mb-4 p-4" style="box-shadow:6px 6px 0 var(--orange);">
-      <h3 class="display mb-1 text-lg" data-i18n="card_sheet">Study sheet</h3>
-      <p class="mb-3 text-sm" style="color:var(--ink2);" data-i18n="sheet_hint">Printable vocabulary list from today's class.</p>
-      <button id="sheet-btn" class="retro-btn px-4 py-2 text-sm" style="background:var(--orange); color:var(--paper);" data-i18n="sheet_btn">Open study sheet</button>
+      <h3 class="display mb-1 text-lg" data-i18n="card_sheet">Vocabulary sheet</h3>
+      <p class="mb-3 text-sm" style="color:var(--ink2);" data-i18n="sheet_hint">Printable vocabulary list from today's class. Notes are generated above.</p>
+      <button id="sheet-btn" class="retro-btn px-4 py-2 text-sm" style="background:var(--orange); color:var(--paper);" data-i18n="sheet_btn">Open vocab list</button>
     </section>
 
     <!-- Phrasebook -->
@@ -687,7 +688,7 @@ const UI_STRINGS = {
   notes_copied: 'Copied', notes_listen: 'Listen', notes_stop: 'Stop',
   notes_coverage: 'Summary of {count} sentences over {min} min',
   notes_final: 'Class ended — generate your final notes now, they expire in a few minutes.',
-  card_sheet: 'Study sheet', sheet_hint: "Printable vocabulary list from today's class.", sheet_btn: 'Open study sheet',
+  card_sheet: 'Vocabulary sheet', sheet_hint: "Printable vocabulary list from today's class. Notes are generated above.", sheet_btn: 'Open vocab list',
   card_pb: 'My phrasebook', pb_sync: 'Sync', pb_hint: 'Tap a word in class, then Save, to build your list.',
   pb_empty: 'Nothing saved yet. Tap any English word in the lesson to look it up and save it.',
   card_msg: 'Message the instructor', msg_hint: 'Write in your own language. The instructor sees it in English.',
@@ -1100,10 +1101,26 @@ function renderUtter(id, en, tr, isError) {
   }
   if (last < text.length) enEl.appendChild(document.createTextNode(text.slice(last)));
   const trEl = node.querySelector('.tr');
-  trEl.textContent = tr || '';
+  trEl.innerHTML = '';
+  if (currentLang === 'English') renderWordSpans(trEl, tr || '');
+  else trEl.textContent = tr || '';
   trEl.style.cursor = tr && !isError ? 'pointer' : '';
   trEl.onclick = tr && !isError ? () => speak(tr) : null;
   feed.scrollTop = 0;
+}
+
+function renderWordSpans(el, text) {
+  const re = /[A-Za-z][A-Za-z'\-]*/g;
+  let last = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) el.appendChild(document.createTextNode(text.slice(last, m.index)));
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = m[0];
+    el.appendChild(span);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
 }
 
 // ---------- hold ----------
@@ -1746,6 +1763,8 @@ let currentDefine = null;
 feed.addEventListener('click', (e) => {
   const w = e.target.closest('.word');
   if (!w) return;
+  e.preventDefault();
+  e.stopPropagation();
   const word = (w.textContent || '').trim();
   if (word) openDefine(word);
 });
@@ -1781,6 +1800,7 @@ $('define-listen-tr').addEventListener('click', () => speak(currentDefine?.tr ||
 $('define-save').addEventListener('click', () => {
   if (!currentDefine) return;
   pbAdd({ en: currentDefine.word, tr: currentDefine.tr, kind: 'word' });
+  renderPhrasebook();
   showToast('Saved ★');
 });
 

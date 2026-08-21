@@ -46,3 +46,10 @@ Summary: Fixed English-mode study tools and added a teacher-to-learner study-not
 Files: functions/api/_lib.js, functions/api/define.js, functions/api/notes.js, functions/api/poll.js, functions/api/session.js, functions/api/studysheet.js, public/student.html, public/teach.html, handoff/WORKLOG.md
 Validation: `node --check` on changed API functions, mocked notes publish/poll cycle, static Playwright visual checks for teacher/student study controls, `npm run build`, and `git diff --check` passed.
 Notes: English study sheets and tap-to-define now stay in English. Teacher preview can send a learner notice; learners still generate localized notes from their Study panel and can copy/share/save/listen.
+
+Date: 2026-08-21
+Owner: Codex
+Summary: Clarified the student vocabulary sheet label, made the readable English live line tappable for phrasebook saves, and removed dark text from instructor transcript/notes preview surfaces.
+Files: public/student.html, public/site-rollout.css, handoff/WORKLOG.md
+Validation: `npm run build`, `git diff --check`, and a Playwright behavior/style check for English word taps, phrasebook save, teacher live transcript color, and preview notes color passed.
+Notes: The printable study sheet remains a vocabulary sheet. Student notes are generated from the Class notes panel above it.
